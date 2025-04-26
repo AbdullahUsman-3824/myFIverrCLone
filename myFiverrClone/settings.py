@@ -37,9 +37,8 @@ EXTERNAL_APPS = [
     'accounts',
     'core',
     'gigs',
-    'messages',
     'orders',
-    'reviews',
+    'payments',
 ]
 INSTALLED_APPS += EXTERNAL_APPS
 
