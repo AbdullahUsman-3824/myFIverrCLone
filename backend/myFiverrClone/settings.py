@@ -26,10 +26,16 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',  # Required for allauth
 
     # Third-party apps
     'rest_framework',
     'corsheaders',
+    'rest_framework.authtoken',  # Required for dj-rest-auth
+    'dj_rest_auth',
+    'allauth',
+    'allauth.account',
+    'dj_rest_auth.registration',
 ]
 
 # Your created apps
@@ -49,6 +55,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -58,7 +65,7 @@ ROOT_URLCONF = 'myFiverrClone.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],  # Add templates directory
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -120,11 +127,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Django REST Framework settings
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.BasicAuthentication',
-        # You can later add JWT Authentication
-    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'dj_rest_auth.jwt_auth.JWTCookieAuthentication',
+    ),
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',  # Allow open APIs initially
     ],
@@ -136,4 +141,33 @@ REST_FRAMEWORK = {
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",  # Frontend local
     "http://127.0.0.1:3000",
+]
+
+# Authentication settings
+SITE_ID = 1
+
+REST_AUTH = {
+    'USE_JWT': True,
+    'JWT_AUTH_COOKIE': 'auth',
+    'JWT_AUTH_REFRESH_COOKIE': 'refresh-token',
+    'JWT_AUTH_HTTPONLY': False,
+}
+
+# Allauth settings
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_CONFIRM_EMAIL_ON_GET = True
+ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
+ACCOUNT_UNIQUE_EMAIL = True
+
+# Email settings (you'll need to configure these based on your email provider)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # For development
+
+# Additional settings 
+AUTH_USER_MODEL = 'accounts.UserProfile'  # Custom user model
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',  # Default
+    'allauth.account.auth_backends.AuthenticationBackend',  # If using allauth
 ]
