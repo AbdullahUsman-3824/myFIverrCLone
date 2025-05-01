@@ -141,7 +141,9 @@ REST_FRAMEWORK = {
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",  # Frontend local
     "http://127.0.0.1:3000",
+    "http://localhost:5173",  # Vite local
 ]
+CORS_ALLOW_CREDENTIALS = True
 
 # Authentication settings
 SITE_ID = 1
@@ -156,7 +158,7 @@ REST_AUTH = {
 # Allauth settings
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
-ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+ACCOUNT_EMAIL_VERIFICATION = 'none'
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True
 ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
@@ -166,7 +168,7 @@ ACCOUNT_UNIQUE_EMAIL = True
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # For development
 
 # Additional settings 
-AUTH_USER_MODEL = 'accounts.UserProfile'  # Custom user model
+AUTH_USER_MODEL = 'accounts.User'  # Custom user model
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',  # Default
     'allauth.account.auth_backends.AuthenticationBackend',  # If using allauth

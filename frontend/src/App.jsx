@@ -1,20 +1,18 @@
-import reactLogo from "./assets/react.svg";
-import djangoLogo from "./assets/django.svg";
-import "./App.css";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import AuthLayout from "./components/auth/AuthLayout";
+import LoginPage from "./pages/auth/LoginPage";
+import RegisterPage from "./pages/auth/RegisterPage";
 
 function App() {
   return (
-    <>
-      <div>
-        <a href="https://django.dev" target="_blank">
-          <img src={djangoLogo} className="logo" alt="django logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Django + React</h1>
-    </>
+    <Router>
+      <Routes>
+        <Route path="/auth" element={<AuthLayout />}>
+          <Route path="login" element={<LoginPage />} />
+          <Route path="register" element={<RegisterPage />} />
+        </Route>
+      </Routes>
+    </Router>
   );
 }
 
