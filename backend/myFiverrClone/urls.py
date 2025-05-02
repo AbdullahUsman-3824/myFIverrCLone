@@ -11,7 +11,7 @@ urlpatterns = [
     path('api/auth/registration/', include('dj_rest_auth.registration.urls')),
 
     # Include account URLs for frontend rendering
-    path('account/', include('accounts.urls')),  # Account views (login, register)
+    path('api/accounts/', include('accounts.urls')),  # Account views (login, register)
 
     # Your app URLs
     path('api/core/', include('core.urls')),
