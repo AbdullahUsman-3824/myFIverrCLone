@@ -36,6 +36,8 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'corsheaders',
+    
+    'drf_spectacular',
 ]
 
 # Your created apps
@@ -135,6 +137,7 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10,
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',    
 }
 
 # CORS settings
