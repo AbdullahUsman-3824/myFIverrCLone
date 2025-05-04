@@ -56,8 +56,6 @@ class PortfolioItem(models.Model):
     description = models.TextField(verbose_name="Description")
     url_link = models.URLField(max_length=500, blank=True, null=True, verbose_name="URL Link")
     media_file = models.FileField(upload_to='portfolio_media/', verbose_name="Media File")
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = "Portfolio Item"

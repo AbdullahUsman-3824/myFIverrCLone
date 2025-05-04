@@ -1,25 +1,26 @@
 // Navbar.jsx
-import React, { useEffect, useState } from 'react';
-import FiverrLogo from './auth/FiverrLogo';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { IoSearchOutline } from 'react-icons/io5';
-import { useCookies } from 'react-cookie';
-import axios from 'axios';
-import { GET_USER_INFO, HOST } from '../utils/constants';
-import ContextMenu from './auth/ContextMenu';
-import { useStateProvider } from '../context/statecontext';
-import { reducerCases } from '../context/constants';
+import React, { useEffect, useState } from "react";
+import FiverrLogo from "./auth/FiverrLogo";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { IoSearchOutline } from "react-icons/io5";
+import { useCookies } from "react-cookie";
+import axios from "axios";
+import { GET_USER_INFO, HOST } from "../utils/constants";
+import ContextMenu from "./auth/ContextMenu";
+import { useStateProvider } from "../context/statecontext";
+import { reducerCases } from "../context/constants";
 
 function Navbar() {
   const [cookies] = useCookies();
   const navigate = useNavigate();
   const location = useLocation();
   const [navFixed, setNavFixed] = useState(false);
-  const [searchData, setSearchData] = useState('');
+  const [searchData, setSearchData] = useState("");
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Use the custom useStateProvider hook to access the state and dispatch
-  const [{ showLoginModal, showSignupModal, isSeller, userInfo }, dispatch] = useStateProvider();
+  const [{ showLoginModal, showSignupModal, isSeller, userInfo }, dispatch] =
+    useStateProvider();
 
   const handleLogin = () => {
     if (showSignupModal) {
@@ -48,38 +49,38 @@ function Navbar() {
   };
 
   const links = [
-    { linkName: 'Fiverr Business', handler: '#', type: 'link' },
-    { linkName: 'Explore', handler: '#', type: 'link' },
-    { linkName: 'English', handler: '#', type: 'link' },
-    { linkName: 'Become a Seller', handler: '#', type: 'link' },
-    { linkName: 'Sign in', handler: handleLogin, type: 'button' },
-    { linkName: 'Join', handler: handleSignup, type: 'button2' },
+    { linkName: "Fiverr Business", handler: "#", type: "link" },
+    { linkName: "Explore", handler: "#", type: "link" },
+    { linkName: "English", handler: "#", type: "link" },
+    { linkName: "Become a Seller", handler: "#", type: "link" },
+    { linkName: "Sign in", handler: handleLogin, type: "button" },
+    { linkName: "Join", handler: handleSignup, type: "button2" },
   ];
 
   useEffect(() => {
-    if (location.pathname === '/') {
+    if (location.pathname === "/") {
       const positionNavbar = () => {
         window.pageYOffset > 0 ? setNavFixed(true) : setNavFixed(false);
       };
-      window.addEventListener('scroll', positionNavbar);
-      return () => window.removeEventListener('scroll', positionNavbar);
+      window.addEventListener("scroll", positionNavbar);
+      return () => window.removeEventListener("scroll", positionNavbar);
     } else {
       setNavFixed(true);
     }
   }, [location.pathname]);
 
   const handleOrdersNavigate = () => {
-    if (isSeller) navigate('/seller/orders');
-    navigate('/buyer/orders');
+    if (isSeller) navigate("/seller/orders");
+    navigate("/buyer/orders");
   };
 
   const handleModeSwitch = () => {
     if (isSeller) {
       dispatch({ type: reducerCases.SWITCH_MODE });
-      navigate('/buyer/orders');
+      navigate("/buyer/orders");
     } else {
       dispatch({ type: reducerCases.SWITCH_MODE });
-      navigate('/seller');
+      navigate("/seller");
     }
   };
 
@@ -87,7 +88,9 @@ function Navbar() {
     if (cookies.jwt && !userInfo) {
       const getUserInfo = async () => {
         try {
-          const { data: { user } } = await axios.post(
+          const {
+            data: { user },
+          } = await axios.post(
             GET_USER_INFO,
             {},
             {
@@ -102,7 +105,7 @@ function Navbar() {
           if (user.image) {
             projectedUserInfo = {
               ...projectedUserInfo,
-              imageName: HOST + '/' + user.image,
+              imageName: HOST + "/" + user.image,
             };
           }
           delete projectedUserInfo.image;
@@ -113,7 +116,7 @@ function Navbar() {
           setIsLoaded(true);
           console.log({ user });
           if (user.isProfileSet === false) {
-            navigate('/profile');
+            navigate("/profile");
           }
         } catch (err) {
           console.log(err);
@@ -134,28 +137,28 @@ function Navbar() {
       if (isContextMenuVisible) setIsContextMenuVisible(false);
     };
     if (isContextMenuVisible) {
-      window.addEventListener('click', clickListener);
+      window.addEventListener("click", clickListener);
     }
     return () => {
-      window.removeEventListener('click', clickListener);
+      window.removeEventListener("click", clickListener);
     };
   }, [isContextMenuVisible]);
 
   const ContextMenuData = [
     {
-      name: 'Profile',
+      name: "Profile",
       callback: (e) => {
         e.stopPropagation();
         setIsContextMenuVisible(false);
-        navigate('/profile');
+        navigate("/profile");
       },
     },
     {
-      name: 'Logout',
+      name: "Logout",
       callback: (e) => {
         e.stopPropagation();
         setIsContextMenuVisible(false);
-        navigate('/logout');
+        navigate("/logout");
       },
     },
   ];
@@ -165,15 +168,22 @@ function Navbar() {
       {isLoaded && (
         <nav
           className={`w-full px-24 flex justify-between items-center py-6 top-0 z-30 transition-all duration-300 ${
-            navFixed || userInfo ? 'fixed bg-white border-b border-gray-200' : 'absolute bg-transparent border-transparent'
+            navFixed || userInfo
+              ? "fixed bg-white border-b border-gray-200"
+              : "absolute bg-transparent border-transparent"
           }`}
         >
-          <div>
-            <Link to="/">
-              <FiverrLogo fillColor={!navFixed && !userInfo ? '#ffffff' : '#404145'} />
+          <div class="text-[34px] font-bold">
+            <Link className="link " to="/">
+              <span className="text text-black">workerr</span>
             </Link>
+            <span className="dot text-[#1dbf73]">.</span>
           </div>
-          <div className={`flex ${navFixed || userInfo ? 'opacity-100' : 'opacity-0'}`}>
+          <div
+            className={`flex ${
+              navFixed || userInfo ? "opacity-100" : "opacity-0"
+            }`}
+          >
             <input
               type="text"
               placeholder="What service are you looking for today?"
@@ -184,7 +194,7 @@ function Navbar() {
             <button
               className="bg-gray-900 py-1.5 text-white w-16 flex justify-center items-center"
               onClick={() => {
-                setSearchData('');
+                setSearchData("");
                 navigate(`/search?q=${searchData}`);
               }}
             >
@@ -195,14 +205,23 @@ function Navbar() {
             <ul className="flex gap-10 items-center">
               {links.map(({ linkName, handler, type }) => {
                 return (
-                  <li key={linkName} className={`${navFixed ? 'text-black' : 'text-white'} font-medium`}>
-                    {type === 'link' && <Link to={handler}>{linkName}</Link>}
-                    {type === 'button' && <button onClick={handler}>{linkName}</button>}
-                    {type === 'button2' && (
+                  <li
+                    key={linkName}
+                    className={`${
+                      navFixed ? "text-black" : "text-white"
+                    } font-medium`}
+                  >
+                    {type === "link" && <Link to={handler}>{linkName}</Link>}
+                    {type === "button" && (
+                      <button onClick={handler}>{linkName}</button>
+                    )}
+                    {type === "button2" && (
                       <button
                         onClick={handler}
                         className={`border text-md font-semibold py-1 px-3 rounded-sm ${
-                          navFixed ? 'border-[#1DBF73] text-[#1DBF73]' : 'border-white text-white'
+                          navFixed
+                            ? "border-[#1DBF73] text-[#1DBF73]"
+                            : "border-white text-white"
                         } hover:bg-[#1DBF73] hover:text-white hover:border-[#1DBF73] transition-all duration-500`}
                       >
                         {linkName}
@@ -215,20 +234,32 @@ function Navbar() {
           ) : (
             <ul className="flex gap-10 items-center">
               {isSeller && (
-                <li className="cursor-pointer text-[#1DBF73] font-medium" onClick={() => navigate('/seller/gigs/create')}>
+                <li
+                  className="cursor-pointer text-[#1DBF73] font-medium"
+                  onClick={() => navigate("/seller/gigs/create")}
+                >
                   Create Gig
                 </li>
               )}
-              <li className="cursor-pointer text-[#1DBF73] font-medium" onClick={handleOrdersNavigate}>
+              <li
+                className="cursor-pointer text-[#1DBF73] font-medium"
+                onClick={handleOrdersNavigate}
+              >
                 Orders
               </li>
 
               {isSeller ? (
-                <li className="cursor-pointer font-medium" onClick={handleModeSwitch}>
+                <li
+                  className="cursor-pointer font-medium"
+                  onClick={handleModeSwitch}
+                >
                   Switch To Buyer
                 </li>
               ) : (
-                <li className="cursor-pointer font-medium" onClick={handleModeSwitch}>
+                <li
+                  className="cursor-pointer font-medium"
+                  onClick={handleModeSwitch}
+                >
                   Switch To Seller
                 </li>
               )}
@@ -251,7 +282,9 @@ function Navbar() {
                 ) : (
                   <div className="bg-purple-500 h-10 w-10 flex items-center justify-center rounded-full relative">
                     <span className="text-xl text-white">
-                      {userInfo && userInfo?.email && userInfo?.email.split('')[0].toUpperCase()}
+                      {userInfo &&
+                        userInfo?.email &&
+                        userInfo?.email.split("")[0].toUpperCase()}
                     </span>
                   </div>
                 )}
