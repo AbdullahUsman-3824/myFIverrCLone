@@ -1,4 +1,3 @@
-// Navbar.jsx
 import React, { useEffect, useState } from 'react';
 import FiverrLogo from './auth/FiverrLogo';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
