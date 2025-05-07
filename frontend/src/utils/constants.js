@@ -1,4 +1,4 @@
-export const HOST = import.meta.env.VITE_SERVER_URL;
+export const HOST = "http://127.0.0.1:8000";
 export const API_URL = `${HOST}/api`;
 export const IMAGES_URL = `${HOST}/uploads`;
 
@@ -8,10 +8,10 @@ export const ORDERS_ROUTES = `${API_URL}/orders`;
 export const MESSAGES_ROUTES = `${API_URL}/messages`;
 export const DASHBOARD_DATA_ROUTES = `${API_URL}/dashboard`;
 
-export const LOGIN_ROUTE = `${AUTH_ROUTES}/login`;
-export const SIGNUP_ROUTE = `${AUTH_ROUTES}/signup`;
+export const LOGIN_ROUTE = `${AUTH_ROUTES}/login/`;
+export const SIGNUP_ROUTE = `${AUTH_ROUTES}/registration/`;
 export const SOCIAL_LOGIN_ROUTE = `${AUTH_ROUTES}/social-login`;
-export const GET_USER_INFO = `${AUTH_ROUTES}/get-user-info`;
+export const GET_USER_INFO = `${AUTH_ROUTES}/user/`;
 export const SET_USER_INFO = `${AUTH_ROUTES}/set-user-info`;
 export const SET_USER_IMAGE = `${AUTH_ROUTES}/set-user-image`;
 

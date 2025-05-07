@@ -7,8 +7,8 @@ import {
   FiLinkedin,
   FiTwitter,
 } from "react-icons/fi";
-import FiverrLogo from "./auth/FiverrLogo";
-import { categories } from "../utils/categories";
+import FiverrLogo from "../auth/FiverrLogo";
+import { categories } from "../../utils/categories";
 
 function Footer() {
   const socialLinks = [
@@ -123,7 +123,9 @@ function Footer() {
               key={name}
               className="text-xl text-[#404145] hover:text-[#1DBF73] transition-all"
             >
-              <a href={link} target="_blank" rel="noopener noreferrer">{icon}</a>
+              <a href={link} target="_blank" rel="noopener noreferrer">
+                {icon}
+              </a>
             </li>
           ))}
         </ul>

@@ -27,44 +27,21 @@ class CustomLoginSerializer(LoginSerializer):
 # ================
 # Custom Register
 # ================
-class CustomRegisterSerializer(RegisterSerializer):
-    first_name = serializers.CharField(required=True)
-    last_name = serializers.CharField(required=True)
-    is_buyer = serializers.BooleanField(default=True)
-    is_seller = serializers.BooleanField(default=False)
-
-    class Meta:
-        model = User
-        fields = (
-            'email', 'username', 'password1', 'password2',
-            'first_name', 'last_name', 'is_buyer', 'is_seller',
-        )
-
-    def validate_password1(self, value):
-        validate_password(value)
-        return value
+class BasicRegisterSerializer(RegisterSerializer):
+    # Remove all fields except email and passwords
+    first_name = None
+    last_name = None
+    username = None
+    
+    def validate_password1(self, password):
+        validate_password(password)
+        return password
 
     def get_cleaned_data(self):
-        data = super().get_cleaned_data()
-        data['first_name'] = self.validated_data.get('first_name', '')
-        data['last_name'] = self.validated_data.get('last_name', '')
-        data['is_buyer'] = self.validated_data.get('is_buyer', True)
-        data['is_seller'] = self.validated_data.get('is_seller', False)
-        return data
-
-    def save(self, request):
-        user = super().save(request)
-        user.first_name = self.cleaned_data.get('first_name')
-        user.last_name = self.cleaned_data.get('last_name')
-        user.is_buyer = self.cleaned_data.get('is_buyer')
-        user.is_seller = self.cleaned_data.get('is_seller')
-        user.current_role = 'buyer' if user.is_buyer else 'seller'
-        user.save()
-
-        # Create empty profile
-        UserProfile.objects.create(user=user)
-        return user
-
+        return {
+            'email': self.validated_data.get('email', ''),
+            'password1': self.validated_data.get('password1', ''),
+        }
 
 # ===================
 # Custom UserDetails
@@ -73,14 +50,28 @@ class CustomUserDetailsSerializer(UserDetailsSerializer):
     profile_id = serializers.IntegerField(source='profile.id', read_only=True)
     is_buyer = serializers.BooleanField(read_only=True)
     is_seller = serializers.BooleanField(read_only=True)
-    current_role = serializers.CharField(read_only=True)
-    profile_complete = serializers.BooleanField(source='profile.profile_complete', read_only=True)
+    # current_role = serializers.CharField(read_only=True)
+    # profile_complete = serializers.BooleanField(source='profile.profile_complete', read_only=True)
 
     class Meta(UserDetailsSerializer.Meta):
         fields = UserDetailsSerializer.Meta.fields + (
             'profile_id', 'is_buyer', 'is_seller', 
-            'current_role', 'profile_complete'
+            'current_role'
         )
         
     def get_profile_id(self, obj):
         return obj.profile.id if hasattr(obj, 'profile') else None
+    
+    def update(self, instance, validated_data):
+        instance.first_name = validated_data.get('first_name')
+        instance.last_name = validated_data.get('last_name')
+        instance.is_buyer = validated_data.get('is_buyer', True)
+        instance.is_seller = validated_data.get('is_seller', False)
+        instance.current_role = 'buyer' if instance.is_buyer else 'seller'
+        instance.save()
+        
+        # Create profile if it doesn't exist
+        if not hasattr(instance, 'userprofile'):
+            UserProfile.objects.create(user=instance)
+            
+        return instance

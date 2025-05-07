@@ -147,6 +147,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",  # Vite local
 ]
 CORS_ALLOW_CREDENTIALS = True
+SESSION_COOKIE_SAMESITE = None 
+SESSION_COOKIE_SECURE = True
 
 # Authentication settings
 SITE_ID = 1
@@ -161,7 +163,7 @@ REST_AUTH = {
     'JWT_AUTH_HTTPONLY': False,
     'LOGIN_SERIALIZER': 'accounts.serializers.auth_serializers.CustomLoginSerializer',
     'USER_DETAILS_SERIALIZER': 'accounts.serializers.auth_serializers.CustomUserDetailsSerializer',
-    'REGISTER_SERIALIZER': 'accounts.serializers.auth_serializers.CustomRegisterSerializer',
+    'REGISTER_SERIALIZER': 'accounts.serializers.auth_serializers.BasicRegisterSerializer',
 }
 
 # Allauth settings

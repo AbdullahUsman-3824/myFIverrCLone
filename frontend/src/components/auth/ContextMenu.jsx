@@ -3,7 +3,7 @@ import React from "react";
 function ContextMenu({ data }) {
   return (
     <div
-      className={`z-10  bg-white divide-y divide-gray-100  shadow-2xl border w-44 dark:bg-gray-700
+      className={`z-10 bg-white divide-y divide-gray-100 shadow-2xl border w-44 dark:bg-gray-700
       fixed right-5 top-20 
       `}
     >
