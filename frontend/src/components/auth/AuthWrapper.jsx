@@ -10,7 +10,7 @@ import { useStateProvider } from "../../context/StateContext";
 import { reducerCases } from "../../context/constants";
 
 function AuthWrapper({ type }) {
-  const [cookies, setCookie] = useCookies(["jwt"]);
+  const [cookies, setCookie] = useCookies(["JWT"]);
   const [state, dispatch] = useStateProvider();
   const navigate = useNavigate();
   const emailInputRef = useRef(null);
@@ -59,7 +59,7 @@ function AuthWrapper({ type }) {
 
   // Redirect if already logged in
   useEffect(() => {
-    if (cookies.jwt) {
+    if (cookies.JWT) {
       closeModal();
       navigate("/dashboard");
     }
@@ -143,7 +143,7 @@ function AuthWrapper({ type }) {
       });
 
       // Set secure HTTP-only cookie
-      setCookie("jwt", data.access, {
+      setCookie("JWT", data.access, {
         path: "/",
         secure: process.env.NODE_ENV === "production",
         sameSite: "strict",
@@ -378,6 +378,5 @@ const AuthDivider = () => (
 const Spinner = () => (
   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
 );
-
 
 export default AuthWrapper;

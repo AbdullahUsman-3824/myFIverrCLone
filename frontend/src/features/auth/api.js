@@ -24,6 +24,6 @@ export const axiosInstance = axios.create({
   baseURL: API_URL,
   withCredentials: true,
   headers: {
-    "Content-Type": "application/json",
+    Authorization: `Bearer ${cookies.jwt}`,
   },
 });

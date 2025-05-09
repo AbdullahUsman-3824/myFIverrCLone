@@ -127,9 +127,18 @@ MEDIA_ROOT = BASE_DIR / "media"
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Authentication settings
+AUTH_USER_MODEL = 'accounts.User'  # Custom user model
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',  # Default
+    'allauth.account.auth_backends.AuthenticationBackend',  # For allauth
+]
+
 # Django REST Framework settings
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',  # Uses Bearer
         'dj_rest_auth.jwt_auth.JWTCookieAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': [
@@ -140,33 +149,26 @@ REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',    
 }
 
-# CORS settings
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",  # Frontend local
-    "http://127.0.0.1:3000",
-    "http://localhost:5173",  # Vite local
-]
-CORS_ALLOW_CREDENTIALS = True
-SESSION_COOKIE_SAMESITE = None 
-SESSION_COOKIE_SECURE = True
+# JWT Settings
+SIMPLE_JWT = {
+    'AUTH_HEADER_TYPES': ('Bearer',),  # Explicitly set to Bearer
+    'TOKEN_OBTAIN_SERIALIZER': 'dj_rest_auth.serializers.JWTSerializer',
+}
 
-# Authentication settings
-SITE_ID = 1
-
-# Set default domain (optional but good practice)
-DEFAULT_DOMAIN = 'workerr.com'
-
+# REST Auth Settings
 REST_AUTH = {
     'USE_JWT': True,
-    'JWT_AUTH_COOKIE': 'auth',
-    'JWT_AUTH_REFRESH_COOKIE': 'refresh-token',
+    'JWT_AUTH_COOKIE': 'JWT',
+    'JWT_AUTH_REFRESH_COOKIE': 'jwt-refresh',
     'JWT_AUTH_HTTPONLY': False,
+    'JWT_AUTH_SAMESITE': 'None', 
+    'JWT_AUTH_SECURE': False, 
     'LOGIN_SERIALIZER': 'accounts.serializers.auth_serializers.CustomLoginSerializer',
     'USER_DETAILS_SERIALIZER': 'accounts.serializers.auth_serializers.CustomUserDetailsSerializer',
     'REGISTER_SERIALIZER': 'accounts.serializers.auth_serializers.BasicRegisterSerializer',
 }
 
-# Allauth settings
+# Allauth Settings
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_USERNAME_REQUIRED = False
@@ -175,12 +177,21 @@ ACCOUNT_EMAIL_VERIFICATION = 'optional'
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True
 ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
 
+# Cookie Settings
+SESSION_COOKIE_SAMESITE = None 
+SESSION_COOKIE_SECURE = True
+
+# CORS settings
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  # Frontend local
+    "http://127.0.0.1:3000",
+    "http://localhost:5173",  # Vite local
+]
+CORS_ALLOW_CREDENTIALS = True
+
+# Site settings
+SITE_ID = 1
+DEFAULT_DOMAIN = 'workerr.com'
+
 # Email settings (you'll need to configure these based on your email provider)
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # For development
-
-# Additional settings 
-AUTH_USER_MODEL = 'accounts.User'  # Custom user model
-AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend',  # Default
-    'allauth.account.auth_backends.AuthenticationBackend',  # If using allauth
-]

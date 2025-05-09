@@ -24,35 +24,40 @@ function Navbar() {
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Only fetch user data if we have a JWT and no user info
-  const shouldFetchUser = Boolean(cookies.jwt) && !userInfo;
+  const shouldFetchUser = Boolean(cookies.JWT) && !userInfo;
   const { user, loading, error } = useFetchUser(shouldFetchUser);
 
   useEffect(() => {
-    if (loading) {
-      setIsLoaded(false);
-      return;
-    }
+    const handleUserData = async () => {
+      if (loading) {
+        setIsLoaded(false);
+        return;
+      }
 
-    if (error) {
-      console.error("Failed to fetch user:", error);
+      if (shouldFetchUser && user && !userInfo) {
+        try {
+          let projectedUserInfo = { ...user };
+          if (user?.image) {
+            projectedUserInfo.imageName = `${HOST}/${user.image}`;
+          }
+          delete projectedUserInfo.image;
+          dispatch({
+            type: reducerCases.SET_USER,
+            userInfo: projectedUserInfo,
+          });
+
+          if (!user.isProfileSet) {
+            navigate("/profile");
+          }
+        } catch (err) {
+          console.error("Error processing user data:", err);
+        }
+      }
+
       setIsLoaded(true);
-      return;
-    }
+    };
 
-    if (shouldFetchUser && user && !userInfo) {
-      let projectedUserInfo = { ...user };
-      if (user?.image) {
-        projectedUserInfo.imageName = `${HOST}/${user.image}`;
-      }
-      delete projectedUserInfo.image;
-      dispatch({ type: reducerCases.SET_USER, userInfo: projectedUserInfo });
-
-      if (!user.isProfileSet) {
-        navigate("/profile");
-      }
-    }
-
-    setIsLoaded(true);
+    handleUserData();
   }, [shouldFetchUser, user, userInfo, loading, error, dispatch, navigate]);
 
   // Auth buttons
