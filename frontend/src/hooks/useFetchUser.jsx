@@ -1,10 +1,16 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useCookies } from "react-cookie";
 import axios from "axios";
 import { GET_USER_INFO, TOKEN_REFRESH } from "../utils/constants";
 import { useNavigate } from "react-router-dom";
+import { useStateProvider } from "../context/StateContext";
+import { reducerCases } from "../context/constants";
 
-// Configure axios instance with interceptors
+// Constants
+const MAX_REFRESH_ATTEMPTS = 5;
+const isDevelopment = process.env.NODE_ENV === "development";
+
+// Axios instance
 const api = axios.create({
   withCredentials: true,
   headers: {
@@ -13,13 +19,12 @@ const api = axios.create({
   },
 });
 
-// Add request interceptor to inject token
 api.interceptors.request.use((config) => {
   const token = document.cookie
     .split("; ")
-    .find((row) => row.startsWith("JWT="))
+    .find((row) => row.startsWith("jwt="))
     ?.split("=")[1];
-  
+
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -27,27 +32,48 @@ api.interceptors.request.use((config) => {
 });
 
 const useFetchUser = (shouldFetch = false) => {
-  const [cookies, setCookie, removeCookie] = useCookies(["JWT"]);
+  // State and hooks
+  const [state, dispatch] = useStateProvider();
+  const [cookies, setCookie, removeCookie] = useCookies(["jwt", "jwt-refresh"]);
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const refreshAttempts = useRef(0);
 
-  /**
-   * Clears all auth-related cookies
-   */
+  // Cookie handling
   const clearAuthCookies = useCallback(() => {
-    removeCookie("JWT", { path: "/" });
-    removeCookie("jwt-refresh", { path: "/" });
-    document.cookie = "JWT=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-    document.cookie = "jwt-refresh=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    const cookieOptions = {
+      path: "/",
+      secure: !isDevelopment,
+      sameSite: isDevelopment ? "lax" : "strict",
+    };
+
+    removeCookie("jwt", cookieOptions);
+    removeCookie("jwt-refresh", cookieOptions);
+
+    // Redundant cookie clearing
+    const expires = "Thu, 01 Jan 1970 00:00:00 UTC";
+    document.cookie = `jwt=; expires=${expires}; path=/; ${
+      !isDevelopment ? "secure;" : ""
+    } samesite=${cookieOptions.sameSite}`;
+    document.cookie = `jwt-refresh=; expires=${expires}; path=/; ${
+      !isDevelopment ? "secure;" : ""
+    } samesite=${cookieOptions.sameSite}`;
   }, [removeCookie]);
 
-  /**
-   * Refreshes the access token using the refresh token
-   */
+  // Token refresh
   const refreshAccessToken = useCallback(async () => {
+    if (refreshAttempts.current >= MAX_REFRESH_ATTEMPTS) {
+      console.warn("Max refresh attempts reached");
+      clearAuthCookies();
+      dispatch({ type: reducerCases.TOGGLE_LOGIN_MODAL, showLoginModal: true });
+      navigate("/", { state: { sessionExpired: true } });
+      return null;
+    }
+
     try {
+      refreshAttempts.current += 1;
       const response = await axios.post(
         TOKEN_REFRESH,
         {},
@@ -61,21 +87,25 @@ const useFetchUser = (shouldFetch = false) => {
       );
 
       if (response.data.access) {
-        setCookie("JWT", response.data.access, { path: "/" });
+        refreshAttempts.current = 0;
+        setCookie("jwt", response.data.access, {
+          path: "/",
+          secure: !isDevelopment,
+          sameSite: isDevelopment ? "lax" : "strict",
+        });
         return response.data.access;
       }
       return null;
     } catch (error) {
       console.error("Token refresh failed:", error);
       clearAuthCookies();
-      navigate("/login", { state: { sessionExpired: true } });
+      dispatch({ type: reducerCases.TOGGLE_LOGIN_MODAL, showLoginModal: true });
+      navigate("/", { state: { sessionExpired: true } });
       return null;
     }
-  }, [setCookie, clearAuthCookies, navigate]);
+  }, [setCookie, clearAuthCookies, dispatch, navigate]);
 
-  /**
-   * Fetches user data from the API
-   */
+  // User data fetching
   const fetchUserData = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -85,14 +115,14 @@ const useFetchUser = (shouldFetch = false) => {
       const userData = response.data;
 
       if (!userData) {
-        throw new Error("No user data received from server");
+        throw new Error("No user data received");
       }
 
       setUser(userData);
       return true;
     } catch (err) {
-      console.error("Error fetching user:", err);
-      
+      console.error("Fetch user error:", err);
+
       if (err.response?.status === 401) {
         const newToken = await refreshAccessToken();
         if (newToken) {
@@ -101,17 +131,23 @@ const useFetchUser = (shouldFetch = false) => {
             setUser(retryResponse.data);
             return true;
           } catch (retryError) {
-            console.error("Error after token refresh:", retryError);
+            console.error("Retry failed:", retryError);
+            setError(retryError.response?.data || retryError.message);
           }
         }
+      } else {
+        setError(err.response?.data || err.message || "Failed to fetch user");
       }
-
-      setError(err.response?.data || err.message || "Failed to fetch user");
       return false;
     } finally {
       setLoading(false);
     }
   }, [refreshAccessToken]);
+
+  // Effects
+  useEffect(() => {
+    refreshAttempts.current = 0;
+  }, []);
 
   useEffect(() => {
     if (shouldFetch) {
@@ -119,19 +155,12 @@ const useFetchUser = (shouldFetch = false) => {
     }
   }, [shouldFetch, fetchUserData]);
 
-  /**
-   * Manual refresh of user data
-   */
-  const refreshUserData = useCallback(async () => {
-    return await fetchUserData();
-  }, [fetchUserData]);
-
-  return { 
-    user, 
-    loading, 
-    error, 
-    refreshUserData,
-    clearAuthCookies
+  return {
+    user,
+    loading,
+    error,
+    refreshUserData: fetchUserData,
+    clearAuthCookies,
   };
 };
 

@@ -9,8 +9,40 @@ import { useNavigate } from "react-router-dom";
 import { useStateProvider } from "../../context/StateContext";
 import { reducerCases } from "../../context/constants";
 
+// Constants
+const isDevelopment = process.env.NODE_ENV === "development";
+
+// Extracted components (moved to top for better visibility)
+const SocialAuthButton = ({
+  icon: Icon,
+  text,
+  bgColor = "",
+  textColor = "",
+  border = "",
+}) => (
+  <button
+    type="button"
+    className={`${bgColor} ${textColor} ${border} p-3 font-medium flex items-center justify-center relative`}
+  >
+    <Icon className="absolute left-4 text-2xl" />
+    {text}
+  </button>
+);
+
+const AuthDivider = () => (
+  <div className="relative w-full text-center my-4">
+    <div className="border-t border-slate-300 w-full absolute top-1/2 left-0 transform -translate-y-1/2"></div>
+    <span className="bg-white relative z-10 px-2 text-sm">OR</span>
+  </div>
+);
+
+const Spinner = () => (
+  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+);
+
 function AuthWrapper({ type }) {
-  const [cookies, setCookie] = useCookies(["JWT"]);
+  // Hooks and state
+  const [cookies, setCookie, removeCookie] = useCookies(["jwt", "jwt-refresh"]);
   const [state, dispatch] = useStateProvider();
   const navigate = useNavigate();
   const emailInputRef = useRef(null);
@@ -29,13 +61,32 @@ function AuthWrapper({ type }) {
     general: "",
   });
 
-  // Auto-focus email input on mount
+  // Effects
   useEffect(() => {
     if (emailInputRef.current) {
       emailInputRef.current.focus();
     }
   }, []);
 
+  useEffect(() => {
+    if (cookies.jwt) {
+      closeModal();
+      navigate("/dashboard");
+    }
+  }, [cookies.jwt, navigate]);
+
+  useEffect(() => {
+    const scrollY = window.scrollY;
+    const html = document.documentElement;
+    html.style.overflowY = "hidden";
+
+    return () => {
+      html.style.overflowY = "auto";
+      window.scrollTo(0, scrollY);
+    };
+  }, []);
+
+  // Handlers
   const closeModal = useCallback(() => {
     dispatch({
       type:
@@ -57,51 +108,48 @@ function AuthWrapper({ type }) {
     });
   };
 
-  // Redirect if already logged in
-  useEffect(() => {
-    if (cookies.JWT) {
-      closeModal();
-      navigate("/dashboard");
-    }
-  }, [cookies, navigate, closeModal]);
-
-  // Prevent scrolling when modal is open
-  useEffect(() => {
-    const scrollY = window.scrollY; // Save current position
-    const html = document.documentElement;
-    html.style.overflowY = "hidden";
-
-    return () => {
-      html.style.overflowY = "auto";
-      window.scrollTo(0, scrollY); // Restore position
-    };
-  }, []);
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setValues({ ...values, [name]: value });
-    // Clear field-specific error when typing
     if (errors[name]) {
       setErrors({ ...errors, [name]: "" });
     }
   };
+
+  const clearAuthCookies = useCallback(() => {
+    const cookieOptions = {
+      path: "/",
+      secure: !isDevelopment,
+      sameSite: isDevelopment ? "lax" : "strict",
+    };
+
+    removeCookie("jwt", cookieOptions);
+    removeCookie("jwt-refresh", cookieOptions);
+
+    // Redundant cookie clearing
+    const expires = "Thu, 01 Jan 1970 00:00:00 UTC";
+    document.cookie = `jwt=; expires=${expires}; path=/; ${
+      !isDevelopment ? "secure;" : ""
+    } samesite=${cookieOptions.sameSite}`;
+    document.cookie = `jwt-refresh=; expires=${expires}; path=/; ${
+      !isDevelopment ? "secure;" : ""
+    } samesite=${cookieOptions.sameSite}`;
+  }, [removeCookie]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrors({
       email: "",
       password: "",
-      password1: "",
-      password2: "",
+      ...(type === "signup" && { password1: "", password2: "" }),
       general: "",
     });
 
-    // Email validation
+    // Validation
     if (!values.email) {
       return setErrors({ ...errors, email: "Email is required." });
     }
 
-    // Signup-specific validation
     if (type === "signup") {
       if (!values.password1 || !values.password2) {
         return setErrors({
@@ -116,19 +164,13 @@ function AuthWrapper({ type }) {
           password2: "Passwords don't match.",
         });
       }
-    }
-    // Login validation
-    else {
-      if (!values.password) {
-        return setErrors({ ...errors, password: "Password is required." });
-      }
+    } else if (!values.password) {
+      return setErrors({ ...errors, password: "Password is required." });
     }
 
     try {
       setLoading(true);
       const route = type === "login" ? LOGIN_ROUTE : SIGNUP_ROUTE;
-
-      // Prepare data based on form type
       const requestData =
         type === "login"
           ? { email: values.email, password: values.password }
@@ -140,14 +182,19 @@ function AuthWrapper({ type }) {
 
       const { data } = await axios.post(route, requestData, {
         withCredentials: true,
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
       });
 
-      // Set secure HTTP-only cookie
-      setCookie("JWT", data.access, {
-        path: "/",
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-      });
+      if (data.access) {
+        setCookie("jwt", data.access, {
+          path: "/",
+          secure: !isDevelopment,
+          sameSite: isDevelopment ? "lax" : "strict",
+        });
+      }
 
       dispatch({ type: reducerCases.SET_USER, userInfo: data.user });
       closeModal();
@@ -155,24 +202,21 @@ function AuthWrapper({ type }) {
     } catch (err) {
       if (err.response?.data) {
         const { data } = err.response;
-        // Handle django-rest-auth error structure
-        if (data.non_field_errors) {
-          setErrors({ ...errors, general: data.non_field_errors[0] });
-        } else {
-          setErrors({
-            email: data.email ? data.email[0] : "",
-            password: data.password ? data.password[0] : "",
-          });
-        }
+        setErrors({
+          email: data.email?.[0] || "",
+          password: data.password?.[0] || "",
+          general: data.non_field_errors?.[0] || "",
+        });
       } else {
         setErrors({ ...errors, general: "An unexpected error occurred." });
       }
+      clearAuthCookies();
     } finally {
       setLoading(false);
     }
   };
 
-  // Render password fields based on type
+  // Render helpers
   const renderPasswordFields = () => {
     if (type === "signup") {
       return (
@@ -295,7 +339,7 @@ function AuthWrapper({ type }) {
               )}
             </div>
 
-            <div>{renderPasswordFields()}</div>
+            {renderPasswordFields()}
 
             {errors.general && (
               <div className="text-red-500 text-sm text-center p-2 bg-red-50 rounded">
@@ -350,33 +394,5 @@ function AuthWrapper({ type }) {
     </div>
   );
 }
-
-// Extracted components for better readability
-const SocialAuthButton = ({
-  icon: Icon,
-  text,
-  bgColor = "",
-  textColor = "",
-  border = "",
-}) => (
-  <button
-    type="button"
-    className={`${bgColor} ${textColor} ${border} p-3 font-medium flex items-center justify-center relative`}
-  >
-    <Icon className="absolute left-4 text-2xl" />
-    {text}
-  </button>
-);
-
-const AuthDivider = () => (
-  <div className="relative w-full text-center my-4">
-    <div className="border-t border-slate-300 w-full absolute top-1/2 left-0 transform -translate-y-1/2"></div>
-    <span className="bg-white relative z-10 px-2 text-sm">OR</span>
-  </div>
-);
-
-const Spinner = () => (
-  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-);
 
 export default AuthWrapper;

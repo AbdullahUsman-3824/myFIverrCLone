@@ -12,12 +12,13 @@ const router = createBrowserRouter([
         path: '/',
         element: <Home />,
       },
-      {
-        path: '/profile',
-        element: <ProfilePage/>,
-      }
+      
     ],
   },
+  {
+    path: '/profile',
+    element: <ProfilePage/>,
+  }
 ])
 
 export default router
