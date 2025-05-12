@@ -7,6 +7,12 @@ from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_cookie
+from allauth.account.models import EmailAddress
+from allauth.account.utils import complete_signup
+from allauth.account import app_settings as allauth_settings
+from dj_rest_auth.views import LoginView
+from dj_rest_auth.registration.views import RegisterView
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import *
 from .serializers.profile_serializers import *
@@ -286,3 +292,131 @@ class ProfileCompletionCheckView(generics.GenericAPIView):
             missing.append('portfolio_items')
             
         return missing
+
+class CustomEmailVerificationView(APIView):
+    """
+    Custom view to handle email verification separately from registration.
+    This allows for a two-step registration process where email is verified
+    before completing the user profile setup.
+    """
+    permission_classes = [permissions.AllowAny]
+    throttle_scope = 'email_verification'
+
+    def post(self, request, *args, **kwargs):
+        """
+        Handle email verification request.
+        Expects email in request data.
+        """
+        email = request.data.get('email')
+        if not email:
+            return Response(
+                {'error': 'Email is required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            # Check if email already exists
+            if User.objects.filter(email=email).exists():
+                return Response(
+                    {'error': 'Email is already registered'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            # Create a temporary user for email verification
+            temp_user = User.objects.create(
+                username=f"temp_{email.split('@')[0]}",
+                email=email,
+                is_active=False,  # User won't be active until profile is complete
+                is_email_verified=False
+            )
+            temp_user.set_unusable_password()  # Set unusable password until profile is complete
+            temp_user.save()
+
+            # Create email address and send verification
+            email_address = EmailAddress.objects.create(
+                user=temp_user,
+                email=email,
+                primary=True,
+                verified=False
+            )
+
+            # Send verification email
+            complete_signup(
+                request._request,
+                temp_user,
+                allauth_settings.EMAIL_VERIFICATION,
+                None,  # No success URL needed as we'll handle it in frontend
+            )
+
+            return Response({
+                'message': 'Verification email sent',
+                'email': email
+            }, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            # Clean up if anything goes wrong
+            if 'temp_user' in locals():
+                temp_user.delete()
+            return Response(
+                {'error': str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+class CustomRegisterView(RegisterView):
+    """
+    Custom registration view that handles the second step of registration
+    after email verification.
+    """
+    serializer_class = BasicRegisterSerializer
+    permission_classes = [permissions.AllowAny]
+    throttle_scope = 'register'
+
+    def post(self, request, *args, **kwargs):
+        """
+        Handle the second step of registration after email verification.
+        Expects email, username, password, and other user details.
+        """
+        email = request.data.get('email')
+        if not email:
+            return Response(
+                {'error': 'Email is required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            # Find the temporary user created during email verification
+            temp_user = User.objects.get(
+                email=email,
+                is_active=False,
+                is_email_verified=True
+            )
+
+            # Update the serializer context with the temporary user
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            
+            # Update the temporary user with the new data
+            user = serializer.save(request)
+            
+            # Delete the temporary user as we've created the real one
+            temp_user.delete()
+
+            # Generate tokens
+            refresh = RefreshToken.for_user(user)
+            
+            return Response({
+                'user': serializer.data,
+                'access': str(refresh.access_token),
+                'refresh': str(refresh)
+            }, status=status.HTTP_201_CREATED)
+
+        except User.DoesNotExist:
+            return Response(
+                {'error': 'Email not verified or verification expired'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except Exception as e:
+            return Response(
+                {'error': str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )

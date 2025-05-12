@@ -3,16 +3,18 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
+from accounts.views import CustomEmailVerificationView, CustomRegisterView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
 
-    # Authentication APIs (for API-based login/registration)
-    path('api/auth/', include('dj_rest_auth.urls')),
-    path('api/auth/registration/', include('dj_rest_auth.registration.urls')),
+    # Authentication APIs
+    path('api/auth/verify-email/', CustomEmailVerificationView.as_view(), name='verify-email'),
+    path('api/auth/register/', CustomRegisterView.as_view(), name='register'),
+    path('api/auth/', include('dj_rest_auth.urls')),  # Other auth endpoints (login, logout, etc.)
 
     # Include account URLs for frontend rendering
-    path('api/accounts/', include('accounts.urls')),  # Account views (login, register)
+    path('api/accounts/', include('accounts.urls')),  # Account views (profile, role management, etc.)
 
     # Your app URLs
     path('api/core/', include('core.urls')),

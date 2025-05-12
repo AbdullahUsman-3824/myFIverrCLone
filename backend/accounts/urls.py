@@ -5,7 +5,7 @@ from .views import (
     SellerProfileDeleteView,
     BecomeSellerView,
     SwitchRoleView,
-    ProfileCompletionCheckView
+    ProfileCompletionCheckView,
 )
 
 urlpatterns = [

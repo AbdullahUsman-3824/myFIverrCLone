@@ -328,11 +328,42 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # ======================
 #  ALLAUTH SETTINGS
 # ======================
+ACCOUNT_ADAPTER = 'accounts.adapters.CustomAccountAdapter'
 ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
 ACCOUNT_LOGIN_METHODS = {'email'}
 ACCOUNT_EMAIL_VERIFICATION = 'optional'
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True
 ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
+ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 3
+ACCOUNT_EMAIL_CONFIRMATION_COOLDOWN = 180  # 3 minutes
+ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = '/api/auth/user/'
+ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL = '/api/auth/login/'
+
+# ======================
+#  REST AUTH SETTINGS
+# ======================
+REST_AUTH = {
+    'USE_JWT': True,
+    'JWT_AUTH_COOKIE': 'auth',
+    'JWT_AUTH_REFRESH_COOKIE': 'refresh-auth',
+    'JWT_AUTH_HTTPONLY': True,
+    'JWT_AUTH_SECURE': not DEBUG,
+    'JWT_AUTH_SAMESITE': 'Lax',
+    'REGISTER_SERIALIZER': 'accounts.serializers.auth_serializers.BasicRegisterSerializer',
+    'USER_DETAILS_SERIALIZER': 'accounts.serializers.auth_serializers.CustomUserDetailsSerializer',
+    'EMAIL_VERIFICATION_SERIALIZER': 'dj_rest_auth.registration.serializers.VerifyEmailSerializer',
+    'EMAIL_VERIFICATION_URL': '/api/auth/verify-email/',
+    'EMAIL_VERIFICATION_SUCCESS_URL': '/api/auth/login/',
+    'PASSWORD_RESET_SERIALIZER': 'dj_rest_auth.serializers.PasswordResetSerializer',
+    'PASSWORD_RESET_CONFIRM_SERIALIZER': 'dj_rest_auth.serializers.PasswordResetConfirmSerializer',
+    'PASSWORD_RESET_USE_SITES_FRONTEND_URL': True,
+    'PASSWORD_RESET_CONFIRM_URL': '/api/auth/password/reset/confirm/{uidb64}/{token}/',
+    'PASSWORD_RESET_CONFIRM_REDIRECT_URL': '/api/auth/login/',
+    'OLD_PASSWORD_FIELD_ENABLED': True,
+    'LOGOUT_ON_PASSWORD_CHANGE': True,
+    'SESSION_LOGIN': False,
+    'TOKEN_MODEL': None,
+}
 
 # ======================
 #  EMAIL CONFIGURATION
@@ -346,4 +377,11 @@ EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
 EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
 EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
-DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='webmaster@localhost')
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@workerr.com')
+SERVER_EMAIL = config('SERVER_EMAIL', default=DEFAULT_FROM_EMAIL)
+
+# Email templates
+EMAIL_TEMPLATE_NAME = 'email/email_confirmation_message.txt'
+EMAIL_CONFIRMATION_TEMPLATE_NAME = 'email/email_confirmation_subject.txt'
+PASSWORD_RESET_TEMPLATE_NAME = 'email/password_reset_message.txt'
+PASSWORD_RESET_SUBJECT_TEMPLATE_NAME = 'email/password_reset_subject.txt'

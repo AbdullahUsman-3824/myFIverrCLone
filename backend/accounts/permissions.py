@@ -1,4 +1,5 @@
 from rest_framework import permissions
+from django.utils.translation import gettext_lazy as _
 
 class IsSeller(permissions.BasePermission):
     """
@@ -84,8 +85,17 @@ class IsVerifiedUser(permissions.BasePermission):
     """
     Custom permission to only allow verified users to access the view.
     """
+    message = _('Please verify your email address to access this resource.')
+
     def has_permission(self, request, view):
-        return request.user and request.user.is_email_verified
+        if not request.user or not request.user.is_authenticated:
+            return False
+        return request.user.is_email_verified
+
+    def has_object_permission(self, request, view, obj):
+        if not request.user or not request.user.is_authenticated:
+            return False
+        return request.user.is_email_verified
 
 class IsProfileComplete(permissions.BasePermission):
     """
