@@ -198,7 +198,7 @@ function AuthWrapper({ type }) {
 
       dispatch({ type: reducerCases.SET_USER, userInfo: data.user });
       closeModal();
-      navigate("/profile");
+      type == "signup" ? navigate("/profile") : navigate("/");
     } catch (err) {
       if (err.response?.data) {
         const { data } = err.response;

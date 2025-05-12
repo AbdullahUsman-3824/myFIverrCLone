@@ -1,24 +1,22 @@
-// src/router/index.jsx
-import { createBrowserRouter } from 'react-router-dom'
-import MainLayout from '../layouts/MainLayout'
-import Home from '../pages/Home'
-import ProfilePage from '../pages/ProfliePage'
+import { createBrowserRouter } from "react-router-dom";
+import MainLayout from "../layouts/MainLayout";
+import Home from "../pages/Home";
+import ProfilePage from "../pages/ProfliePage";
 
 const router = createBrowserRouter([
   {
     element: <MainLayout />,
     children: [
       {
-        path: '/',
+        path: "/",
         element: <Home />,
       },
-      
     ],
   },
   {
-    path: '/profile',
-    element: <ProfilePage/>,
-  }
-])
+    path: "/profile",
+    element: <ProfilePage />,
+  },
+]);
 
-export default router
+export default router;
