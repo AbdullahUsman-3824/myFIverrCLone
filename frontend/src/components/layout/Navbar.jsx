@@ -45,10 +45,6 @@ function Navbar() {
             type: reducerCases.SET_USER,
             userInfo: projectedUserInfo,
           });
-
-          if (!user.isProfileSet) {
-            navigate("/profile");
-          }
         } catch (err) {
           console.error("Error processing user data:", err);
         }

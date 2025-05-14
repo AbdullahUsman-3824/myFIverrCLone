@@ -3,8 +3,8 @@ from django.contrib.auth.admin import UserAdmin
 from .models import User
 
 class CustomUserAdmin(UserAdmin):
-    list_display = ('username', 'email', 'is_buyer', 'is_seller', 'is_staff')
-    list_filter = ('is_buyer', 'is_seller', 'is_staff')
+    list_display = ('username', 'email',  'is_seller', 'is_staff')
+    list_filter = ( 'is_seller', 'is_staff')
     
     # Add fieldsets to control admin form layout
     fieldsets = (
@@ -14,14 +14,14 @@ class CustomUserAdmin(UserAdmin):
             'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions'),
         }),
         ('Important dates', {'fields': ('last_login', 'date_joined')}),
-        ('Custom Fields', {'fields': ('is_buyer', 'is_seller', 'current_role')}),
+        ('Custom Fields', {'fields': ( 'is_seller', 'current_role')}),
     )
     
     # For add user form
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('username', 'email', 'password1', 'password2', 'is_buyer', 'is_seller'),
+            'fields': ('username', 'email', 'password1', 'password2',  'is_seller'),
         }),
     )
 

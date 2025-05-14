@@ -1,17 +1,23 @@
 from django.urls import path
-from .views import *
+from .views import (
+    SellerProfileSetupView,
+    SellerProfileDetailView,
+    SellerProfileDeleteView,
+    BecomeSellerView,
+    SwitchRoleView,
+    ProfileCompletionCheckView
+)
 
 urlpatterns = [
-    # Buyer profile setup
-    path('profile/buyer-setup/', BuyerProfileSetupView.as_view(), name='buyer_profile_setup'),
-
-    # Seller profile setup
-    path('profile/seller-setup/', SellerProfileSetupView.as_view(), name='seller_profile_setup'),
-
-    # Optional: View full profile (combined info)
-    path('profile/complete/', CompleteProfileView.as_view(), name='complete_profile'),
-
-    # Role upgrade and switching
-    path('user/become-seller/', BecomeSellerView.as_view(), name='become_seller'),
-    path('user/switch-role/', SwitchRoleView.as_view(), name='switch_role'),
+    # Seller Profile CRUD Endpoints
+    path('seller/profile/', SellerProfileDetailView.as_view(), name='seller-profile-detail'),
+    path('seller/profile/setup/', SellerProfileSetupView.as_view(), name='seller-profile-setup'),
+    path('seller/profile/delete/', SellerProfileDeleteView.as_view(), name='seller-profile-delete'),
+    
+    # Role Management Endpoints
+    path('become-seller/', BecomeSellerView.as_view(), name='become-seller'),
+    path('switch-role/', SwitchRoleView.as_view(), name='switch-role'),
+    
+    # Profile Status Endpoint
+    path('seller/profile/completion/', ProfileCompletionCheckView.as_view(), name='profile-completion-check'),
 ]
