@@ -1,9 +1,10 @@
 from django.db import models
 from django.utils import timezone
+from django.conf import settings
 # Create your models here.
 class ChatConversation(models.Model):
-    user_1 = models.ForeignKey('auth.User', on_delete=models.CASCADE, related_name='conversations_started')
-    user_2 = models.ForeignKey('auth.User', on_delete=models.CASCADE, related_name='conversations_received')
+    user_1 = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='conversations_started')
+    user_2 = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='conversations_received')
     created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
@@ -14,7 +15,7 @@ class ChatConversation(models.Model):
 
 class ChatMessage(models.Model):
     conversation = models.ForeignKey('ChatConversation', on_delete=models.CASCADE, related_name='messages')
-    sender = models.ForeignKey('auth.User', on_delete=models.CASCADE, related_name='sent_messages')
+    sender = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='sent_messages')
     message_text = models.TextField()
     timestamp = models.DateTimeField(default=timezone.now)
 

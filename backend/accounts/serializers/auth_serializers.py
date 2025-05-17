@@ -6,72 +6,77 @@ from ..models import SellerProfile
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
+from django.core.validators import validate_email
 
 User = get_user_model()
-
-# Note: Using dj-rest-auth's built-in validation for most fields
-
-# ================
-# Custom Login  (not used)
-# ================
-class CustomLoginSerializer(LoginSerializer):
-    email = serializers.EmailField(required=False)
-    
-    def validate(self, attrs):
-        try:
-            if attrs.get('email'):
-                user = User.objects.get(email=attrs['email'])
-                attrs['username'] = user.username
-            return super().validate(attrs)
-        except User.DoesNotExist:
-            raise serializers.ValidationError(
-                {"email": _("No account exists with this email address.")}
-            )
 
 # ================
 # Custom Register
 # ================
 class BasicRegisterSerializer(RegisterSerializer):
-    username = serializers.CharField(required=True)
-    first_name = serializers.CharField(required=False, allow_blank=True, max_length=150)
-    last_name = serializers.CharField(required=False, allow_blank=True, max_length=150)
-    profile_picture = serializers.ImageField(required=False)
-
+    # Remove username field completely
+    username = None  
+    email = serializers.EmailField(required=True)
+    
     def get_cleaned_data(self):
+        # Generate a unique username from email
+        email = self.validated_data.get('email', '').lower()
+        base_username = email.split('@')[0]
+        username = base_username
+        counter = 1
+        
+        # Ensure username is unique
+        while User.objects.filter(username=username).exists():
+            username = f"{base_username}{counter}"
+            counter += 1
+            
         return {
-            'username': self.validated_data.get('username', ''),
-            'password1': self.validated_data.get('password1', ''),
-            'email': self.validated_data.get('email', ''),
-            'first_name': self.validated_data.get('first_name', ''),
-            'last_name': self.validated_data.get('last_name', ''),
-            'profile_picture': self.validated_data.get('profile_picture', None),
+            'username': username,  # Auto-generated
+            'password1': self.validated_data.get('password1'),
+            'password2': self.validated_data.get('password2'),
+            'email': email,
+        }
+    
+    def validate(self, data):
+        # Remove username validation since we're generating it
+        if 'username' in data:
+            del data['username']
+        return super().validate(data)
+
+# ================
+# Custom Login
+# ================
+class FlexibleLoginSerializer(LoginSerializer):
+    username = None  # Disable username field
+    email = None  # Disable email field
+    login_identifier = serializers.CharField(
+        required=True,
+        help_text="Enter either your username or email address"
+    )
+    
+    def validate(self, attrs):
+        credentials = {
+            'password': attrs.get('password'),
         }
         
-    def save(self, request):
-        user = super().save(request)
-        
-        # Set additional fields from cleaned_data
-        user.first_name = self.cleaned_data.get('first_name', '')
-        user.last_name = self.cleaned_data.get('last_name', '')
-        
-        # Handle profile picture if provided
-        profile_picture = self.cleaned_data.get('profile_picture')
-        if profile_picture:
-            user.profile_picture = profile_picture
+        identifier = attrs.get('login_identifier')
+        if '@' in identifier:
+            try:
+                validate_email(identifier)
+                credentials['email'] = identifier.lower()
+            except ValidationError:
+                raise serializers.ValidationError(
+                    {"login_identifier": "Enter a valid email address."}
+                )
+        else:
+            credentials['username'] = identifier
             
-        user.save()
-        
-        # Create empty seller profile for future use
-        SellerProfile.objects.get_or_create(user=user)
-        
-        return user
+        return super().validate(credentials)
 
 # ===================
 # Custom UserDetails
 # ===================
 class CustomUserDetailsSerializer(UserDetailsSerializer):
-    email = serializers.EmailField(required=False) 
-    
     class Meta(UserDetailsSerializer.Meta):
         model = User
         fields = UserDetailsSerializer.Meta.fields + (
@@ -84,44 +89,29 @@ class CustomUserDetailsSerializer(UserDetailsSerializer):
         )
         read_only_fields = (
             'is_profile_set',
-            'date_joined',
             'is_email_verified',
+            'email',
         )
-    
-    def validate_email(self, value):
-        """Validate that the email isn't already in use by another user"""
-        user = self.context['request'].user
-        if User.objects.exclude(pk=user.pk).filter(email=value).exists():
-            raise serializers.ValidationError(_("This email is already in use."))
-        return value
     
     def update(self, instance, validated_data):
-        # Check if email has changed
-        new_email = validated_data.get('email')
-        email_changed = new_email and new_email != instance.email
-        
-        # Store the old email for verification logic
-        old_email = instance.email if email_changed else None
-        
-        # Update all other fields first
-        result = super().update(instance, validated_data)
-        
-        # Handle email change
-        if email_changed:
-            # Mark email as unverified
-            instance.is_email_verified = False
-            instance.save(update_fields=['is_email_verified'])
+        """
+        Update user details with profile completeness check
+        """
+        # Update all fields using parent method
+        instance = super().update(instance, validated_data)
         
         # Check profile completeness
-        is_profile_set = bool(
-            instance.first_name and
-            instance.last_name and
-            instance.profile_picture and
-            instance.email
-        )
+        required_fields = [
+            bool(instance.first_name and instance.first_name.strip()),
+            bool(instance.last_name and instance.last_name.strip()),
+            bool(instance.profile_picture),
+            bool(instance.email and instance.email.strip())
+        ]
         
-        instance.is_profile_set = is_profile_set
-        instance.save(update_fields=['is_profile_set'])
+        is_profile_set = all(required_fields)
         
-        return result
-    
+        if instance.is_profile_set != is_profile_set:
+            instance.is_profile_set = is_profile_set
+            instance.save(update_fields=['is_profile_set'])
+        
+        return instance

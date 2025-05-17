@@ -11,9 +11,6 @@ function ProfilePage() {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
-    email: "",
-    phone: "",
-    description: "",
     image: null,
   });
   const [previewImage, setPreviewImage] = useState(null);
@@ -167,43 +164,6 @@ function ProfilePage() {
                 onChange={handleChange}
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 required
-              />
-            </div>
-
-            {/* Phone Field */}
-            <div>
-              <label
-                htmlFor="phone"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Phone Number
-              </label>
-              <input
-                type="tel"
-                name="phone"
-                id="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
-
-            {/* Description Field */}
-            <div>
-              <label
-                htmlFor="description"
-                className="block text-sm font-medium text-gray-700"
-              >
-                About Me
-              </label>
-              <textarea
-                name="description"
-                id="description"
-                rows="4"
-                value={formData.description}
-                onChange={handleChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Tell us about yourself..."
               />
             </div>
 

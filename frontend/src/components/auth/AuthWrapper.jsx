@@ -9,10 +9,9 @@ import { useNavigate } from "react-router-dom";
 import { useStateProvider } from "../../context/StateContext";
 import { reducerCases } from "../../context/constants";
 
-// Constants
 const isDevelopment = process.env.NODE_ENV === "development";
 
-// Extracted components (moved to top for better visibility)
+// Extracted components
 const SocialAuthButton = ({
   icon: Icon,
   text,
@@ -41,27 +40,30 @@ const Spinner = () => (
 );
 
 function AuthWrapper({ type }) {
-  // Hooks and state
   const [cookies, setCookie, removeCookie] = useCookies(["jwt", "jwt-refresh"]);
   const [state, dispatch] = useStateProvider();
   const navigate = useNavigate();
   const emailInputRef = useRef(null);
 
+  // Initialize all possible fields with empty strings
   const [values, setValues] = useState({
     email: "",
-    ...(type === "signup"
-      ? { password1: "", password2: "" }
-      : { password: "" }),
+    password1: "",
+    password2: "",
+    login_identifier: "",
+    password: "",
   });
 
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({
     email: "",
+    password1: "",
+    password2: "",
+    login_identifier: "",
     password: "",
     general: "",
   });
 
-  // Effects
   useEffect(() => {
     if (emailInputRef.current) {
       emailInputRef.current.focus();
@@ -86,7 +88,6 @@ function AuthWrapper({ type }) {
     };
   }, []);
 
-  // Handlers
   const closeModal = useCallback(() => {
     dispatch({
       type:
@@ -110,7 +111,7 @@ function AuthWrapper({ type }) {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setValues({ ...values, [name]: value });
+    setValues({ ...values, [name]: value || "" }); // Ensure no undefined values
     if (errors[name]) {
       setErrors({ ...errors, [name]: "" });
     }
@@ -126,7 +127,6 @@ function AuthWrapper({ type }) {
     removeCookie("jwt", cookieOptions);
     removeCookie("jwt-refresh", cookieOptions);
 
-    // Redundant cookie clearing
     const expires = "Thu, 01 Jan 1970 00:00:00 UTC";
     document.cookie = `jwt=; expires=${expires}; path=/; ${
       !isDevelopment ? "secure;" : ""
@@ -138,34 +138,50 @@ function AuthWrapper({ type }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setErrors({
-      email: "",
-      password: "",
-      ...(type === "signup" && { password1: "", password2: "" }),
-      general: "",
-    });
 
-    // Validation
-    if (!values.email) {
-      return setErrors({ ...errors, email: "Email is required." });
-    }
+    const resetErrors = {
+      email: "",
+      password1: "",
+      password2: "",
+      login_identifier: "",
+      password: "",
+      general: "",
+    };
+    setErrors(resetErrors);
 
     if (type === "signup") {
+      if (!values.email) {
+        return setErrors((prev) => ({
+          ...prev,
+          email: "This field is required.",
+        }));
+      }
       if (!values.password1 || !values.password2) {
-        return setErrors({
-          ...errors,
+        return setErrors((prev) => ({
+          ...prev,
           password1: !values.password1 ? "Password is required." : "",
           password2: !values.password2 ? "Please confirm password." : "",
-        });
+        }));
       }
       if (values.password1 !== values.password2) {
-        return setErrors({
-          ...errors,
+        return setErrors((prev) => ({
+          ...prev,
           password2: "Passwords don't match.",
-        });
+        }));
       }
-    } else if (!values.password) {
-      return setErrors({ ...errors, password: "Password is required." });
+    } else {
+      if (!values.login_identifier) {
+        return setErrors((prev) => ({
+          ...prev,
+          login_identifier: "This field is required.",
+        }));
+      }
+      if (!values.password) {
+        return setErrors((prev) => ({
+          ...prev,
+          password: "Password is required.",
+        }));
+      }
     }
 
     try {
@@ -173,7 +189,10 @@ function AuthWrapper({ type }) {
       const route = type === "login" ? LOGIN_ROUTE : SIGNUP_ROUTE;
       const requestData =
         type === "login"
-          ? { email: values.email, password: values.password }
+          ? {
+              login_identifier: values.login_identifier,
+              password: values.password,
+            }
           : {
               email: values.email,
               password1: values.password1,
@@ -198,17 +217,29 @@ function AuthWrapper({ type }) {
 
       dispatch({ type: reducerCases.SET_USER, userInfo: data.user });
       closeModal();
-      type == "signup" ? navigate("/profile") : navigate("/");
+      type === "signup" ? navigate("/profile") : navigate("/");
     } catch (err) {
       if (err.response?.data) {
         const { data } = err.response;
         setErrors({
-          email: data.email?.[0] || "",
+          login_identifier:
+            type === "login"
+              ? data.login_identifier?.[0] ??
+                data.username?.[0] ??
+                data.email?.[0] ??
+                ""
+              : "",
+          email: type === "signup" ? data.email?.[0] || "" : "",
           password: data.password?.[0] || "",
+          password1: data.password1?.[0] || "",
+          password2: data.password2?.[0] || "",
           general: data.non_field_errors?.[0] || "",
         });
       } else {
-        setErrors({ ...errors, general: "An unexpected error occurred." });
+        setErrors((prev) => ({
+          ...prev,
+          general: "An unexpected error occurred.",
+        }));
       }
       clearAuthCookies();
     } finally {
@@ -216,7 +247,6 @@ function AuthWrapper({ type }) {
     }
   };
 
-  // Render helpers
   const renderPasswordFields = () => {
     if (type === "signup") {
       return (
@@ -226,6 +256,7 @@ function AuthWrapper({ type }) {
               type="password"
               name="password1"
               placeholder="Password"
+              value={values.password1 || ""}
               className={`border ${
                 errors.password1 ? "border-red-500" : "border-slate-300"
               } p-3 rounded w-full`}
@@ -243,6 +274,7 @@ function AuthWrapper({ type }) {
               type="password"
               name="password2"
               placeholder="Confirm Password"
+              value={values.password2 || ""}
               className={`border ${
                 errors.password2 ? "border-red-500" : "border-slate-300"
               } p-3 rounded w-full`}
@@ -264,6 +296,7 @@ function AuthWrapper({ type }) {
           type="password"
           name="password"
           placeholder="Password"
+          value={values.password || ""}
           className={`border ${
             errors.password ? "border-red-500" : "border-slate-300"
           } p-3 rounded w-full`}
@@ -322,19 +355,24 @@ function AuthWrapper({ type }) {
           <div className="flex flex-col gap-4">
             <div>
               <input
-                type="email"
-                name="email"
-                placeholder="Email"
+                type="text"
+                name={type === "login" ? "login_identifier" : "email"}
+                placeholder={type === "login" ? "Email or Username" : "Email"}
+                value={
+                  (type === "login" ? values.login_identifier : values.email) || ""
+                }
                 className={`border ${
-                  errors.email ? "border-red-500" : "border-slate-300"
+                  (type === "login" ? errors.login_identifier : errors.email)
+                    ? "border-red-500"
+                    : "border-slate-300"
                 } p-3 rounded w-full`}
                 onChange={handleChange}
                 disabled={loading}
                 ref={emailInputRef}
               />
-              {errors.email && (
+              {(type === "login" ? errors.login_identifier : errors.email) && (
                 <span className="text-red-500 text-xs mt-1">
-                  {errors.email}
+                  {type === "login" ? errors.login_identifier : errors.email}
                 </span>
               )}
             </div>
@@ -395,4 +433,4 @@ function AuthWrapper({ type }) {
   );
 }
 
-export default AuthWrapper;
+export default AuthWrapper; 

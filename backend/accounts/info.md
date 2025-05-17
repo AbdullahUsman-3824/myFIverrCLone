@@ -1,65 +1,34 @@
 ## 🔍 Authentication & Profile Workflow
 
-| Step | Endpoint                                   | Method  | Description                                |
-| ---- | ------------------------------------------ | ------- | ------------------------------------------ |
-| 1a   | `/api/auth/verify-email/`                  | `POST`  | Start registration with email verification |
-| 1b   | Email Link                                 | `GET`   | Verify email via link                      |
-| 1c   | `/api/auth/register/`                      | `POST`  | Complete registration with user details    |
-| 2    | `/api/auth/login/`                         | `POST`  | Login and get JWT tokens                   |
-| 3    | `/api/auth/user/`                          | `GET`   | Get current user details                   |
-| 4    | `/api/accounts/seller/profile/setup/`      | `PATCH` | Setup seller profile                       |
-| 5    | `/api/accounts/become-seller/`             | `POST`  | Convert to seller role                     |
-| 6    | `/api/accounts/switch-role/`               | `POST`  | Switch between buyer/seller roles          |
-| 7    | `/api/accounts/seller/profile/completion/` | `GET`   | Check profile completion status            |
+| Step | Endpoint                                   | Method  | Description                                 |
+| ---- | ------------------------------------------ | ------- | ------------------------------------------- |
+| 1    | `/api/auth/register/`                      | `POST`  | Initial registration with username/password |
+| 2    | `/api/auth/login/`                         | `POST`  | Login and get JWT tokens                    |
+| 3    | `/api/auth/user/`                          | `GET`   | Get current user details                    |
+| 4    | `/api/auth/verify-email/`                  | `POST`  | Request email verification                  |
+| 5    | Email Link                                 | `GET`   | Verify email via link                       |
+| 6    | `/api/accounts/profile/setup/`             | `PATCH` | Complete user profile                       |
+| 7    | `/api/accounts/become-seller/`             | `POST`  | Convert to seller role                      |
+| 8    | `/api/accounts/switch-role/`               | `POST`  | Switch between buyer/seller roles           |
+| 9    | `/api/accounts/seller/profile/setup/`      | `PATCH` | Setup seller profile                        |
+| 10   | `/api/accounts/seller/profile/completion/` | `GET`   | Check profile completion status             |
 
 ---
 
 ## 🧪 Step-by-Step Implementation
 
-### ✅ 1. Two-Step Registration
+### ✅ 1. Initial Registration
 
-#### Step 1a: Email Verification
-
-**Endpoint**: `POST /api/auth/verify-email/`
+**Endpoint**: `POST /api/auth/registration/`
 
 **Body:**
 
 ```json
 {
-  "email": "user@example.com"
-}
-```
-
-**Response**:
-
-```json
-{
-  "message": "Verification email sent",
-  "email": "user@example.com"
-}
-```
-
-#### Step 1b: Email Verification Link
-
-- User clicks link in email
-- Email marked as verified
-- Temporary user created
-
-#### Step 1c: Complete Registration
-
-**Endpoint**: `POST /api/auth/register/`
-
-**Body:**
-
-```json
-{
-  "email": "user@example.com",
   "username": "username123",
+  "email":"abdullaasheikh3824@gmail.com",
   "password1": "SecurePassword123!",
-  "password2": "SecurePassword123!",
-  "first_name": "First",
-  "last_name": "Last",
-  "profile_picture": "file" // optional
+  "password2": "SecurePassword123!"
 }
 ```
 
@@ -69,11 +38,8 @@
 {
   "user": {
     "id": 1,
-    "email": "user@example.com",
     "username": "username123",
-    "first_name": "First",
-    "last_name": "Last",
-    "is_email_verified": true,
+    "is_email_verified": false,
     "is_seller": false,
     "current_role": "buyer",
     "is_profile_set": false
@@ -93,7 +59,7 @@
 
 ```json
 {
-  "email": "user@example.com",
+  "login_identifier": "username123",
   "password": "SecurePassword123!"
 }
 ```
@@ -104,11 +70,8 @@
 {
   "user": {
     "id": 1,
-    "email": "user@example.com",
     "username": "username123",
-    "first_name": "First",
-    "last_name": "Last",
-    "is_email_verified": true,
+    "is_email_verified": false,
     "is_seller": false,
     "current_role": "buyer",
     "is_profile_set": false
@@ -130,14 +93,78 @@
 ```json
 {
   "id": 1,
-  "email": "user@example.com",
   "username": "username123",
+  "is_email_verified": false,
+  "is_seller": false,
+  "current_role": "buyer",
+  "is_profile_set": false,
+  "date_joined": "2024-03-15T10:30:00Z"
+}
+```
+
+---
+
+### ✅ 4. Request Email Verification
+
+**Endpoint**: `POST /api/auth/verify-email/`  
+**Headers**: `Authorization: Bearer <access_token>`
+
+**Body:**
+
+```json
+{
+  "email": "user@example.com"
+}
+```
+
+**Response**:
+
+```json
+{
+  "message": "Verification email sent",
+  "email": "user@example.com"
+}
+```
+
+---
+
+### ✅ 5. Email Verification Link
+
+- User clicks link in email
+- Email marked as verified
+- User's `is_email_verified` status updated
+
+---
+
+### ✅ 6. Complete User Profile
+
+**Endpoint**: `PATCH /api/accounts/profile/setup/`  
+**Headers**: `Authorization: Bearer <access_token>`
+
+**Body:**
+
+```json
+{
+  "email": "user@example.com",
+  "first_name": "First",
+  "last_name": "Last",
+  "profile_picture": "file" // optional
+}
+```
+
+**Response**:
+
+```json
+{
+  "id": 1,
+  "username": "username123",
+  "email": "user@example.com",
   "first_name": "First",
   "last_name": "Last",
   "is_email_verified": true,
   "is_seller": false,
   "current_role": "buyer",
-  "is_profile_set": false,
+  "is_profile_set": true,
   "profile_picture": "url/to/picture.jpg",
   "date_joined": "2024-03-15T10:30:00Z"
 }
@@ -145,7 +172,7 @@
 
 ---
 
-### ✅ 4. Seller Profile Setup
+### ✅ 7. Seller Profile Setup
 
 **Endpoint**: `PATCH /api/accounts/seller/profile/setup/`  
 **Headers**: `Authorization: Bearer <access_token>`
@@ -186,7 +213,7 @@
 
 ---
 
-### ✅ 5. Become Seller
+### ✅ 8. Become Seller
 
 **Endpoint**: `POST /api/accounts/become-seller/`  
 **Headers**: `Authorization: Bearer <access_token>`
@@ -206,7 +233,7 @@
 
 ---
 
-### ✅ 6. Switch Role
+### ✅ 9. Switch Role
 
 **Endpoint**: `POST /api/accounts/switch-role/`  
 **Headers**: `Authorization: Bearer <access_token>`
@@ -233,7 +260,7 @@
 
 ---
 
-### ✅ 7. Check Profile Completion
+### ✅ 10. Check Profile Completion
 
 **Endpoint**: `GET /api/accounts/seller/profile/completion/`  
 **Headers**: `Authorization: Bearer <access_token>`
@@ -256,7 +283,7 @@
 
 1. **Email Verification**
 
-   - Required before completing registration
+   - Required for accessing protected resources
    - Verification link expires in 3 days
    - Cooldown period of 3 minutes between verification attempts
 
@@ -269,9 +296,9 @@
 
 3. **Rate Limiting**
 
-   - Email verification: 3 attempts per hour
    - Registration: 3 attempts per hour
    - Login: 5 attempts per minute
+   - Email verification: 3 attempts per hour
 
 4. **Password Requirements**
    - Minimum length: 10 characters

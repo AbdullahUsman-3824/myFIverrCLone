@@ -7,11 +7,9 @@ from accounts.views import CustomEmailVerificationView, CustomRegisterView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-
-    # Authentication APIs
-    path('api/auth/verify-email/', CustomEmailVerificationView.as_view(), name='verify-email'),
-    path('api/auth/register/', CustomRegisterView.as_view(), name='register'),
+    
     path('api/auth/', include('dj_rest_auth.urls')),  # Other auth endpoints (login, logout, etc.)
+    path('api/auth/registration/', include('dj_rest_auth.registration.urls')),
 
     # Include account URLs for frontend rendering
     path('api/accounts/', include('accounts.urls')),  # Account views (profile, role management, etc.)

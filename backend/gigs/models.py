@@ -1,4 +1,6 @@
 from django.db import models
+from django.utils import timezone
+from django.conf import settings
 
 # Create your models here.
 class Category(models.Model):
@@ -23,7 +25,7 @@ class Gig(models.Model):
         ('paused', 'Paused'),
     ]
 
-    seller = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    seller = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     title = models.CharField(max_length=100)
     description = models.TextField()
     category = models.ForeignKey('Category', on_delete=models.CASCADE)
@@ -43,7 +45,7 @@ class Gig(models.Model):
     def __str__(self):
         return self.title
 
-    class GigPackage(models.Model):
+class GigPackage(models.Model):
     PACKAGE_CHOICES = [
         ('Basic', 'Basic'),
         ('Standard', 'Standard'),
@@ -61,7 +63,7 @@ class Gig(models.Model):
     def __str__(self):
         return f"{self.package_name} Package for {self.gig.title}"
 
-    class GigFAQ(models.Model):
+class GigFAQ(models.Model):
     gig = models.ForeignKey('Gig', on_delete=models.CASCADE, related_name='faqs')
     question = models.TextField()
     answer = models.TextField()
@@ -83,13 +85,13 @@ class GigGallery(models.Model):
     def __str__(self):
         return f"{self.media_type.capitalize()} for {self.gig.title}"
 
-    class SavedGig(models.Model):
+class SavedGig(models.Model):
     ACTION_CHOICES = [
         ('save', 'Save'),
         ('unsave', 'Unsave'),
     ]
 
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE, related_name='saved_gigs')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='saved_gigs')
     gig = models.ForeignKey('Gig', on_delete=models.CASCADE, related_name='saved_by_users')
     action = models.CharField(max_length=6, choices=ACTION_CHOICES)
     created_at = models.DateTimeField(default=timezone.now)

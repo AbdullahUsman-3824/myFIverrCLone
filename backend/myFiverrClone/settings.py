@@ -37,7 +37,7 @@ SESSION_SAVE_EVERY_REQUEST = True
 
 # Password settings
 PASSWORD_HASHERS = [
-    'django.contrib.auth.hashers.Argon2PasswordHasher',
+    # 'django.contrib.auth.hashers.Argon2PasswordHasher',
     'django.contrib.auth.hashers.PBKDF2PasswordHasher',
     'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
 ]
@@ -85,6 +85,7 @@ REST_FRAMEWORK = {
         'user': '1000/day',
         'login': '5/minute',
         'register': '3/hour',
+        'dj_rest_auth': '5/hour',
     },
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
@@ -228,6 +229,8 @@ LOCAL_APPS = [
     'gigs.apps.GigsConfig',
     'orders.apps.OrdersConfig',
     'payments.apps.PaymentsConfig',
+    'chat.apps.ChatConfig',
+    'reviews.apps.ReviewsConfig'
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -328,10 +331,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # ======================
 #  ALLAUTH SETTINGS
 # ======================
-ACCOUNT_ADAPTER = 'accounts.adapters.CustomAccountAdapter'
-ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
-ACCOUNT_LOGIN_METHODS = {'email'}
-ACCOUNT_EMAIL_VERIFICATION = 'optional'
+# ACCOUNT_ADAPTER = 'accounts.adapters.CustomAccountAdapter'
+# ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
+# ACCOUNT_LOGIN_METHODS = {'email'}
+ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_EMAIL_VERIFICATION = config('ACCOUNT_EMAIL_VERIFICATION', default='none')
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True
 ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
 ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 3
@@ -349,18 +355,19 @@ REST_AUTH = {
     'JWT_AUTH_HTTPONLY': True,
     'JWT_AUTH_SECURE': not DEBUG,
     'JWT_AUTH_SAMESITE': 'Lax',
+    'LOGIN_SERIALIZER':'accounts.serializers.auth_serializers.FlexibleLoginSerializer',
     'REGISTER_SERIALIZER': 'accounts.serializers.auth_serializers.BasicRegisterSerializer',
     'USER_DETAILS_SERIALIZER': 'accounts.serializers.auth_serializers.CustomUserDetailsSerializer',
-    'EMAIL_VERIFICATION_SERIALIZER': 'dj_rest_auth.registration.serializers.VerifyEmailSerializer',
-    'EMAIL_VERIFICATION_URL': '/api/auth/verify-email/',
-    'EMAIL_VERIFICATION_SUCCESS_URL': '/api/auth/login/',
-    'PASSWORD_RESET_SERIALIZER': 'dj_rest_auth.serializers.PasswordResetSerializer',
-    'PASSWORD_RESET_CONFIRM_SERIALIZER': 'dj_rest_auth.serializers.PasswordResetConfirmSerializer',
-    'PASSWORD_RESET_USE_SITES_FRONTEND_URL': True,
-    'PASSWORD_RESET_CONFIRM_URL': '/api/auth/password/reset/confirm/{uidb64}/{token}/',
-    'PASSWORD_RESET_CONFIRM_REDIRECT_URL': '/api/auth/login/',
-    'OLD_PASSWORD_FIELD_ENABLED': True,
-    'LOGOUT_ON_PASSWORD_CHANGE': True,
+    # 'EMAIL_VERIFICATION_SERIALIZER': 'dj_rest_auth.registration.serializers.VerifyEmailSerializer',
+    # 'EMAIL_VERIFICATION_URL': '/api/auth/verify-email/',
+    # 'EMAIL_VERIFICATION_SUCCESS_URL': '/api/auth/login/',
+    # 'PASSWORD_RESET_SERIALIZER': 'dj_rest_auth.serializers.PasswordResetSerializer',
+    # 'PASSWORD_RESET_CONFIRM_SERIALIZER': 'dj_rest_auth.serializers.PasswordResetConfirmSerializer',
+    # 'PASSWORD_RESET_USE_SITES_FRONTEND_URL': True,
+    # 'PASSWORD_RESET_CONFIRM_URL': '/api/auth/password/reset/confirm/{uidb64}/{token}/',
+    # 'PASSWORD_RESET_CONFIRM_REDIRECT_URL': '/api/auth/login/',
+    # 'OLD_PASSWORD_FIELD_ENABLED': True,
+    # 'LOGOUT_ON_PASSWORD_CHANGE': True,
     'SESSION_LOGIN': False,
     'TOKEN_MODEL': None,
 }
@@ -368,15 +375,28 @@ REST_AUTH = {
 # ======================
 #  EMAIL CONFIGURATION
 # ======================
+
+# Default to console backend for development
 EMAIL_BACKEND = config(
     'EMAIL_BACKEND',
     default='django.core.mail.backends.console.EmailBackend'
 )
-EMAIL_HOST = config('EMAIL_HOST', default='')
-EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
-EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
-EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+
+# Only configure SMTP settings if we're using SMTP backend
+if EMAIL_BACKEND == 'django.core.mail.backends.smtp.EmailBackend':
+    EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
+    EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
+    EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
+    EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='your-email@gmail.com')
+    EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='your-app-password')
+else:
+    # Nullify SMTP settings when using console backend
+    EMAIL_HOST = ''
+    EMAIL_PORT = None
+    EMAIL_USE_TLS = None
+    EMAIL_HOST_USER = ''
+    EMAIL_HOST_PASSWORD = ''
+
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@workerr.com')
 SERVER_EMAIL = config('SERVER_EMAIL', default=DEFAULT_FROM_EMAIL)
 
