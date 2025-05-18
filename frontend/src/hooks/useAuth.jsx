@@ -81,21 +81,51 @@ const useAuth = () => {
     setIsLoading(true);
     try {
       const response = await api.post("/registration/", {
-        username: formData.username,
         email: formData.email,
         password1: formData.password1,
         password2: formData.password2,
-        first_name: formData.first_name,
-        last_name: formData.last_name,
       });
 
-      // if (response.data.detail?.includes("Verification e-mail")) {
-      //   navigate("/auth/verify-email");
-      // } else {
-      //   handleAuthSuccess(response, "/dashboard");
-      // }
+      // After successful registration, redirect to email verification
+      navigate("/auth/verify-email", {
+        state: { email: formData.email },
+        replace: true,
+      });
+
+      return response.data;
     } catch (err) {
       setError(err.response?.data || { detail: "Registration failed" });
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const verifyEmail = async (key) => {
+    setIsLoading(true);
+    try {
+      const response = await api.post(`/registration/verify-email/`, { key });
+      return response.data;
+    } catch (err) {
+      setError(err.response?.data || { detail: "Email verification failed" });
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const resendVerificationEmail = async (email) => {
+    setIsLoading(true);
+    try {
+      const response = await api.post("/registration/resend-email/", {
+        email,
+      });
+      return response.data;
+    } catch (err) {
+      setError(
+        err.response?.data || { detail: "Failed to resend verification email" }
+      );
+      throw err;
     } finally {
       setIsLoading(false);
     }
@@ -115,6 +145,8 @@ const useAuth = () => {
     login,
     register,
     logout,
+    verifyEmail,
+    resendVerificationEmail,
     isLoading,
     error,
     resetError: () => setError(null),

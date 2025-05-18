@@ -207,17 +207,27 @@ function AuthWrapper({ type }) {
         },
       });
 
-      if (data.access) {
-        setCookie("jwt", data.access, {
-          path: "/",
-          secure: !isDevelopment,
-          sameSite: isDevelopment ? "lax" : "strict",
+      if (type === "signup") {
+        // For registration, redirect to email verification page
+        closeModal();
+        navigate("/verify-email", {
+          state: { email: values.email },
+          replace: true,
         });
-      }
+      } else {
+        // For login, handle as before
+        if (data.access) {
+          setCookie("jwt", data.access, {
+            path: "/",
+            secure: !isDevelopment,
+            sameSite: isDevelopment ? "lax" : "strict",
+          });
+        }
 
-      dispatch({ type: reducerCases.SET_USER, userInfo: data.user });
-      closeModal();
-      type === "signup" ? navigate("/profile") : navigate("/");
+        dispatch({ type: reducerCases.SET_USER, userInfo: data.user });
+        closeModal();
+        navigate("/");
+      }
     } catch (err) {
       if (err.response?.data) {
         const { data } = err.response;
@@ -359,7 +369,8 @@ function AuthWrapper({ type }) {
                 name={type === "login" ? "login_identifier" : "email"}
                 placeholder={type === "login" ? "Email or Username" : "Email"}
                 value={
-                  (type === "login" ? values.login_identifier : values.email) || ""
+                  (type === "login" ? values.login_identifier : values.email) ||
+                  ""
                 }
                 className={`border ${
                   (type === "login" ? errors.login_identifier : errors.email)
@@ -433,4 +444,4 @@ function AuthWrapper({ type }) {
   );
 }
 
-export default AuthWrapper; 
+export default AuthWrapper;

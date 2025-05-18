@@ -14,18 +14,15 @@ User = get_user_model()
 # Custom Register
 # ================
 class BasicRegisterSerializer(RegisterSerializer):
-    # Remove username field completely
     username = None  
     email = serializers.EmailField(required=True)
     
     def get_cleaned_data(self):
-        # Generate a unique username from email
         email = self.validated_data.get('email', '').lower()
         base_username = email.split('@')[0]
         username = base_username
         counter = 1
         
-        # Ensure username is unique
         while User.objects.filter(username=username).exists():
             username = f"{base_username}{counter}"
             counter += 1
@@ -38,7 +35,6 @@ class BasicRegisterSerializer(RegisterSerializer):
         }
     
     def validate(self, data):
-        # Remove username validation since we're generating it
         if 'username' in data:
             del data['username']
         return super().validate(data)
@@ -47,8 +43,8 @@ class BasicRegisterSerializer(RegisterSerializer):
 # Custom Login
 # ================
 class FlexibleLoginSerializer(LoginSerializer):
-    username = None  # Disable username field
-    email = None  # Disable email field
+    username = None
+    email = None
     login_identifier = serializers.CharField(
         required=True,
         help_text="Enter either your username or email address"
@@ -94,13 +90,8 @@ class CustomUserDetailsSerializer(UserDetailsSerializer):
         )
     
     def update(self, instance, validated_data):
-        """
-        Update user details with profile completeness check
-        """
-        # Update all fields using parent method
         instance = super().update(instance, validated_data)
         
-        # Check profile completeness
         required_fields = [
             bool(instance.first_name and instance.first_name.strip()),
             bool(instance.last_name and instance.last_name.strip()),
