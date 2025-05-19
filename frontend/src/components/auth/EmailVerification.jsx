@@ -34,7 +34,16 @@ const EmailVerification = () => {
         navigate("/profile", { replace: true });
       }, 3000);
     } catch (err) {
-      setError(err.response?.data?.detail || "Failed to verify email");
+      if (err.response) {
+        // Server responded with a status code outside the range of 2xx
+        setError(err.response.data.detail || "Failed to verify email");
+      } else if (err.request) {
+        // The request was made but no response was received
+        setError("No response from server. Please try again later.");
+      } else {
+        // Something happened in setting up the request
+        setError("An unexpected error occurred. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -57,16 +66,14 @@ const EmailVerification = () => {
   };
 
   const handleBackToLogin = () => {
-    dispatch(
-      {
-        type: reducerCases.SET_USER,
-        userInfo: null,
-      },
-      {
-        type: reducerCases.TOGGLE_LOGIN_MODAL,
-        showLoginModal: True,
-      }
-    );
+    dispatch({
+      type: reducerCases.SET_USER,
+      userInfo: null,
+    });
+    dispatch({
+      type: reducerCases.TOGGLE_LOGIN_MODAL,
+      showLoginModal: true,
+    });
     navigate("/");
   };
 
@@ -78,7 +85,7 @@ const EmailVerification = () => {
             Email Verified Successfully!
           </h2>
           <p className="text-gray-600">
-            Your email has been verified. Redirecting to login...
+            Your email has been verified. Redirecting to your profile...
           </p>
         </div>
       </div>
@@ -132,7 +139,7 @@ const EmailVerification = () => {
         )}
 
         <button
-          onClick={() => navigate("/")}
+          onClick={handleBackToLogin}
           className="w-full border border-gray-300 text-gray-700 py-2 px-4 rounded hover:bg-gray-50"
         >
           Back to Login

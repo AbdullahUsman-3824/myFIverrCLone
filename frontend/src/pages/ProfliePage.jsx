@@ -61,7 +61,7 @@ function ProfilePage() {
         userInfo: data.user,
       });
 
-      navigate("/dashboard");
+      navigate("/");
     } catch (error) {
       console.error("Profile update failed:", error);
     } finally {

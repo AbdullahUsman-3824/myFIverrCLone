@@ -73,7 +73,7 @@ function AuthWrapper({ type }) {
   useEffect(() => {
     if (cookies.jwt) {
       closeModal();
-      navigate("/dashboard");
+      navigate("/");
     }
   }, [cookies.jwt, navigate]);
 

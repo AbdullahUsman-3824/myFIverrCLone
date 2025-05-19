@@ -12,15 +12,15 @@ const router = createBrowserRouter([
         path: "/",
         element: <Home />,
       },
-      {
-        path: "/profile",
-        element: <ProfilePage />,
-      },
-      {
-        path: "/verify-email",
-        element: <VerifyEmailPage />,
-      },
     ],
+  },
+  {
+    path: "/profile",
+    element: <ProfilePage />,
+  },
+  {
+    path: "/verify-email",
+    element: <VerifyEmailPage />,
   },
 ]);
 

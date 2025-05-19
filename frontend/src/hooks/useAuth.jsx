@@ -69,7 +69,7 @@ const useAuth = () => {
         email: formData.email,
         password: formData.password,
       });
-      handleAuthSuccess(response, "/dashboard");
+      handleAuthSuccess(response, "/");
     } catch (err) {
       setError(err.response?.data || { detail: "Login failed" });
     } finally {
