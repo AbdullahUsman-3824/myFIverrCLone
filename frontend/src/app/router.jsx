@@ -1,14 +1,13 @@
 import { createBrowserRouter } from "react-router-dom";
 import MainLayout from "../layouts/MainLayout";
 import Home from "../pages/Home";
-import ProfilePage from "../pages/ProfliePage";
-import VerifyEmailPage from "../pages/auth/VerifyEmailPage";
-import SellerDashboard from "../pages/seller/SellerDashboard";
-import SellerOrders from "../pages/seller/SellerOrders";
-import SellerMessages from "../pages/seller/SellerMessages";
-import SellerOnboarding from "../pages/seller/SellerOnboarding";
-import SellerGigs from "../pages/seller/SellerGigs";
-import CreateGig from "../pages/seller/CreateGig";
+import ProfilePage from "../pages/ProfilePage";
+import VerifyEmailPage from "../features/auth/pages/VerifyEmailPage";
+import SellerDashboard from "../features/seller/SellerDashboard";
+import SellerOrders from "../features/seller/SellerOrders";
+import SellerMessages from "../features/seller/SellerMessages";
+import SellerOnboarding from "../features/seller/SellerOnboarding";
+import SellerGigs from "../features/seller/SellerGigs";
 
 const router = createBrowserRouter([
   {

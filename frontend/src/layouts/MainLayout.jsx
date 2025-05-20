@@ -1,8 +1,8 @@
 // src/layouts/MainLayout.jsx
 import { Outlet } from 'react-router-dom'
-import Navbar from '../components/layout/Navbar'
-import Footer from '../components/layout/Footer'
-import AuthWrapper from '../components/auth/AuthWrapper'
+import Navbar from '../layouts/Navbar'
+import Footer from '../layouts/Footer'
+import AuthWrapper from '../features/auth/pages/AuthWrapper'
 import { useStateProvider } from '../context/StateContext'
 
 export default function MainLayout() {

@@ -2,12 +2,13 @@ import React, { useEffect, useState, useCallback } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { IoSearchOutline } from "react-icons/io5";
 import { useCookies } from "react-cookie";
-import FiverrLogo from "../auth/FiverrLogo";
-import ContextMenu from "../auth/ContextMenu";
-import { useStateProvider } from "../../context/StateContext";
-import { reducerCases } from "../../context/constants";
-import { HOST } from "../../utils/constants";
-import useFetchUser from "../../hooks/useFetchUser";
+import FiverrLogo from "../components/shared/FiverrLogo";
+import ContextMenu from "../features/auth/components/ContextMenu";
+import { useStateProvider } from "../context/StateContext";
+import { reducerCases } from "../context/reducerCases";
+import { HOST } from "../utils/constants";
+import useFetchUser from "../hooks/useFetchUser";
+import useAuth from "../features/auth/hooks/useAuth";
 
 function Navbar() {
   // Hooks and state
@@ -21,6 +22,7 @@ function Navbar() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isContextMenuVisible, setIsContextMenuVisible] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
+  const { logout } = useAuth();
 
   // User data fetching
   const shouldFetchUser = Boolean(cookies.jwt) && !userInfo;
@@ -136,10 +138,11 @@ function Navbar() {
     },
     {
       name: "Logout",
-      callback: (e) => {
+      callback: async (e) => {
         e.stopPropagation();
         setIsContextMenuVisible(false);
-        navigate("/logout");
+        // navigate("/logout");
+        await logout();
       },
     },
   ];

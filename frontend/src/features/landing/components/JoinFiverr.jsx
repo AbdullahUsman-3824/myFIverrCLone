@@ -1,5 +1,3 @@
-import React from "react";
-
 function JoinFiverr() {
   return (
     <div className="mx-32 my-16 relative">

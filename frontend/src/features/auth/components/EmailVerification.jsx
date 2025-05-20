@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import useAuth from "../../hooks/useAuth";
-import { useStateProvider } from "../../context/StateContext";
-import { reducerCases } from "../../context/constants";
+import useAuth from "../hooks/useAuth";
+import { useStateProvider } from "../../../context/StateContext";
+import { reducerCases } from "../../../context/reducerCases";
 
 const EmailVerification = () => {
   const { verifyEmail, resendVerificationEmail } = useAuth();

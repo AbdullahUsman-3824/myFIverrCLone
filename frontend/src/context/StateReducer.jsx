@@ -1,9 +1,9 @@
-import { reducerCases } from "./constants";
+import { reducerCases } from "./reducerCases";
 
 // Load initial state from localStorage or use default
 const loadState = () => {
   try {
-    const serializedState = localStorage.getItem('appState');
+    const serializedState = localStorage.getItem("appState");
     if (serializedState === null) {
       return {
         userInfo: undefined,
@@ -17,7 +17,7 @@ const loadState = () => {
     }
     return JSON.parse(serializedState);
   } catch (err) {
-    console.error('Error loading state from localStorage:', err);
+    console.error("Error loading state from localStorage:", err);
     return {
       userInfo: undefined,
       showLoginModal: false,
@@ -36,15 +36,15 @@ export const initialState = loadState();
 const saveState = (state) => {
   try {
     const serializedState = JSON.stringify(state);
-    localStorage.setItem('appState', serializedState);
+    localStorage.setItem("appState", serializedState);
   } catch (err) {
-    console.error('Error saving state to localStorage:', err);
+    console.error("Error saving state to localStorage:", err);
   }
 };
 
 export const reducer = (state, action) => {
   let newState;
-  
+
   switch (action.type) {
     case reducerCases.SET_USER:
       newState = {
@@ -106,4 +106,3 @@ export const reducer = (state, action) => {
   saveState(newState);
   return newState;
 };
-

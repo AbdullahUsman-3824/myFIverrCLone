@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 // import axios from "axios";
-import { HOST } from "../../utils/constants";
 import { FiUpload, FiCheck } from "react-icons/fi";
 import { useStateProvider } from "../../context/StateContext";
 

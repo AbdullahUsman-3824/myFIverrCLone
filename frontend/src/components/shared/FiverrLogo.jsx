@@ -1,5 +1,3 @@
-import React from "react";
-
 function FiverrLogo({ fillColor }) {
   return (
     <svg

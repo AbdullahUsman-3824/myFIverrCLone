@@ -1,7 +1,9 @@
-// src/hooks/useAuth.js
 import axios from "axios";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useCookies } from "react-cookie";
+import { useStateProvider } from "../../../context/StateContext";
+import { reducerCases } from "../../../context/reducerCases";
 
 const api = axios.create({
   baseURL: "http://127.0.0.1:8000/api/auth",
@@ -52,6 +54,8 @@ const useAuth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const [cookies, setCookie, removeCookie] = useCookies(["jwt", "jwt-refresh"]);
+  const [{ userInfo }, dispatch] = useStateProvider();
 
   const handleAuthSuccess = (response, redirectPath = "/") => {
     if (response.data.access_token) {
@@ -135,9 +139,13 @@ const useAuth = () => {
     try {
       await api.post("/logout/");
     } finally {
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
-      navigate("/auth/login");
+      removeCookie("jwt", { path: "/" });
+      removeCookie("jwt-refresh", { path: "/" });
+      dispatch({
+        type: reducerCases.SET_USER,
+        userInfo: null,
+      });
+      navigate("/");
     }
   };
 

@@ -1,5 +1,4 @@
-import { categories } from "../../utils/categories";
-import React from "react";
+import { categories } from "../../../utils/categories";
 import { useNavigate } from "react-router-dom";
 
 function Services() {

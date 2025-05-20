@@ -4,7 +4,7 @@ import axios from "axios";
 import { GET_USER_INFO, TOKEN_REFRESH } from "../utils/constants";
 import { useNavigate } from "react-router-dom";
 import { useStateProvider } from "../context/StateContext";
-import { reducerCases } from "../context/constants";
+import { reducerCases } from "../context/reducerCases";
 
 // Constants
 const MAX_REFRESH_ATTEMPTS = 5;

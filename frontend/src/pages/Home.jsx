@@ -1,11 +1,8 @@
-import Navbar from "../components/layout/Navbar";
-import HomeBanner from "../components/landing/HeroBanner";
-import PopularServices from "../components/landing/PopularServices";
-import Services from "../components/landing/Services";
-import FiverrBusiness from "../components/landing/FiverrBusiness";
-import JoinFiverr from "../components/landing/JoinFiverr";
-import Everything from "../components/landing/Everything";
-import Footer from "../components/layout/Footer";
+import HomeBanner from "../features/landing/components/HeroBanner";
+import PopularServices from "../features/landing/components/PopularServices";
+import Services from "../features/landing/components/Services";
+import FiverrBusiness from "../features/landing/components/FiverrBusiness";
+import JoinFiverr from "../features/landing/components/JoinFiverr";
 
 function Home() {
   return (
