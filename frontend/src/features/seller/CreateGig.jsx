@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { HOST } from "../../utils/constants";
+import { ADD_GIG_ROUTE } from "../../utils/constants";
 import { FiPlus } from "react-icons/fi";
 
 const categories = [
@@ -72,24 +72,21 @@ const CreateGig = () => {
       const formData = new FormData();
       files.forEach((file) => formData.append("images", file));
       
-      const gigData = {
-        title,
-        description,
-        category,
-        features,
-        price,
-        revisions,
-        time,
-        shortDesc,
-      };
+      formData.append("title", title);
+      formData.append("description", description);
+      formData.append("category", category);
+      formData.append("features", JSON.stringify(features));
+      formData.append("price", price);
+      formData.append("revisions", revisions);
+      formData.append("time", time);
+      formData.append("shortDesc", shortDesc);
 
       try {
-        const response = await axios.post(`${HOST}/api/seller/gigs`, formData, {
+        const response = await axios.post(ADD_GIG_ROUTE, formData, {
           withCredentials: true,
           headers: {
             "Content-Type": "multipart/form-data",
           },
-          params: gigData,
         });
 
         if (response.status === 201) {
