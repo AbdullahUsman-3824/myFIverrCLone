@@ -149,7 +149,6 @@ function Navbar() {
 
   const authButtons = [
     { name: "English", handler: "#", type: "link" },
-    { name: "Become a Seller", handler: "#", type: "link" },
     { name: "Sign in", handler: handleLogin, type: "button" },
     { name: "Join", handler: handleSignup, type: "button2" },
   ];

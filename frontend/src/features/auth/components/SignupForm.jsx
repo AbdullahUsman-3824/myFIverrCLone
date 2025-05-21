@@ -1,6 +1,19 @@
 import { useState } from "react";
 import axios from "axios";
 import { SIGNUP_ROUTE } from "../../../utils/constants";
+import Spinner from "../../../components/common/Spinner";
+
+const useSignupForm = (initialState) => {
+  const [values, setValues] = useState(initialState);
+
+  const handleChange = (e, setErrors) => {
+    const { name, value } = e.target;
+    setValues((prev) => ({ ...prev, [name]: value }));
+    setErrors((prev) => ({ ...prev, [name]: "" }));
+  };
+
+  return { values, handleChange, setValues };
+};
 
 export default function SignupForm({
   loading,
@@ -11,26 +24,34 @@ export default function SignupForm({
   closeModal,
   navigate,
 }) {
-  const [values, setValues] = useState({
+  const { values, handleChange } = useSignupForm({
     email: "",
     password1: "",
     password2: "",
   });
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setValues({ ...values, [name]: value });
-    if (errors[name]) setErrors({ ...errors, [name]: "" });
+  const validateForm = () => {
+    const newErrors = {};
+    if (!values.email) newErrors.email = "Email is required";
+    if (!values.password1) newErrors.password1 = "Password is required";
+    if (!values.password2) newErrors.password2 = "Please confirm password";
+    if (values.password1 !== values.password2) {
+      newErrors.password2 = "Passwords don't match";
+    }
+    return newErrors;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setErrors({ general: "" });
-
-    // Validation logic...
+    const formErrors = validateForm();
+    if (Object.keys(formErrors).length > 0) {
+      return setErrors(formErrors);
+    }
 
     try {
       setLoading(true);
+      clearAuthCookies();
+
       const { data } = await axios.post(
         SIGNUP_ROUTE,
         {
@@ -47,7 +68,10 @@ export default function SignupForm({
       closeModal();
       navigate("/verify-email", { state: { email: values.email } });
     } catch (err) {
-      // Error handling...
+      setErrors({
+        general:
+          err.response?.data?.message || "Signup failed. Please try again.",
+      });
     } finally {
       setLoading(false);
     }
@@ -61,7 +85,7 @@ export default function SignupForm({
           name="email"
           placeholder="Email"
           value={values.email}
-          onChange={handleChange}
+          onChange={(e) => handleChange(e, setErrors)}
           className={`border ${
             errors.email ? "border-red-500" : "border-slate-300"
           } p-3 rounded w-full`}
@@ -77,7 +101,7 @@ export default function SignupForm({
           name="password1"
           placeholder="Password"
           value={values.password1}
-          onChange={handleChange}
+          onChange={(e) => handleChange(e, setErrors)}
           className={`border ${
             errors.password1 ? "border-red-500" : "border-slate-300"
           } p-3 rounded w-full`}
@@ -93,7 +117,7 @@ export default function SignupForm({
           name="password2"
           placeholder="Confirm Password"
           value={values.password2}
-          onChange={handleChange}
+          onChange={(e) => handleChange(e, setErrors)}
           className={`border ${
             errors.password2 ? "border-red-500" : "border-slate-300"
           } p-3 rounded w-full`}
@@ -114,7 +138,13 @@ export default function SignupForm({
         disabled={loading}
         onClick={handleSubmit}
       >
-        {loading ? <Spinner /> : "Continue"}
+       {loading ? (
+          <span className="flex items-center justify-center gap-2">
+            <Spinner /> Processing...
+          </span>
+        ) : (
+          "Continue" 
+        )}
       </button>
     </>
   );

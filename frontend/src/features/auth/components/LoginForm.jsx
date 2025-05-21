@@ -3,6 +3,18 @@ import axios from "axios";
 import { LOGIN_ROUTE } from "../../../utils/constants";
 import Spinner from "../../../components/common/Spinner";
 
+const useLoginForm = (initialState) => {
+  const [values, setValues] = useState(initialState);
+
+  const handleChange = (e, setErrors) => {
+    const { name, value } = e.target;
+    setValues((prev) => ({ ...prev, [name]: value }));
+    setErrors((prev) => ({ ...prev, [name]: "" }));
+  };
+
+  return { values, handleChange, setValues };
+};
+
 export default function LoginForm({
   loading,
   errors,
@@ -14,32 +26,30 @@ export default function LoginForm({
   closeModal,
   navigate,
 }) {
-  const [values, setValues] = useState({
+  const { values, handleChange } = useLoginForm({
     login_identifier: "",
     password: "",
   });
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setValues({ ...values, [name]: value });
-    if (errors[name]) setErrors({ ...errors, [name]: "" });
+  const validateForm = () => {
+    const newErrors = {};
+    if (!values.login_identifier)
+      newErrors.login_identifier = "This field is required";
+    if (!values.password) newErrors.password = "Password is required";
+    return newErrors;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setErrors({ general: "" });
-
-    if (!values.login_identifier || !values.password) {
-      return setErrors({
-        login_identifier: !values.login_identifier
-          ? "This field is required."
-          : "",
-        password: !values.password ? "Password is required." : "",
-      });
+    const formErrors = validateForm();
+    if (Object.keys(formErrors).length > 0) {
+      return setErrors(formErrors);
     }
 
     try {
       setLoading(true);
+      clearAuthCookies();
+
       const { data } = await axios.post(
         LOGIN_ROUTE,
         {
@@ -64,7 +74,11 @@ export default function LoginForm({
       closeModal();
       navigate("/");
     } catch (err) {
-      // Error handling...
+      console.error("Login error:", err);
+      setErrors({
+        general:
+          err.response?.data?.non_field_errors || "Login failed. Please try again.",
+      });
     } finally {
       setLoading(false);
     }
@@ -78,7 +92,7 @@ export default function LoginForm({
           name="login_identifier"
           placeholder="Email or Username"
           value={values.login_identifier}
-          onChange={handleChange}
+          onChange={(e) => handleChange(e, setErrors)}
           className={`border ${
             errors.login_identifier ? "border-red-500" : "border-slate-300"
           } p-3 rounded w-full`}
@@ -90,13 +104,14 @@ export default function LoginForm({
           </span>
         )}
       </div>
+
       <div>
         <input
           type="password"
           name="password"
           placeholder="Password"
           value={values.password}
-          onChange={handleChange}
+          onChange={(e) => handleChange(e, setErrors)}
           className={`border ${
             errors.password ? "border-red-500" : "border-slate-300"
           } p-3 rounded w-full`}
@@ -117,7 +132,13 @@ export default function LoginForm({
         disabled={loading}
         onClick={handleSubmit}
       >
-        {loading ? <Spinner /> : "Continue"}
+        {loading ? (
+          <span className="flex items-center justify-center gap-2">
+            <Spinner /> Processing...
+          </span>
+        ) : (
+          "Continue"
+        )}
       </button>
     </>
   );
