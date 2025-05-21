@@ -14,44 +14,20 @@ function AuthWrapper({ type }) {
   const [state, dispatch] = useStateProvider();
   const navigate = useNavigate();
   const emailInputRef = useRef(null);
-
-  // Common state and handlers
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({ general: "" });
 
-  useEffect(() => {
-    if (emailInputRef.current) emailInputRef.current.focus();
-  }, []);
-
-  useEffect(() => {
-    if (cookies.jwt) {
-      closeModal();
-      navigate("/");
-    }
-  }, [cookies.jwt, navigate]);
-
-  useEffect(() => {
-    const scrollY = window.scrollY;
-    const html = document.documentElement;
-    html.style.overflowY = "hidden";
-
-    return () => {
-      html.style.overflowY = "auto";
-      window.scrollTo(0, scrollY);
-    };
-  }, []);
-
+  // Common handlers
   const closeModal = useCallback(() => {
     dispatch({
-      type:
-        type === "login"
-          ? reducerCases.TOGGLE_LOGIN_MODAL
-          : reducerCases.TOGGLE_SIGNUP_MODAL,
+      type: type === "login" 
+        ? reducerCases.TOGGLE_LOGIN_MODAL 
+        : reducerCases.TOGGLE_SIGNUP_MODAL,
       [type === "login" ? "showLoginModal" : "showSignupModal"]: false,
     });
   }, [type, dispatch]);
 
-  const switchAuthType = () => {
+  const switchAuthType = useCallback(() => {
     dispatch({
       type: reducerCases.TOGGLE_LOGIN_MODAL,
       showLoginModal: type === "signup",
@@ -60,7 +36,7 @@ function AuthWrapper({ type }) {
       type: reducerCases.TOGGLE_SIGNUP_MODAL,
       showSignupModal: type === "login",
     });
-  };
+  }, [type, dispatch]);
 
   const clearAuthCookies = useCallback(() => {
     const cookieOptions = {
@@ -71,6 +47,27 @@ function AuthWrapper({ type }) {
     removeCookie("jwt", cookieOptions);
     removeCookie("jwt-refresh", cookieOptions);
   }, [removeCookie]);
+
+  // Effects
+  useEffect(() => {
+    emailInputRef.current?.focus();
+  }, []);
+
+  useEffect(() => {
+    if (cookies.jwt) {
+      closeModal();
+      navigate("/");
+    }
+  }, [cookies.jwt, navigate, closeModal]);
+
+  useEffect(() => {
+    const scrollY = window.scrollY;
+    document.documentElement.style.overflowY = "hidden";
+    return () => {
+      document.documentElement.style.overflowY = "auto";
+      window.scrollTo(0, scrollY);
+    };
+  }, []);
 
   return (
     <AuthForm
@@ -84,9 +81,9 @@ function AuthWrapper({ type }) {
       {type === "login" ? (
         <LoginForm
           loading={loading}
+          setLoading={setLoading}
           errors={errors}
           setErrors={setErrors}
-          setLoading={setLoading}
           setCookie={setCookie}
           clearAuthCookies={clearAuthCookies}
           dispatch={dispatch}
@@ -96,9 +93,9 @@ function AuthWrapper({ type }) {
       ) : (
         <SignupForm
           loading={loading}
+          setLoading={setLoading}
           errors={errors}
           setErrors={setErrors}
-          setLoading={setLoading}
           clearAuthCookies={clearAuthCookies}
           closeModal={closeModal}
           navigate={navigate}
