@@ -9,6 +9,9 @@ import SellerMessages from "../features/seller/SellerMessages";
 import SellerOnboarding from "../features/seller/SellerOnboarding";
 import SellerGigs from "../features/seller/SellerGigs";
 import CreateGig from "../features/seller/CreateGig";
+import BuyerHome from "../pages/buyer/Home";
+import BuyerOrders from "../pages/buyer/Orders";
+import BuyerOrderMessages from "../pages/buyer/OrderMessages";
 
 const router = createBrowserRouter([
   {
@@ -17,6 +20,22 @@ const router = createBrowserRouter([
       {
         path: "/",
         element: <Home />,
+      },
+      {
+        path: "/buyer",
+        element: <BuyerHome />,
+      },
+      {
+        path: "/buyer/orders",
+        element: <BuyerOrders />,
+      },
+      {
+        path: "/buyer/orders/:orderId/messages",
+        element: <BuyerOrderMessages />,
+      },
+      {
+        path: "/buyer/messages",
+        element: <BuyerOrders />,
       },
       {
         path: "/seller",
@@ -52,7 +71,6 @@ const router = createBrowserRouter([
     path: "/verify-email",
     element: <VerifyEmailPage />,
   },
-  
 ]);
 
 export default router;
