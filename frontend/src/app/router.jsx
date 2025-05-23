@@ -2,7 +2,8 @@ import { createBrowserRouter } from "react-router-dom";
 import MainLayout from "../layouts/MainLayout";
 import Home from "../pages/Home";
 import ProfilePage from "../pages/ProfilePage";
-import VerifyEmailPage from "../features/auth/pages/VerifyEmailPage";
+import CredentialWrapper from "../features/auth/pages/CredentialWrapper";
+import EmailVerification from "../features/auth/components/EmailVerification";
 import SellerDashboard from "../features/seller/SellerDashboard";
 import SellerOrders from "../features/seller/SellerOrders";
 import SellerMessages from "../features/seller/SellerMessages";
@@ -68,8 +69,13 @@ const router = createBrowserRouter([
     element: <ProfilePage />,
   },
   {
-    path: "/verify-email",
-    element: <VerifyEmailPage />,
+    element: <CredentialWrapper />,
+    children: [
+      {
+        path: "/verify-email",
+        element: <EmailVerification />,
+      },
+    ],
   },
 ]);
 

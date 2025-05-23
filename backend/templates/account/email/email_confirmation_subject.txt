@@ -1,1 +1,0 @@
-Confirm your email address at {{ SITE_NAME }}

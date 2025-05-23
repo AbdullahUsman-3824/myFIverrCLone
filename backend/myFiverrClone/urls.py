@@ -11,11 +11,12 @@ urlpatterns = [
 
     # Authentication and registration
     path('api/auth/', include('dj_rest_auth.urls')),
-    path('api/accounts/', include('accounts.urls')),
     path('api/auth/registration/', include('dj_rest_auth.registration.urls')),
+    path('accounts/', include('django.contrib.auth.urls')),
 
     # Core application URLs
     path('api/core/', include('core.urls')),
+    path('api/accounts/', include('accounts.urls')),
     path('api/gigs/', include('gigs.urls')),
     path('api/orders/', include('orders.urls')),
     path('api/payments/', include('payments.urls')),

@@ -80,12 +80,15 @@ REST_FRAMEWORK = {
         'rest_framework.throttling.UserRateThrottle',
         'rest_framework.throttling.ScopedRateThrottle',
     ],
+    'DEFAULT_THROTTLE_CLASSES': [],
     'DEFAULT_THROTTLE_RATES': {
-        'anon': '100/day',
-        'user': '1000/day',
-        'login': '5/minute',
-        'register': '3/hour',
-        'dj_rest_auth': '5/hour',
+        'user': None,  
+        'anon': None,
+        # 'anon': '100/day',
+        # 'user': '1000/day',
+        # 'login': '5/minute',
+        # 'register': '3/hour',
+        # 'dj_rest_auth': '5/hour',
     },
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
@@ -183,6 +186,10 @@ LOGGING = {
             'handlers': ['console'],
             'level': 'INFO',
             'propagate': True,
+        },
+        'accounts.adapters': {
+            'handlers': ['console'],
+            'level': 'INFO',
         },
     },
     'root': {
@@ -343,10 +350,15 @@ ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
 ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 3
 ACCOUNT_EMAIL_CONFIRMATION_COOLDOWN = 180  # 3 minutes
 
-# Update these URLs to point to frontend
+FRONTEND_URL = config("FRONTEND_URL", default="http://localhost:5173")
+PASSWORD_RESET_CONFIRM_URL = f"{FRONTEND_URL}/reset-password"
+ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL = f"{FRONTEND_URL}/verify-email"
+ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = f"{FRONTEND_URL}/verify-email"
 
-ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL = "http://localhost:5173/verify-email"
-ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = "http://localhost:5173/verify-email"
+REST_AUTH_PASSWORD_RESET_USE_SITES_DOMAIN = False
+ACCOUNT_ADAPTER = 'allauth.account.adapter.DefaultAccountAdapter'
+ACCOUNT_ADAPTER = 'accounts.adapters.CustomAccountAdapter'
+
 
 # ======================
 #  REST AUTH SETTINGS

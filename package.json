@@ -1,0 +1,14 @@
+{
+  "name": "myfiverrclone",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "react": "cd frontend && npm run dev",
+    "py": "cd backend && py manage.py runserver"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}

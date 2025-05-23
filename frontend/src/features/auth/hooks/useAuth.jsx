@@ -91,7 +91,7 @@ const useAuth = () => {
       });
 
       // After successful registration, redirect to email verification
-      navigate("/auth/verify-email", {
+      navigate("/verify-email", {
         state: { email: formData.email },
         replace: true,
       });
