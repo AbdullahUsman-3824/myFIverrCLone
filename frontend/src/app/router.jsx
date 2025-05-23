@@ -4,6 +4,8 @@ import Home from "../pages/Home";
 import ProfilePage from "../pages/ProfilePage";
 import CredentialWrapper from "../features/auth/pages/CredentialWrapper";
 import EmailVerification from "../features/auth/components/EmailVerification";
+import ForgotPassword from "../features/auth/components/ForgotPassword";
+import ResetPassword from "../features/auth/components/ResetPassword";
 import SellerDashboard from "../features/seller/SellerDashboard";
 import SellerOrders from "../features/seller/SellerOrders";
 import SellerMessages from "../features/seller/SellerMessages";
@@ -74,6 +76,14 @@ const router = createBrowserRouter([
       {
         path: "/verify-email",
         element: <EmailVerification />,
+      },
+      {
+        path: "/forgot-password",
+        element: <ForgotPassword />,
+      },
+      {
+        path: "/reset-password/:uid/:token",
+        element: <ResetPassword />,
       },
     ],
   },

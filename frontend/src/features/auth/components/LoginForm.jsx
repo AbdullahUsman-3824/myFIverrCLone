@@ -77,7 +77,8 @@ export default function LoginForm({
       console.error("Login error:", err);
       setErrors({
         general:
-          err.response?.data?.non_field_errors || "Login failed. Please try again.",
+          err.response?.data?.non_field_errors ||
+          "Login failed. Please try again.",
       });
     } finally {
       setLoading(false);
@@ -120,6 +121,15 @@ export default function LoginForm({
         {errors.password && (
           <span className="text-red-500 text-xs mt-1">{errors.password}</span>
         )}
+        <div className="text-right mt-1">
+          <button
+            type="button"
+            onClick={() => navigate("/forgot-password")}
+            className="text-sm text-blue-600 hover:text-blue-800"
+          >
+            Forgot Password?
+          </button>
+        </div>
       </div>
       {errors.general && (
         <div className="text-red-500 text-sm text-center p-2 bg-red-50 rounded">

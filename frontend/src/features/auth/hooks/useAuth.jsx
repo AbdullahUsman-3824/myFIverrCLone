@@ -149,12 +149,45 @@ const useAuth = () => {
     }
   };
 
+  const requestPasswordReset = async (email) => {
+    setIsLoading(true);
+    try {
+      const response = await api.post("/password/reset/", { email });
+      return response.data;
+    } catch (err) {
+      setError(err.response?.data || { detail: "Failed to send reset email" });
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const resetPassword = async (uid,token, new_password1, new_password2) => {
+    setIsLoading(true);
+    try {
+      const response = await api.post("/password/reset/confirm/", {
+        uid,
+        token,
+        new_password1,
+        new_password2,
+      });
+      return response.data;
+    } catch (err) {
+      setError(err.response?.data || { detail: "Failed to reset password" });
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return {
     login,
     register,
     logout,
     verifyEmail,
     resendVerificationEmail,
+    requestPasswordReset,
+    resetPassword,
     isLoading,
     error,
     resetError: () => setError(null),

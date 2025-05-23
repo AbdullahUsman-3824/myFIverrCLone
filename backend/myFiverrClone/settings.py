@@ -274,8 +274,7 @@ TEMPLATES = [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-                'myFiverrClone.context_processors.site_settings',  # Add custom context processor
+                'django.contrib.messages.context_processors.messages', 
             ],
         },
     },
