@@ -1,5 +1,5 @@
 import axios from "axios";
-import AUTH_ROUTES from "../../utils/constants";
+import {AUTH_ROUTES} from "../../utils/constants";
 
 const api = axios.create({
   baseURL: AUTH_ROUTES,

@@ -8,12 +8,16 @@ export const ORDERS_ROUTES = `${API_URL}/orders`;
 export const MESSAGES_ROUTES = `${API_URL}/messages`;
 export const DASHBOARD_DATA_ROUTES = `${API_URL}/dashboard`;
 
+// Authentication Routes
 export const LOGIN_ROUTE = `${AUTH_ROUTES}/login/`;
 export const SIGNUP_ROUTE = `${AUTH_ROUTES}/registration/`;
 export const LOGGOUT_ROUTE = `${AUTH_ROUTES}/logout/`;
 export const REQUEST_PASSWORD_RESET_ROUTE = `${AUTH_ROUTES}/password/reset/`;
 export const RESET_PASSWORD_ROUTE = `${AUTH_ROUTES}/password/reset/confirm/`;
 export const GOOGLE_LOGIN_ROUTE = `${AUTH_ROUTES}/google/`;
+
+// User Management Routes
+export const USER_PROFILE_ROUTE = `${AUTH_ROUTES}/user/`;
 
 export const VERIFY_EMAIL_ROUTE = `${AUTH_ROUTES}/registration/verify-email/`;
 export const RESEND_VERIFICATION_EMAIL_ROUTE = `${AUTH_ROUTES}/registration/resend-email/`;

@@ -1,7 +1,7 @@
 import { createBrowserRouter } from "react-router-dom";
 import MainLayout from "../layouts/MainLayout";
 import Home from "../pages/Home";
-import ProfilePage from "../pages/ProfilePage";
+import ProfileSetupPage from "../features/profiles/pages/ProfileSetupPage";
 import CredentialWrapper from "../features/auth/pages/CredentialWrapper";
 import EmailVerification from "../features/auth/components/EmailVerification";
 import ForgotPassword from "../features/auth/components/ForgotPassword";
@@ -69,7 +69,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/profile",
-    element: <ProfilePage />,
+    element: <ProfileSetupPage />,
   },
   {
     element: <CredentialWrapper />,

@@ -25,7 +25,7 @@ export const requestPasswordReset = async (email) => {
   return api.post(ROUTES.REQUEST_PASSWORD_RESET_ROUTE, { email });
 };
 
-export const resetPassword = async (resetData) => {
+export const resetPassword = async (resetData) => {  
   return api.post(ROUTES.RESET_PASSWORD_ROUTE, resetData);
 };
 

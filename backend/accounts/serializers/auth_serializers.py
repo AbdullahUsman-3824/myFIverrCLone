@@ -90,6 +90,9 @@ class CustomUserDetailsSerializer(UserDetailsSerializer):
         )
     
     def update(self, instance, validated_data):
+        if 'username' in validated_data and validated_data['username'] == instance.username:
+            validated_data.pop('username')
+
         instance = super().update(instance, validated_data)
         
         required_fields = [
@@ -98,11 +101,11 @@ class CustomUserDetailsSerializer(UserDetailsSerializer):
             bool(instance.profile_picture),
             bool(instance.email and instance.email.strip())
         ]
-        
+
         is_profile_set = all(required_fields)
-        
+
         if instance.is_profile_set != is_profile_set:
             instance.is_profile_set = is_profile_set
             instance.save(update_fields=['is_profile_set'])
-        
+
         return instance
