@@ -58,12 +58,38 @@ const useAuth = () => {
   const [{ userInfo }, dispatch] = useStateProvider();
 
   const handleAuthSuccess = (response, redirectPath = "/") => {
-    if (response.data.access_token) {
-      localStorage.setItem("accessToken", response.data.access_token);
-      localStorage.setItem("refreshToken", response.data.refresh_token || "");
+    if (response.data.access) {
+      // Store JWT tokens in cookies (handled by backend)
+      dispatch({ type: reducerCases.SET_USER, userInfo: response.data.user });
+      setError(null);
+      navigate(redirectPath);
     }
+  };
+
+  const handleGoogleLogin = async (credentialResponse) => {
+    setIsLoading(true);
     setError(null);
-    navigate(redirectPath);
+    try {
+      console.log("Google credential response:", credentialResponse);
+      const response = await axios.post(
+        "http://localhost:8000/api/auth/google/",
+        {
+          access_token: credentialResponse.credential,
+        },
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      handleAuthSuccess(response);
+    } catch (err) {
+      console.error("Google login failed:", err);
+      setError(err.response?.data || { detail: "Google login failed" });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const login = async (formData) => {
@@ -162,7 +188,7 @@ const useAuth = () => {
     }
   };
 
-  const resetPassword = async (uid,token, new_password1, new_password2) => {
+  const resetPassword = async (uid, token, new_password1, new_password2) => {
     setIsLoading(true);
     try {
       const response = await api.post("/password/reset/confirm/", {
@@ -191,6 +217,7 @@ const useAuth = () => {
     isLoading,
     error,
     resetError: () => setError(null),
+    handleGoogleLogin,
   };
 };
 

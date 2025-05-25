@@ -1,8 +1,7 @@
 import { FiX } from "react-icons/fi";
-import { FcGoogle } from "react-icons/fc";
-import { MdFacebook } from "react-icons/md";
-import SocialAuthButton from "../components/SocialAuthButton";
+import { GoogleLogin } from "@react-oauth/google";
 import AuthDivider from "../components/AuthDivider";
+import useAuth from "../hooks/useAuth";
 
 export default function AuthForm({
   type,
@@ -10,11 +9,12 @@ export default function AuthForm({
   children,
   onClose,
   onSwitchType,
-  emailInputRef,
 }) {
+  const { handleGoogleLogin, error: authError } = useAuth();
+
   const authText = {
     login: {
-      title: "Login to Fiverr",
+      title: "Login to Fiverrn ",
       switchText: "Not a member?",
       switchAction: "Join Now",
     },
@@ -45,17 +45,32 @@ export default function AuthForm({
           {authText[type].title}
         </h3>
 
+        {authError?.detail && (
+          <div className="mb-4 p-3 bg-red-50 text-red-600 rounded text-sm">
+            {authError.detail}
+          </div>
+        )}
+
         <div className="flex flex-col gap-4 mb-4">
-          <SocialAuthButton
-            icon={MdFacebook}
-            text={`Continue with Facebook`}
-            bgColor="bg-blue-500"
-            textColor="text-white"
-          />
-          <SocialAuthButton
-            icon={FcGoogle}
-            text={`Continue with Google`}
-            border="border border-slate-300"
+          <GoogleLogin
+            onSuccess={handleGoogleLogin}
+            onError={(error) => {
+              console.error("Google Login Failed:", error);
+              if (error.error === "popup_closed_by_user") {
+                // Handle user closing the popup
+                return;
+              }
+              if (error.error === "access_denied") {
+                // Handle user denying access
+                return;
+              }
+              // Handle other errors
+              setError({ detail: "Google login failed. Please try again." });
+            }}
+            useOneTap={false}
+            flow="implicit"
+            theme="filled_blue"
+            text="continue_with"
           />
         </div>
 

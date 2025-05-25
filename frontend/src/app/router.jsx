@@ -18,6 +18,7 @@ import BuyerOrderMessages from "../pages/buyer/OrderMessages";
 
 const router = createBrowserRouter([
   {
+    path: "/",
     element: <MainLayout />,
     children: [
       {

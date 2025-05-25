@@ -7,7 +7,6 @@ from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_cookie
-from allauth.account.models import EmailConfirmation, EmailConfirmationHMAC
 
 from .models import *
 from .serializers.profile_serializers import *
@@ -15,7 +14,6 @@ from .serializers.auth_serializers import *
 from .permissions import *
 
 User = get_user_model()
-
 
 # ==========================
 # Base Profile View Classes
