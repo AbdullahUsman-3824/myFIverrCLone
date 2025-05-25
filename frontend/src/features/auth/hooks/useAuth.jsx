@@ -1,54 +1,9 @@
-import axios from "axios";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
 import { useStateProvider } from "../../../context/StateContext";
 import { reducerCases } from "../../../context/reducerCases";
-
-const api = axios.create({
-  baseURL: "http://127.0.0.1:8000/api/auth",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  withCredentials: true, // For session/cookie auth
-});
-
-// Add JWT interceptor
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("accessToken");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
-
-// Response interceptor for token refresh
-api.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
-    if (
-      error.response?.status === 401 &&
-      originalRequest.url !== "/token/refresh/"
-    ) {
-      try {
-        const refresh = localStorage.getItem("refreshToken");
-        if (refresh) {
-          const { data } = await api.post("/token/refresh/", { refresh });
-          localStorage.setItem("accessToken", data.access);
-          originalRequest.headers.Authorization = `Bearer ${data.access}`;
-          return api(originalRequest);
-        }
-      } catch (refreshError) {
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
-        window.location.href = "/auth/login";
-        return Promise.reject(refreshError);
-      }
-    }
-    return Promise.reject(error);
-  }
-);
+import * as authService from "../authService";
 
 const useAuth = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -59,7 +14,11 @@ const useAuth = () => {
 
   const handleAuthSuccess = (response, redirectPath = "/") => {
     if (response.data.access) {
-      // Store JWT tokens in cookies (handled by backend)
+      setCookie("jwt", response.data.access, {
+        path: "/",
+        secure: process.env.NODE_ENV !== "development",
+        sameSite: "strict",
+      });
       dispatch({ type: reducerCases.SET_USER, userInfo: response.data.user });
       setError(null);
       navigate(redirectPath);
@@ -70,18 +29,8 @@ const useAuth = () => {
     setIsLoading(true);
     setError(null);
     try {
-      console.log("Google credential response:", credentialResponse);
-      const response = await axios.post(
-        "http://localhost:8000/api/auth/google/",
-        {
-          access_token: credentialResponse.credential,
-        },
-        {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
+      const response = await authService.googleLogin(
+        credentialResponse.credential
       );
       handleAuthSuccess(response);
     } catch (err) {
@@ -95,13 +44,11 @@ const useAuth = () => {
   const login = async (formData) => {
     setIsLoading(true);
     try {
-      const response = await api.post("/login/", {
-        email: formData.email,
-        password: formData.password,
-      });
-      handleAuthSuccess(response, "/");
+      const response = await authService.login(formData);
+      handleAuthSuccess(response);
     } catch (err) {
       setError(err.response?.data || { detail: "Login failed" });
+      throw err;
     } finally {
       setIsLoading(false);
     }
@@ -110,18 +57,11 @@ const useAuth = () => {
   const register = async (formData) => {
     setIsLoading(true);
     try {
-      const response = await api.post("/registration/", {
-        email: formData.email,
-        password1: formData.password1,
-        password2: formData.password2,
-      });
-
-      // After successful registration, redirect to email verification
+      const response = await authService.register(formData);
       navigate("/verify-email", {
         state: { email: formData.email },
         replace: true,
       });
-
       return response.data;
     } catch (err) {
       setError(err.response?.data || { detail: "Registration failed" });
@@ -134,7 +74,7 @@ const useAuth = () => {
   const verifyEmail = async (key) => {
     setIsLoading(true);
     try {
-      const response = await api.post(`/registration/verify-email/`, { key });
+      const response = await authService.verifyEmail(key);
       return response.data;
     } catch (err) {
       setError(err.response?.data || { detail: "Email verification failed" });
@@ -147,9 +87,7 @@ const useAuth = () => {
   const resendVerificationEmail = async (email) => {
     setIsLoading(true);
     try {
-      const response = await api.post("/registration/resend-email/", {
-        email,
-      });
+      const response = await authService.resendVerificationEmail(email);
       return response.data;
     } catch (err) {
       setError(
@@ -163,7 +101,7 @@ const useAuth = () => {
 
   const logout = async () => {
     try {
-      await api.post("/logout/");
+      await authService.logout();
     } finally {
       removeCookie("jwt", { path: "/" });
       removeCookie("jwt-refresh", { path: "/" });
@@ -178,7 +116,7 @@ const useAuth = () => {
   const requestPasswordReset = async (email) => {
     setIsLoading(true);
     try {
-      const response = await api.post("/password/reset/", { email });
+      const response = await authService.requestPasswordReset(email);
       return response.data;
     } catch (err) {
       setError(err.response?.data || { detail: "Failed to send reset email" });
@@ -188,15 +126,10 @@ const useAuth = () => {
     }
   };
 
-  const resetPassword = async (uid, token, new_password1, new_password2) => {
+  const resetPassword = async (resetData) => {
     setIsLoading(true);
     try {
-      const response = await api.post("/password/reset/confirm/", {
-        uid,
-        token,
-        new_password1,
-        new_password2,
-      });
+      const response = await authService.resetPassword(resetData);
       return response.data;
     } catch (err) {
       setError(err.response?.data || { detail: "Failed to reset password" });
@@ -218,6 +151,7 @@ const useAuth = () => {
     error,
     resetError: () => setError(null),
     handleGoogleLogin,
+    handleAuthSuccess,
   };
 };
 

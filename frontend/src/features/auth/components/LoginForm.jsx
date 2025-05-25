@@ -1,7 +1,7 @@
 import { useState } from "react";
-import axios from "axios";
-import { LOGIN_ROUTE } from "../../../utils/constants";
 import Spinner from "../../../components/common/Spinner";
+import useAuth from "../hooks/useAuth";
+import * as authService from "../authService";
 
 const useLoginForm = (initialState) => {
   const [values, setValues] = useState(initialState);
@@ -31,6 +31,8 @@ export default function LoginForm({
     password: "",
   });
 
+  const { handleAuthSuccess } = useAuth();
+
   const validateForm = () => {
     const newErrors = {};
     if (!values.login_identifier)
@@ -45,43 +47,16 @@ export default function LoginForm({
     if (Object.keys(formErrors).length > 0) {
       return setErrors(formErrors);
     }
-
+    setLoading(true);
     try {
-      setLoading(true);
-      clearAuthCookies();
-
-      const { data } = await axios.post(
-        LOGIN_ROUTE,
-        {
-          login_identifier: values.login_identifier,
-          password: values.password,
-        },
-        {
-          withCredentials: true,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-
-      if (data.access) {
-        setCookie("jwt", data.access, {
-          path: "/",
-          secure: process.env.NODE_ENV !== "development",
-          sameSite: "strict",
-        });
-      }
-
-      dispatch({ type: reducerCases.SET_USER, userInfo: data.user });
-      closeModal();
-      navigate("/");
+      const response = await authService.login(values);
+      handleAuthSuccess(response);
     } catch (err) {
-      console.error("Login error:", err);
-      setErrors({
-        general:
-          err.response?.data?.non_field_errors ||
-          "Login failed. Please try again.",
-      });
+      setErrors(err.response?.data || { detail: "Login failed" });
+      throw err;
     } finally {
       setLoading(false);
+      closeModal?.();
     }
   };
 

@@ -10,6 +10,13 @@ export const DASHBOARD_DATA_ROUTES = `${API_URL}/dashboard`;
 
 export const LOGIN_ROUTE = `${AUTH_ROUTES}/login/`;
 export const SIGNUP_ROUTE = `${AUTH_ROUTES}/registration/`;
+export const LOGGOUT_ROUTE = `${AUTH_ROUTES}/logout/`;
+export const REQUEST_PASSWORD_RESET_ROUTE = `${AUTH_ROUTES}/password/reset/`;
+export const RESET_PASSWORD_ROUTE = `${AUTH_ROUTES}/password/reset/confirm/`;
+export const GOOGLE_LOGIN_ROUTE = `${AUTH_ROUTES}/google/`;
+
+export const VERIFY_EMAIL_ROUTE = `${AUTH_ROUTES}/registration/verify-email/`;
+export const RESEND_VERIFICATION_EMAIL_ROUTE = `${AUTH_ROUTES}/registration/resend-email/`;
 export const TOKEN_REFRESH = `${AUTH_ROUTES}/token/refresh/`;
 
 export const SOCIAL_LOGIN_ROUTE = `${AUTH_ROUTES}/social-login`;
