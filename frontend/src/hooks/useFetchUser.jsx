@@ -4,7 +4,7 @@ import axios from "axios";
 import { GET_USER_INFO, TOKEN_REFRESH } from "../utils/constants";
 import { useNavigate } from "react-router-dom";
 import { useStateProvider } from "../context/StateContext";
-import { reducerCases } from "../context/reducerCases";
+import { toggleLoginModal} from "../context/StateReducer";
 
 // Constants
 const MAX_REFRESH_ATTEMPTS = 5;
@@ -67,7 +67,7 @@ const useFetchUser = (shouldFetch = false) => {
     if (refreshAttempts.current >= MAX_REFRESH_ATTEMPTS) {
       console.warn("Max refresh attempts reached");
       clearAuthCookies();
-      dispatch({ type: reducerCases.TOGGLE_LOGIN_MODAL, showLoginModal: true });
+      dispatch(toggleLoginModal(true));
       navigate("/", { state: { sessionExpired: true } });
       return null;
     }
@@ -99,7 +99,7 @@ const useFetchUser = (shouldFetch = false) => {
     } catch (error) {
       console.error("Token refresh failed:", error);
       clearAuthCookies();
-      dispatch({ type: reducerCases.TOGGLE_LOGIN_MODAL, showLoginModal: true });
+      dispatch(toggleLoginModal(true));
       navigate("/", { state: { sessionExpired: true } });
       return null;
     }

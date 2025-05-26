@@ -5,10 +5,16 @@ import { useCookies } from "react-cookie";
 import FiverrLogo from "../components/shared/FiverrLogo";
 import ContextMenu from "../features/auth/components/ContextMenu";
 import { useStateProvider } from "../context/StateContext";
+import {
+  setUser,
+  toggleLoginModal,
+  toggleSignupModal,
+} from "../context/StateReducer";
 import { reducerCases } from "../context/reducerCases";
 import { HOST } from "../utils/constants";
 import useFetchUser from "../hooks/useFetchUser";
 import useAuth from "../features/auth/hooks/useAuth";
+import axios from "axios";
 
 function Navbar() {
   // Hooks and state
@@ -43,10 +49,7 @@ function Navbar() {
             projectedUserInfo.imageName = `${HOST}/${user.image}`;
           }
           delete projectedUserInfo.image;
-          dispatch({
-            type: reducerCases.SET_USER,
-            userInfo: projectedUserInfo,
-          });
+          dispatch(setUser(projectedUserInfo));
         } catch (err) {
           console.error("Error processing user data:", err);
         }
@@ -85,32 +88,61 @@ function Navbar() {
   // Handlers
   const handleLogin = useCallback(() => {
     if (showSignupModal) {
-      dispatch({
-        type: reducerCases.TOGGLE_SIGNUP_MODAL,
-        showSignupModal: false,
-      });
+      dispatch(toggleSignupModal(false));
     }
-    dispatch({ type: reducerCases.TOGGLE_LOGIN_MODAL, showLoginModal: true });
+    dispatch(toggleLoginModal(true));
   }, [dispatch, showSignupModal]);
 
   const handleSignup = useCallback(() => {
     if (showLoginModal) {
-      dispatch({
-        type: reducerCases.TOGGLE_LOGIN_MODAL,
-        showLoginModal: false,
-      });
+      dispatch(toggleLoginModal(false));
     }
-    dispatch({ type: reducerCases.TOGGLE_SIGNUP_MODAL, showSignupModal: true });
+    dispatch(toggleSignupModal(true));
   }, [dispatch, showLoginModal]);
 
   const handleOrdersNavigate = useCallback(() => {
     navigate(isSeller ? "/seller/orders" : "/buyer/orders");
   }, [isSeller, navigate]);
 
-  const handleModeSwitch = useCallback(() => {
-    dispatch({ type: reducerCases.SWITCH_MODE });
-    navigate(isSeller ? "/buyer/orders" : "/seller");
-  }, [dispatch, isSeller, navigate]);
+  const handleModeSwitch = useCallback(async () => {
+    try {
+      setIsSwitchingMode(true); // Add loading state if needed
+      const response = await axios.post(
+        `${HOST}/api/accounts/switch-mode`,
+        {},
+        {
+          withCredentials: true,
+          headers: {
+            Authorization: `Bearer ${cookies.jwt}`, // Assuming you have access to cookies
+          },
+        }
+      );
+      dispatch(setUser(response.data.user));
+
+      // Clear any errors if successful
+      setModeSwitchError(null);
+
+      // Navigate to the appropriate dashboard
+      navigate(isSeller ? "/buyer" : "/seller");
+    } catch (err) {
+      console.error("Mode switch failed:", err);
+
+      // Handle different error cases
+      const errorMessage =
+        err.response?.data?.message ||
+        err.response?.data?.detail ||
+        "Failed to switch modes. Please try again.";
+
+      setModeSwitchError(errorMessage);
+
+      // If unauthorized, consider redirecting to login
+      if (err.response?.status === 401) {
+        navigate("/login");
+      }
+    } finally {
+      setIsSwitchingMode(false); // Reset loading state
+    }
+  }, [dispatch, isSeller, navigate, cookies.jwt]); // Add all dependencies
 
   const handleSearch = useCallback(() => {
     if (searchQuery.trim()) {
@@ -237,9 +269,9 @@ function Navbar() {
               setIsContextMenuVisible(true);
             }}
           >
-            {userInfo?.imageName ? (
+            {userInfo?.profile_picture ? (
               <img
-                src={userInfo.imageName}
+                src={userInfo.profile_picture}
                 alt="Profile"
                 width={40}
                 height={40}

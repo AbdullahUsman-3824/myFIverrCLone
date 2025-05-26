@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
 import { useStateProvider } from "../../../context/StateContext";
-import { reducerCases } from "../../../context/reducerCases";
+import { setUser } from "../../../context/StateReducer";
 import * as authService from "../authService";
 
 const useAuth = () => {
@@ -19,7 +19,7 @@ const useAuth = () => {
         secure: process.env.NODE_ENV !== "development",
         sameSite: "strict",
       });
-      dispatch({ type: reducerCases.SET_USER, userInfo: response.data.user });
+      dispatch(setUser(response.data.user));
       setError(null);
       navigate(redirectPath);
     }
@@ -105,10 +105,7 @@ const useAuth = () => {
     } finally {
       removeCookie("jwt", { path: "/" });
       removeCookie("jwt-refresh", { path: "/" });
-      dispatch({
-        type: reducerCases.SET_USER,
-        userInfo: null,
-      });
+      dispatch(setUser(null));
       navigate("/");
     }
   };

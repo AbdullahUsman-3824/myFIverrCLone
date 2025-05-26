@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { CookiesProvider } from "react-cookie";
 import { RouterProvider } from "react-router-dom";
-import router from "./router";
+import router from "../routers/index";
 import "../styles/globals.css";
 import { StateProvider } from "../context/StateContext";
 import { GoogleOAuthProvider } from "@react-oauth/google";

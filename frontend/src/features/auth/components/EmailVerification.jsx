@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import { useStateProvider } from "../../../context/StateContext";
-import { reducerCases } from "../../../context/reducerCases";
+import { setUser, toggleLoginModal } from "../../../context/StateReducer";
 
 const EmailVerification = () => {
   const { verifyEmail, resendVerificationEmail } = useAuth();
@@ -66,14 +66,8 @@ const EmailVerification = () => {
   };
 
   const handleBackToLogin = () => {
-    dispatch({
-      type: reducerCases.SET_USER,
-      userInfo: null,
-    });
-    dispatch({
-      type: reducerCases.TOGGLE_LOGIN_MODAL,
-      showLoginModal: true,
-    });
+    dispatch(setUser(null));
+    dispatch(toggleLoginModal(true));
     navigate("/");
   };
 

@@ -14,12 +14,12 @@ export default function AuthForm({
 
   const authText = {
     login: {
-      title: "Login to Fiverrn ",
+      title: "Login to Workerr ",
       switchText: "Not a member?",
       switchAction: "Join Now",
     },
     signup: {
-      title: "Sign up to Fiverr",
+      title: "Sign up to Workerr",
       switchText: "Already a member?",
       switchAction: "Login Now",
     },

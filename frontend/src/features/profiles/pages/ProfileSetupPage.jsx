@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
 import { useStateProvider } from "../../../context/StateContext";
+import { setUser } from "../../../context/StateReducer";
 import axios from "axios";
 import { USER_PROFILE_ROUTE } from "../../../utils/constants";
 import ProfileForm from "../components/ProfileForm";
@@ -16,11 +17,13 @@ function ProfileSetupPage() {
     last_name: state.userInfo?.last_name || "",
     email: state.userInfo?.email || "",
     username: state.userInfo?.username || "",
-    profile_picture: null,
+    profile_picture: state.userInfo?.profile_picture || null,
   };
 
   const [formData, setFormData] = useState(initialFormData);
-  const [previewImage, setPreviewImage] = useState(null);
+  const [previewImage, setPreviewImage] = useState(
+    initialFormData.profile_picture || null
+  );
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
@@ -80,8 +83,7 @@ function ProfileSetupPage() {
         },
         withCredentials: true,
       });
-
-      dispatch({ type: "SET_USER", userInfo: data.user });
+      dispatch(setUser(data.user));
       navigate("/");
     } catch (error) {
       console.error(

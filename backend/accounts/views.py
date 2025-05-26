@@ -18,7 +18,7 @@ User = get_user_model()
 # ==========================
 # Base Profile View Classes
 # ==========================
-
+ 
 class BaseSellerProfileView:
     """Base class for seller profile views with common functionality"""
     permission_classes = [permissions.IsAuthenticated, IsSeller]

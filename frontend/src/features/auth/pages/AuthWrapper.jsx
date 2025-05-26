@@ -2,7 +2,7 @@ import { useCookies } from "react-cookie";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useStateProvider } from "../../../context/StateContext";
-import { reducerCases } from "../../../context/reducerCases";
+import { toggleLoginModal, toggleSignupModal,closeAuthModal } from "../../../context/StateReducer";
 import AuthForm from "../components/AuthForm";
 import LoginForm from "../components/LoginForm";
 import SignupForm from "../components/SignupForm";
@@ -19,23 +19,12 @@ function AuthWrapper({ type }) {
 
   // Common handlers
   const closeModal = useCallback(() => {
-    dispatch({
-      type: type === "login" 
-        ? reducerCases.TOGGLE_LOGIN_MODAL 
-        : reducerCases.TOGGLE_SIGNUP_MODAL,
-      [type === "login" ? "showLoginModal" : "showSignupModal"]: false,
-    });
+    dispatch(closeAuthModal());
   }, [type, dispatch]);
 
   const switchAuthType = useCallback(() => {
-    dispatch({
-      type: reducerCases.TOGGLE_LOGIN_MODAL,
-      showLoginModal: type === "signup",
-    });
-    dispatch({
-      type: reducerCases.TOGGLE_SIGNUP_MODAL,
-      showSignupModal: type === "login",
-    });
+    dispatch(toggleLoginModal(type === "signup"));
+    dispatch(toggleSignupModal(type === "login"));
   }, [type, dispatch]);
 
   const clearAuthCookies = useCallback(() => {

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 // import axios from "axios";
 import { FiUpload, FiCheck } from "react-icons/fi";
 import { useStateProvider } from "../../context/StateContext";
+import { setUser } from "../../context/StateReducer";
 
 const SellerOnboarding = () => {
   const navigate = useNavigate();
@@ -78,7 +79,7 @@ const SellerOnboarding = () => {
       const mockResponse = {
         user: {
           ...state.userInfo,
-          isSeller: true,
+          is_seller: true,
           sellerProfile: {
             title: formData.title,
             description: formData.description,
@@ -89,10 +90,7 @@ const SellerOnboarding = () => {
       };
 
       // Update user info in context
-      dispatch({
-        type: "SET_USER",
-        userInfo: mockResponse.user,
-      });
+      dispatch(setUser(mockResponse.user));
 
       // Navigate to seller dashboard
       navigate("/seller");
