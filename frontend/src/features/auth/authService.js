@@ -1,4 +1,4 @@
-import api from "./apiClient";
+import api from "../../utils/apiClient";
 import * as ROUTES from "../../utils/constants";
 
 export const login = async (credentials) => {

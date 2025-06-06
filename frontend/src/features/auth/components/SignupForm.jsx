@@ -1,6 +1,5 @@
 import { useState } from "react";
-import axios from "axios";
-import { SIGNUP_ROUTE } from "../../../utils/constants";
+import useAuth from "../hooks/useAuth";
 import Spinner from "../../../components/common/Spinner";
 
 const useSignupForm = (initialState) => {
@@ -30,6 +29,9 @@ export default function SignupForm({
     password2: "",
   });
 
+  // Use the auth hook
+  const { register, isLoading: authLoading, error: authError } = useAuth();
+
   const validateForm = () => {
     const newErrors = {};
     if (!values.email) newErrors.email = "Email is required";
@@ -48,32 +50,17 @@ export default function SignupForm({
       return setErrors(formErrors);
     }
 
-    try {
-      setLoading(true);
-      clearAuthCookies();
+    setLoading(true);
+    clearAuthCookies();
 
-      const { data } = await axios.post(
-        SIGNUP_ROUTE,
-        {
-          email: values.email,
-          password1: values.password1,
-          password2: values.password2,
-        },
-        {
-          withCredentials: true,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
+    const result = await register(values);
 
+    if (result.success) {
       closeModal();
-      navigate("/verify-email", { state: { email: values.email } });
-    } catch (err) {
-      setErrors({
-        general:
-          err.response?.data?.message || "Signup failed. Please try again.",
+      navigate("/verify-email", {
+        state: { email: result.email },
+        replace: true,
       });
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -127,9 +114,9 @@ export default function SignupForm({
           <span className="text-red-500 text-xs mt-1">{errors.password2}</span>
         )}
       </div>
-      {errors.general && (
+      {authError && (
         <div className="text-red-500 text-sm text-center p-2 bg-red-50 rounded">
-          {errors.general}
+          {authError}
         </div>
       )}
       <button
@@ -138,12 +125,12 @@ export default function SignupForm({
         disabled={loading}
         onClick={handleSubmit}
       >
-       {loading ? (
+        {loading || authLoading ? (
           <span className="flex items-center justify-center gap-2">
             <Spinner /> Processing...
           </span>
         ) : (
-          "Continue" 
+          "Continue"
         )}
       </button>
     </>

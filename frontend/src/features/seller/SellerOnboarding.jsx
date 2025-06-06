@@ -51,6 +51,10 @@ const SellerOnboarding = () => {
     setIsLoading(true);
 
     try {
+      // ===== Step 1: Become Seller Request =====
+      await axios.post("/api/accounts/become-seller/");
+
+      // ===== Step 2: Seller Profile Setup Request =====
       const formDataToSend = new FormData();
       Object.keys(formData).forEach((key) => {
         if (key === "portfolio") {
@@ -62,37 +66,20 @@ const SellerOnboarding = () => {
         }
       });
 
-      // For testing purposes, let's simulate a successful response
-      // In production, you would use the actual API call
-      // const { data } = await axios.post(
-      //   `${HOST}/api/seller/onboarding`,
-      //   formDataToSend,
-      //   {
-      //     headers: {
-      //       "Content-Type": "multipart/form-data",
-      //     },
-      //     withCredentials: true,
-      //   }
-      // );
-
-      // Simulate successful response
-      const mockResponse = {
-        user: {
-          ...state.userInfo,
-          is_seller: true,
-          sellerProfile: {
-            title: formData.title,
-            description: formData.description,
-            skills: formData.skills.split(',').map(skill => skill.trim()),
-            hourlyRate: formData.hourlyRate,
-          }
+      const profileRes = await axios.put(
+        "/api/accounts/seller/profile/setup/",
+        formDataToSend,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
         }
-      };
+      );
 
-      // Update user info in context
-      dispatch(setUser(mockResponse.user));
+      // ===== Step 3: Update Context / Global State =====
+      dispatch(setUser(profileRes.data.user || {})); // adjust as per actual response
 
-      // Navigate to seller dashboard
+      // ===== Step 4: Navigate to Seller Dashboard =====
       navigate("/seller");
     } catch (error) {
       console.error("Onboarding failed:", error);
@@ -124,7 +111,6 @@ const SellerOnboarding = () => {
                 onChange={handleChange}
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 placeholder="e.g., Professional Web Developer"
-                
               />
             </div>
             <div>
@@ -142,7 +128,6 @@ const SellerOnboarding = () => {
                 rows={4}
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Describe your experience and expertise..."
-                
               />
             </div>
           </div>
@@ -169,7 +154,6 @@ const SellerOnboarding = () => {
                 onChange={handleChange}
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 placeholder="e.g., Web Development, UI/UX Design, SEO"
-                
               />
             </div>
             <div>
@@ -187,7 +171,6 @@ const SellerOnboarding = () => {
                 onChange={handleChange}
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 placeholder="e.g., 25"
-                
               />
             </div>
           </div>
@@ -260,14 +243,30 @@ const SellerOnboarding = () => {
     <div className="min-h-[80vh] pt-28 px-8 md:px-32">
       <div className="max-w-3xl mx-auto">
         <div className="mb-8">
-          <h2 className="text-3xl font-bold text-gray-900">Complete Your Profile</h2>
+          <h2 className="text-3xl font-bold text-gray-900">
+            Complete Your Profile
+          </h2>
           <p className="mt-2 text-gray-600">
-            Step {step} of 3: {step === 1 ? "Basic Information" : step === 2 ? "Skills & Rate" : "Portfolio"}
+            Step {step} of 3:{" "}
+            {step === 1
+              ? "Basic Information"
+              : step === 2
+              ? "Skills & Rate"
+              : "Portfolio"}
           </p>
         </div>
 
         <div className="bg-white shadow rounded-lg p-6">
-          <form onSubmit={step === 3 ? handleSubmit : (e) => { e.preventDefault(); handleNext(); }}>
+          <form
+            onSubmit={
+              step === 3
+                ? handleSubmit
+                : (e) => {
+                    e.preventDefault();
+                    handleNext();
+                  }
+            }
+          >
             {renderStep()}
 
             <div className="mt-8 flex justify-between">
@@ -289,13 +288,11 @@ const SellerOnboarding = () => {
                     : "bg-blue-600 hover:bg-blue-700"
                 }`}
               >
-                {isLoading ? (
-                  "Processing..."
-                ) : step === 3 ? (
-                  "Complete Setup"
-                ) : (
-                  "Next"
-                )}
+                {isLoading
+                  ? "Processing..."
+                  : step === 3
+                  ? "Complete Setup"
+                  : "Next"}
               </button>
             </div>
           </form>
@@ -305,4 +302,4 @@ const SellerOnboarding = () => {
   );
 };
 
-export default SellerOnboarding; 
+export default SellerOnboarding;

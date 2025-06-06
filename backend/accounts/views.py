@@ -108,31 +108,35 @@ class SellerProfileDeleteView(
 # Become Seller View
 # ==========================
 
-class BecomeSellerView(generics.GenericAPIView):
-    permission_classes = [permissions.IsAuthenticated, IsVerifiedUser ]
+class BecomeSellerView(generics.GenericAPIView): 
+    permission_classes = [permissions.IsAuthenticated]
     serializer_class = CustomUserDetailsSerializer
     throttle_scope = 'become_seller'
-    
+
+    @transaction.atomic
     def post(self, request):
         user = request.user
-        
+
         if user.is_seller:
             return Response(
-                {'error': 'User  is already a seller'},
+                {'error': 'User is already a seller'},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        
+
         user.is_seller = True
         user.current_role = 'seller'
         user.save()
-        
-        SellerProfile.objects.get_or_create(user=user)
-        
+
+        SellerProfile.objects.get_or_create(
+            user=user,
+            defaults={'is_profile_complete': False}
+        )
+
         serializer = self.get_serializer(user, context={'request': request})
         return Response({
             'status': 'success',
             'message': 'You are now a seller',
-            'user': serializer.data
+            'user': serializer.data,
         })
 
 # ==========================

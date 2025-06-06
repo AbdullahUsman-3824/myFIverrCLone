@@ -5,12 +5,16 @@ import { useStateProvider } from "../../../context/StateContext";
 import { setUser, toggleLoginModal } from "../../../context/StateReducer";
 
 const EmailVerification = () => {
-  const { verifyEmail, resendVerificationEmail } = useAuth();
+  const {
+    verifyEmail,
+    resendVerificationEmail,
+    isLoading,
+    error: authError,
+  } = useAuth();
   const [{ userInfo }, dispatch] = useStateProvider();
   const email = userInfo?.email || null;
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [localError, setLocalError] = useState(null);
   const [resendSuccess, setResendSuccess] = useState(false);
   const [verificationSuccess, setVerificationSuccess] = useState(false);
 
@@ -25,44 +29,34 @@ const EmailVerification = () => {
   }, [searchParams]);
 
   const handleVerification = async (key) => {
-    setLoading(true);
-    setError(null);
-    try {
-      await verifyEmail(key);
+    setLocalError(null);
+    setResendSuccess(false);
+
+    const result = await verifyEmail(key);
+
+    if (result.success) {
       setVerificationSuccess(true);
       setTimeout(() => {
-        navigate("/profile", { replace: true });
+        handleBackToLogin();
       }, 3000);
-    } catch (err) {
-      if (err.response) {
-        // Server responded with a status code outside the range of 2xx
-        setError(err.response.data.detail || "Failed to verify email");
-      } else if (err.request) {
-        // The request was made but no response was received
-        setError("No response from server. Please try again later.");
-      } else {
-        // Something happened in setting up the request
-        setError("An unexpected error occurred. Please try again.");
-      }
-    } finally {
-      setLoading(false);
     }
+    // Errors are handled by authError state from the hook
   };
 
   const handleResendVerification = async () => {
     if (!email) return;
-    setLoading(true);
-    setError(null);
-    try {
-      await resendVerificationEmail(email);
+
+    setLocalError(null);
+    setResendSuccess(false);
+
+    const result = await resendVerificationEmail(email);
+
+    if (result.success) {
       setResendSuccess(true);
-    } catch (err) {
-      setError(
-        err.response?.data?.detail || "Failed to resend verification email"
-      );
-    } finally {
-      setLoading(false);
+      // Clear the success message after 5 seconds
+      setTimeout(() => setResendSuccess(false), 5000);
     }
+    // Errors are handled by authError state from the hook
   };
 
   const handleBackToLogin = () => {
@@ -70,6 +64,9 @@ const EmailVerification = () => {
     dispatch(toggleLoginModal(true));
     navigate("/");
   };
+
+  // Combine auth errors and local errors for display
+  const displayError = authError || localError;
 
   if (verificationSuccess) {
     return (
@@ -79,7 +76,7 @@ const EmailVerification = () => {
             Email Verified Successfully!
           </h2>
           <p className="text-gray-600">
-            Your email has been verified. Redirecting to your profile...
+            Your email has been verified. Redirecting to login page...
           </p>
         </div>
       </div>
@@ -109,9 +106,9 @@ const EmailVerification = () => {
         </div>
       )}
 
-      {error && (
+      {displayError && (
         <div className="mb-4 p-3 bg-red-50 text-red-600 rounded text-sm">
-          {error}
+          {displayError}
         </div>
       )}
 
@@ -125,10 +122,10 @@ const EmailVerification = () => {
         {email && (
           <button
             onClick={handleResendVerification}
-            disabled={loading}
+            disabled={isLoading}
             className="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? "Sending..." : "Resend Verification Email"}
+            {isLoading ? "Sending..." : "Resend Verification Email"}
           </button>
         )}
 
@@ -146,8 +143,8 @@ const EmailVerification = () => {
             Didn't receive the email? Check your spam folder or{" "}
             <button
               onClick={handleResendVerification}
-              disabled={loading}
-              className="text-blue-500 hover:underline"
+              disabled={isLoading}
+              className="text-blue-500 hover:underline disabled:opacity-50"
             >
               click here to resend
             </button>

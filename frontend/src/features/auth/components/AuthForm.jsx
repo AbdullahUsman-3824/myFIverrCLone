@@ -78,6 +78,12 @@ export default function AuthForm({
 
         <div className="flex flex-col gap-4">{children}</div>
 
+        {authError && (
+          <div className="mb-4 p-3 bg-red-50 text-red-600 rounded text-sm">
+            {authError.message}
+          </div>
+        )}
+
         <div className="mt-6 text-sm text-center">
           {authText[type].switchText}{" "}
           <button

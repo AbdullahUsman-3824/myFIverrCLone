@@ -2,7 +2,11 @@ import { useCookies } from "react-cookie";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useStateProvider } from "../../../context/StateContext";
-import { toggleLoginModal, toggleSignupModal,closeAuthModal } from "../../../context/StateReducer";
+import {
+  toggleLoginModal,
+  toggleSignupModal,
+  closeAuthModal,
+} from "../../../context/StateReducer";
 import AuthForm from "../components/AuthForm";
 import LoginForm from "../components/LoginForm";
 import SignupForm from "../components/SignupForm";
@@ -89,6 +93,11 @@ function AuthWrapper({ type }) {
           closeModal={closeModal}
           navigate={navigate}
         />
+      )}
+      {errors.general && (
+        <div className="text-red-500 text-sm text-center p-2 bg-red-50 rounded">
+          {errors.general}
+        </div>
       )}
     </AuthForm>
   );
