@@ -11,7 +11,7 @@ const SellerOnboarding = () => {
     step,
     formData,
     setFormData,
-    handleChange,
+    handleInputChange,
     handleNext,
     handleBack,
     errors,
@@ -22,7 +22,7 @@ const SellerOnboarding = () => {
   const renderStep = () => {
     switch (step) {
       case 1:
-        return <Step1 formData={formData} handleChange={handleChange} />;
+        return <Step1 formData={formData} handleInputChange={handleInputChange} />;
       case 2:
         return <Step2 formData={formData} setFormData={setFormData} />;
       case 3:

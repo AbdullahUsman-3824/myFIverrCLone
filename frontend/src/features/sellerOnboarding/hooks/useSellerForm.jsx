@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 
 const useSellerForm = () => {
   const [step, setStep] = useState(1);
@@ -14,65 +14,76 @@ const useSellerForm = () => {
     portfolio_items: [],
   });
 
-  const validateFormData = (formData) => {
-    const errors = {};
-    if (step == 1) {
-      if (!formData.profile_title) {
-        errors.profile_title = "Profile title is required.";
-      }
-      if (!formData.bio) {
-        errors.bio = "Bio is required.";
-      }
-    }
-    if (step == 3) {
-      if (!formData.skills.length) {
-        errors.skills = "At least one skill is required.";
-      }
-    }
-    return errors;
-  };
+  const validateFormData = useCallback(
+    (data) => {
+      const errors = {};
 
-  const handleChange = (e) => {
+      if (step === 1) {
+        if (!data.profile_title?.trim()) {
+          errors.profile_title = "Profile title is required.";
+        }
+        if (!data.bio?.trim()) {
+          errors.bio = "Bio is required.";
+        }
+        if (data.bio?.trim().length < 50) {
+          errors.bio = "Bio must be at least 50 characters.";
+        }
+        if (data.portfolio_link?.trim()) {
+          const urlPattern =
+            /^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&=]*)$/;
+          if (!urlPattern.test(data.portfolio_link.trim())) {
+            errors.portfolio_link = "Portfolio link must be a valid URL.";
+          }
+        }
+      }
+
+      if (step === 3) {
+        if (!Array.isArray(data.skills) || !data.skills.length) {
+          errors.skills = "At least one skill is required.";
+        }
+      }
+
+      return errors;
+    },
+    [step]
+  );
+
+  const handleInputChange = useCallback((e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
-    setErrors({});
-  };
 
-  const handlePortfolioUpload = (e) => {
-    const files = Array.from(e.target.files);
-    setFormData((prev) => ({
-      ...prev,
-      portfolio_items: [...prev.portfolio_items, ...files],
-    }));
-  };
+    setErrors((prev) => {
+      const newErrors = { ...prev };
+      delete newErrors[name];
+      return newErrors;
+    });
+  }, []);
 
-  const handleNext = () => {
-    const errors = validateFormData(formData);
-    console.log(errors);
-    if (Object.keys(errors).length > 0) {
-      setErrors(errors);
+  const handleNext = useCallback(() => {
+    const validationErrors = validateFormData(formData);
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
       return;
     }
     if (step < 4) {
-      setStep(step + 1);
+      setStep((prevStep) => prevStep + 1);
     }
-  };
+  }, [formData, step, validateFormData]);
 
-  const handleBack = () => {
+  const handleBack = useCallback(() => {
     if (step > 1) {
-      setStep(step - 1);
+      setStep((prevStep) => prevStep - 1);
     }
-  };
+  }, [step]);
 
   return {
     step,
     formData,
     setFormData,
-    handleChange,
-    handlePortfolioUpload,
+    handleInputChange,
     handleNext,
     handleBack,
     errors,

@@ -51,7 +51,7 @@ const UserMenu = ({
   handleOrdersNavigate,
   switchMode,
   switchLoading,
-  current_role,
+  currentRole,
   setIsContextMenuVisible,
 }) => (
   <ul className="flex gap-10 items-center">
@@ -77,7 +77,7 @@ const UserMenu = ({
     >
       {!userInfo?.is_seller
         ? "Become a Seller"
-        : current_role === "buyer"
+        : currentRole === "buyer"
         ? "Switch to Seller"
         : "Switch to Buyer"}
     </li>
@@ -113,7 +113,7 @@ function Navbar() {
   const { logout } = useAuth();
   const location = useLocation();
   const [
-    { showLoginModal, showSignupModal, current_role, userInfo },
+    { showLoginModal, showSignupModal, currentRole, userInfo },
     dispatch,
   ] = useStateProvider();
   const { switchMode, loading: switchLoading } = useSwitchUserMode();
@@ -258,7 +258,7 @@ function Navbar() {
           handleOrdersNavigate={handleOrdersNavigate}
           switchMode={switchMode}
           switchLoading={switchLoading}
-          current_role={current_role}
+          currentRole={currentRole}
           setIsContextMenuVisible={setIsContextMenuVisible}
         />
       )}

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Spinner from "../../../components/common/Spinner";
 import useAuth from "../hooks/useAuth";
+import { toast } from "react-toastify";
 
 const useLoginForm = (initialState) => {
   const [values, setValues] = useState(initialState);
@@ -51,6 +52,7 @@ export default function LoginForm({
 
     const result = await login(values);
     if (result.success) {
+      toast.success("Login Successfull");
       closeModal?.();
     }
   };

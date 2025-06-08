@@ -1,3 +1,5 @@
+import Spinner from "../../../components/common/Spinner";
+
 const FormNavigation = ({ step, handleBack, isLoading }) => {
   return (
     <div className="mt-8 flex justify-between">
@@ -23,7 +25,16 @@ const FormNavigation = ({ step, handleBack, isLoading }) => {
             : "bg-green-600 hover:bg-green-700"
         }`}
       >
-        {isLoading ? "Processing..." : step === 4 ? "Complete Setup" : "Next"}
+        {isLoading ? (
+          <span>
+            <Spinner />
+            "Processing..."
+          </span>
+        ) : step === 4 ? (
+          "Complete Setup"
+        ) : (
+          "Next"
+        )}
       </button>
     </div>
   );

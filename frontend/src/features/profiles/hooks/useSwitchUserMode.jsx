@@ -6,11 +6,12 @@ import { useCookies } from "react-cookie";
 import { useStateProvider } from "../../../context/StateContext";
 import { switchMode, toggleLoginModal } from "../../../context/StateReducer";
 import { HOST } from "../../../utils/constants";
+import { toast } from "react-toastify";
 
 const useSwitchUserMode = () => {
   const navigate = useNavigate();
   const [cookies] = useCookies(["jwt"]);
-  const [{ userInfo }, dispatch] = useStateProvider();
+  const [{ userInfo, currentRole }, dispatch] = useStateProvider();
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -26,7 +27,7 @@ const useSwitchUserMode = () => {
     try {
       await axios.post(
         `${HOST}/api/accounts/switch-role/`,
-        {},
+        { role: currentRole == "buyer" ? "seller" : "buyer" },
         {
           withCredentials: true,
           headers: {
@@ -35,7 +36,7 @@ const useSwitchUserMode = () => {
         }
       );
       dispatch(switchMode());
-      navigate(userInfo?.current_role === "seller" ? "/buyer" : "/seller");
+      navigate(currentRole == "seller" ? "/seller" : "/buyer");
     } catch (err) {
       console.error("Mode switch failed:", err);
 
@@ -45,6 +46,7 @@ const useSwitchUserMode = () => {
         "Failed to switch modes. Please try again.";
 
       setError(errorMessage);
+      toast.error(errorMessage);
 
       if (err.response?.status === 401) {
         dispatch(toggleLoginModal(true));
