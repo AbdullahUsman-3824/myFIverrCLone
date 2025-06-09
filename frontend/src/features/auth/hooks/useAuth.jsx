@@ -18,24 +18,59 @@ const useAuth = () => {
         path: "/",
         secure: process.env.NODE_ENV !== "development",
         sameSite: "strict",
+        maxAge: 3600,
       });
-      dispatch(setUser(response.data.user));
-      setError(null);
-      navigate(redirectPath);
     }
+    if (response.data.refresh) {
+      setCookie("jwt-refresh", response.data.refresh, {
+        path: "/",
+        secure: process.env.NODE_ENV !== "development",
+        sameSite: "strict",
+        maxAge: 2592000,
+      });
+    }
+
+    if (response.data.user) {
+      dispatch(setUser(response.data.user));
+    }
+
+    setError(null);
+    navigate(redirectPath);
+  };
+
+  const handleAuthError = (error, defaultMessage) => {
+    const errorData = error.response?.data || error.data || {};
+    const message =
+      errorData.non_field_errors?.[0] ||
+      errorData.detail ||
+      errorData.message ||
+      (typeof errorData === "string" ? errorData : error.message) ||
+      defaultMessage;
+
+    const formattedError = {
+      status: error.status || error.response?.status,
+      message,
+      data: errorData,
+    };
+
+    console.error("Auth error:", formattedError);
+    return message;
   };
 
   const handleGoogleLogin = async (credentialResponse) => {
     setIsLoading(true);
     setError(null);
+
     try {
       const response = await authService.googleLogin(
         credentialResponse.credential
       );
       handleAuthSuccess(response);
+      return { success: true, error: null };
     } catch (err) {
-      console.error("Google login failed:", err);
-      setError(err.response?.data || { detail: "Google login failed" });
+      const errorMessage = handleAuthError(err, "Google login failed");
+      setError(errorMessage);
+      return { success: false, error: errorMessage };
     } finally {
       setIsLoading(false);
     }
@@ -43,12 +78,16 @@ const useAuth = () => {
 
   const login = async (formData) => {
     setIsLoading(true);
+    setError(null);
+
     try {
       const response = await authService.login(formData);
       handleAuthSuccess(response);
+      return { success: true, error: null };
     } catch (err) {
-      setError(err.response?.data || { detail: "Login failed" });
-      throw err;
+      const errorMessage = handleAuthError(err, "Login failed");
+      setError(errorMessage);
+      return { success: false, error: errorMessage };
     } finally {
       setIsLoading(false);
     }
@@ -56,16 +95,20 @@ const useAuth = () => {
 
   const register = async (formData) => {
     setIsLoading(true);
+    setError(null);
+
     try {
       const response = await authService.register(formData);
-      navigate("/verify-email", {
-        state: { email: formData.email },
-        replace: true,
-      });
-      return response.data;
+      return {
+        success: true,
+        error: null,
+        data: response.data,
+        email: formData.email,
+      };
     } catch (err) {
-      setError(err.response?.data || { detail: "Registration failed" });
-      throw err;
+      const errorMessage = handleAuthError(err, "Registration failed");
+      setError(errorMessage);
+      return { success: false, error: errorMessage };
     } finally {
       setIsLoading(false);
     }
@@ -73,12 +116,19 @@ const useAuth = () => {
 
   const verifyEmail = async (key) => {
     setIsLoading(true);
+    setError(null);
+
     try {
       const response = await authService.verifyEmail(key);
-      return response.data;
+      return {
+        success: true,
+        error: null,
+        data: response.data,
+      };
     } catch (err) {
-      setError(err.response?.data || { detail: "Email verification failed" });
-      throw err;
+      const errorMessage = handleAuthError(err, "Email verification failed");
+      setError(errorMessage);
+      return { success: false, error: errorMessage };
     } finally {
       setIsLoading(false);
     }
@@ -86,38 +136,66 @@ const useAuth = () => {
 
   const resendVerificationEmail = async (email) => {
     setIsLoading(true);
+    setError(null);
+
     try {
       const response = await authService.resendVerificationEmail(email);
-      return response.data;
+      return {
+        success: true,
+        error: null,
+        data: response.data,
+      };
     } catch (err) {
-      setError(
-        err.response?.data || { detail: "Failed to resend verification email" }
+      const errorMessage = handleAuthError(
+        err,
+        "Failed to resend verification email"
       );
-      throw err;
+      setError(errorMessage);
+      return { success: false, error: errorMessage };
     } finally {
       setIsLoading(false);
     }
   };
 
   const logout = async () => {
+    setIsLoading(true);
+    setError(null);
+
     try {
       await authService.logout();
+      return { success: true, error: null };
+    } catch (err) {
+      // Even if logout fails, clear client-side auth
+      console.error("Logout error:", err);
+      const errorMessage = handleAuthError(err, "Logout failed");
+      setError(errorMessage);
+      return { success: false, error: errorMessage };
     } finally {
       removeCookie("jwt", { path: "/" });
       removeCookie("jwt-refresh", { path: "/" });
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
       dispatch(setUser(null));
       navigate("/");
+      setIsLoading(false);
     }
   };
 
   const requestPasswordReset = async (email) => {
     setIsLoading(true);
+    setError(null);
+
     try {
       const response = await authService.requestPasswordReset(email);
-      return response.data;
+      return {
+        success: true,
+        error: null,
+        data: response.data,
+      };
     } catch (err) {
-      setError(err.response?.data || { detail: "Failed to send reset email" });
-      throw err;
+      const errorMessage = handleAuthError(err, "Failed to send reset email");
+      setError(errorMessage);
+      return { success: false, error: errorMessage };
     } finally {
       setIsLoading(false);
     }
@@ -125,12 +203,19 @@ const useAuth = () => {
 
   const resetPassword = async (resetData) => {
     setIsLoading(true);
+    setError(null);
+
     try {
       const response = await authService.resetPassword(resetData);
-      return response.data;
+      return {
+        success: true,
+        error: null,
+        data: response.data,
+      };
     } catch (err) {
-      setError(err.response?.data || { detail: "Failed to reset password" });
-      throw err;
+      const errorMessage = handleAuthError(err, "Failed to reset password");
+      setError(errorMessage);
+      return { success: false, error: errorMessage };
     } finally {
       setIsLoading(false);
     }
@@ -148,7 +233,6 @@ const useAuth = () => {
     error,
     resetError: () => setError(null),
     handleGoogleLogin,
-    handleAuthSuccess,
   };
 };
 

@@ -15,9 +15,7 @@
 
 ---
 
-## 🧪 Step-by-Step Implementation
-
-### ✅ 1. Initial Registration
+### Initial Registration
 
 **Endpoint**: `POST /api/auth/registration/`
 
@@ -26,7 +24,7 @@
 ```json
 {
   "username": "username123",
-  "email":"test@example.com",
+  "email": "test@example.com",
   "password1": "SecurePassword123!",
   "password2": "SecurePassword123!"
 }
@@ -51,7 +49,7 @@
 
 ---
 
-### ✅ 2. Login
+### Login
 
 **Endpoint**: `POST /api/auth/login/`
 

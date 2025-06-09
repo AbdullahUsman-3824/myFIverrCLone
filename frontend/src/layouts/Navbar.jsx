@@ -10,55 +10,138 @@ import {
   toggleLoginModal,
   toggleSignupModal,
 } from "../context/StateReducer";
-import { reducerCases } from "../context/reducerCases";
 import { HOST } from "../utils/constants";
-import useFetchUser from "../hooks/useFetchUser";
+import useSwitchUserMode from "../features/profiles/hooks/useSwitchUserMode";
+import useFetchUser from "../features/profiles/hooks/useFetchUser";
 import useAuth from "../features/auth/hooks/useAuth";
-import axios from "axios";
+import { toast } from "react-toastify";
+
+const AuthButtons = ({ authButtons, navFixed }) => (
+  <ul className="flex gap-10 items-center">
+    {authButtons.map(({ name, handler, type }) => (
+      <li
+        key={name}
+        className={`${navFixed ? "text-black" : "text-white"} font-medium`}
+      >
+        {type === "link" ? (
+          <Link to={handler}>{name}</Link>
+        ) : (
+          <button
+            onClick={handler}
+            className={
+              type === "button2"
+                ? `border py-1 px-3 rounded-sm font-semibold ${
+                    navFixed
+                      ? "text-[#1DBF73] border-[#1DBF73]"
+                      : "text-white border-white"
+                  } hover:bg-[#1DBF73] hover:text-white transition-all duration-500`
+                : ""
+            }
+          >
+            {name}
+          </button>
+        )}
+      </li>
+    ))}
+  </ul>
+);
+
+const UserMenu = ({
+  userInfo,
+  handleOrdersNavigate,
+  switchMode,
+  switchLoading,
+  currentRole,
+  setIsContextMenuVisible,
+}) => (
+  <ul className="flex gap-10 items-center">
+    {userInfo?.is_seller && (
+      <li
+        className="cursor-pointer text-[#1DBF73] font-medium"
+        onClick={() => navigate("/seller/gigs/create")}
+      >
+        Create Gig
+      </li>
+    )}
+    <li
+      className="cursor-pointer text-[#1DBF73] font-medium"
+      onClick={handleOrdersNavigate}
+    >
+      Orders
+    </li>
+    <li
+      className={`cursor-pointer font-medium ${
+        switchLoading ? "opacity-50 pointer-events-none" : ""
+      }`}
+      onClick={switchMode}
+    >
+      {!userInfo?.is_seller
+        ? "Become a Seller"
+        : currentRole === "buyer"
+        ? "Switch to Seller"
+        : "Switch to Buyer"}
+    </li>
+    <li
+      className="cursor-pointer"
+      onClick={(e) => {
+        e.stopPropagation();
+        setIsContextMenuVisible(true);
+      }}
+    >
+      {userInfo?.profile_picture ? (
+        <img
+          src={userInfo.profile_picture}
+          alt="Profile"
+          width={40}
+          height={40}
+          className="rounded-full"
+        />
+      ) : (
+        <div className="bg-green-500 h-10 w-10 flex items-center justify-center rounded-full">
+          <span className="text-xl text-white">
+            {userInfo?.email?.[0]?.toUpperCase()}
+          </span>
+        </div>
+      )}
+    </li>
+  </ul>
+);
 
 function Navbar() {
-  // Hooks and state
   const [cookies] = useCookies();
   const navigate = useNavigate();
+  const { logout } = useAuth();
   const location = useLocation();
-  const [{ showLoginModal, showSignupModal, isSeller, userInfo }, dispatch] =
-    useStateProvider();
+  const [
+    { showLoginModal, showSignupModal, currentRole, userInfo },
+    dispatch,
+  ] = useStateProvider();
+  const { switchMode, loading: switchLoading } = useSwitchUserMode();
 
   const [navFixed, setNavFixed] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isContextMenuVisible, setIsContextMenuVisible] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
-  const { logout } = useAuth();
 
-  // User data fetching
-  const shouldFetchUser = Boolean(cookies.jwt) && !userInfo;
+  const shouldFetchUser = Boolean(cookies.jwt) || !userInfo;
   const { user, loading } = useFetchUser(shouldFetchUser);
 
-  // Effects
   useEffect(() => {
-    const handleUserData = async () => {
-      if (loading) {
-        setIsLoaded(false);
-        return;
-      }
+    if (loading) {
+      setIsLoaded(false);
+      return;
+    }
 
-      if (shouldFetchUser && user && !userInfo) {
-        try {
-          let projectedUserInfo = { ...user };
-          if (user?.image) {
-            projectedUserInfo.imageName = `${HOST}/${user.image}`;
-          }
-          delete projectedUserInfo.image;
-          dispatch(setUser(projectedUserInfo));
-        } catch (err) {
-          console.error("Error processing user data:", err);
-        }
-      }
-      setIsLoaded(true);
-    };
-
-    handleUserData();
-  }, [shouldFetchUser, user, userInfo, loading, dispatch, navigate]);
+    if (shouldFetchUser && user && !userInfo) {
+      const projectedUserInfo = {
+        ...user,
+        imageName: user?.image ? `${HOST}/${user.image}` : undefined,
+      };
+      delete projectedUserInfo.image;
+      dispatch(setUser(projectedUserInfo));
+    }
+    setIsLoaded(true);
+  }, [shouldFetchUser, user, userInfo, loading, dispatch]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -85,64 +168,33 @@ function Navbar() {
     return () => window.removeEventListener("click", closeContextMenu);
   }, [isContextMenuVisible]);
 
-  // Handlers
   const handleLogin = useCallback(() => {
-    if (showSignupModal) {
-      dispatch(toggleSignupModal(false));
-    }
+    if (showSignupModal) dispatch(toggleSignupModal(false));
     dispatch(toggleLoginModal(true));
   }, [dispatch, showSignupModal]);
 
   const handleSignup = useCallback(() => {
-    if (showLoginModal) {
-      dispatch(toggleLoginModal(false));
-    }
+    if (showLoginModal) dispatch(toggleLoginModal(false));
     dispatch(toggleSignupModal(true));
   }, [dispatch, showLoginModal]);
 
-  const handleOrdersNavigate = useCallback(() => {
-    navigate(isSeller ? "/seller/orders" : "/buyer/orders");
-  }, [isSeller, navigate]);
-
-  const handleModeSwitch = useCallback(async () => {
-    try {
-      setIsSwitchingMode(true); // Add loading state if needed
-      const response = await axios.post(
-        `${HOST}/api/accounts/switch-mode`,
-        {},
-        {
-          withCredentials: true,
-          headers: {
-            Authorization: `Bearer ${cookies.jwt}`, // Assuming you have access to cookies
-          },
-        }
-      );
-      dispatch(setUser(response.data.user));
-
-      // Clear any errors if successful
-      setModeSwitchError(null);
-
-      // Navigate to the appropriate dashboard
-      navigate(isSeller ? "/buyer" : "/seller");
-    } catch (err) {
-      console.error("Mode switch failed:", err);
-
-      // Handle different error cases
-      const errorMessage =
-        err.response?.data?.message ||
-        err.response?.data?.detail ||
-        "Failed to switch modes. Please try again.";
-
-      setModeSwitchError(errorMessage);
-
-      // If unauthorized, consider redirecting to login
-      if (err.response?.status === 401) {
-        navigate("/login");
+  const handleLogout = useCallback(
+    async (e) => {
+      e.stopPropagation();
+      setIsContextMenuVisible(false);
+      try {
+        await logout();
+        toast.success("Logged out successfully");
+      } catch (err) {
+        console.error("Logout failed:", err);
+        toast.error("Logout failed. Please try again.");
       }
-    } finally {
-      setIsSwitchingMode(false); // Reset loading state
-    }
-  }, [dispatch, isSeller, navigate, cookies.jwt]); // Add all dependencies
+    },
+    [logout]
+  );
+  const handleOrdersNavigate = useCallback(() => {
+    navigate(userInfo?.is_seller ? "/seller/orders" : "/buyer/orders");
+  }, [userInfo?.is_seller, navigate]);
 
   const handleSearch = useCallback(() => {
     if (searchQuery.trim()) {
@@ -151,54 +203,27 @@ function Navbar() {
     }
   }, [navigate, searchQuery]);
 
-  // Constants
-  const searchBarVisible = navFixed || userInfo;
-  const navClass = `w-full px-24 flex justify-between items-center py-6 top-0 z-30 transition-all duration-300 ${
-    navFixed || userInfo
-      ? "fixed bg-white border-b border-gray-200"
-      : "absolute bg-transparent"
-  }`;
-
-  const ContextMenuData = [
-    {
-      name: "Profile",
-      callback: (e) => {
-        e.stopPropagation();
-        setIsContextMenuVisible(false);
-        navigate("/profile");
-      },
-    },
-    {
-      name: "Logout",
-      callback: async (e) => {
-        e.stopPropagation();
-        setIsContextMenuVisible(false);
-        // navigate("/logout");
-        await logout();
-      },
-    },
-  ];
-
-  const authButtons = [
-    { name: "English", handler: "#", type: "link" },
-    { name: "Sign in", handler: handleLogin, type: "button" },
-    { name: "Join", handler: handleSignup, type: "button2" },
-  ];
-
-  // Render
   if (!isLoaded) return null;
 
   return (
-    <nav className={navClass}>
+    <nav
+      className={`w-full px-24 flex justify-between items-center py-6 top-0 z-30 transition-all duration-300 ${
+        navFixed || userInfo
+          ? "fixed bg-white border-b border-gray-200"
+          : "absolute bg-transparent"
+      }`}
+    >
+      {/* Logo */}
       <Link to="/">
         <FiverrLogo
           fillColor={!navFixed && !userInfo ? "#ffffff" : "#404145"}
         />
       </Link>
 
+      {/* Search bar */}
       <div
         className={`flex ${
-          searchBarVisible ? "opacity-100" : "opacity-0"
+          navFixed || userInfo ? "opacity-100" : "opacity-0"
         } transition-opacity duration-300`}
       >
         <input
@@ -217,77 +242,43 @@ function Navbar() {
         </button>
       </div>
 
+      {/* Auth buttons or user menu */}
       {!userInfo ? (
-        <ul className="flex gap-10 items-center">
-          {authButtons.map(({ name, handler, type }) => (
-            <li
-              key={name}
-              className={`${
-                navFixed ? "text-black" : "text-white"
-              } font-medium`}
-            >
-              {type === "link" && <Link to={handler}>{name}</Link>}
-              {type === "button" && <button onClick={handler}>{name}</button>}
-              {type === "button2" && (
-                <button
-                  onClick={handler}
-                  className={`border py-1 px-3 rounded-sm font-semibold ${
-                    navFixed
-                      ? "text-[#1DBF73] border-[#1DBF73]"
-                      : "text-white border-white"
-                  } hover:bg-[#1DBF73] hover:text-white transition-all duration-500`}
-                >
-                  {name}
-                </button>
-              )}
-            </li>
-          ))}
-        </ul>
+        <AuthButtons
+          authButtons={[
+            { name: "English", handler: "#", type: "link" },
+            { name: "Sign in", handler: handleLogin, type: "button" },
+            { name: "Join", handler: handleSignup, type: "button2" },
+          ]}
+          navFixed={navFixed}
+        />
       ) : (
-        <ul className="flex gap-10 items-center">
-          {isSeller && (
-            <li
-              className="cursor-pointer text-[#1DBF73] font-medium"
-              onClick={() => navigate("/seller/gigs/create")}
-            >
-              Create Gig
-            </li>
-          )}
-          <li
-            className="cursor-pointer text-[#1DBF73] font-medium"
-            onClick={handleOrdersNavigate}
-          >
-            Orders
-          </li>
-          <li className="cursor-pointer font-medium" onClick={handleModeSwitch}>
-            Switch To {isSeller ? "Buyer" : "Seller"}
-          </li>
-          <li
-            className="cursor-pointer"
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsContextMenuVisible(true);
-            }}
-          >
-            {userInfo?.profile_picture ? (
-              <img
-                src={userInfo.profile_picture}
-                alt="Profile"
-                width={40}
-                height={40}
-                className="rounded-full"
-              />
-            ) : (
-              <div className="bg-green-500 h-10 w-10 flex items-center justify-center rounded-full">
-                <span className="text-xl text-white">
-                  {userInfo?.email?.[0]?.toUpperCase()}
-                </span>
-              </div>
-            )}
-          </li>
-        </ul>
+        <UserMenu
+          userInfo={userInfo}
+          handleOrdersNavigate={handleOrdersNavigate}
+          switchMode={switchMode}
+          switchLoading={switchLoading}
+          currentRole={currentRole}
+          setIsContextMenuVisible={setIsContextMenuVisible}
+        />
       )}
-      {isContextMenuVisible && <ContextMenu data={ContextMenuData} />}
+      {isContextMenuVisible && (
+        <ContextMenu
+          data={[
+            {
+              name: "Profile",
+              callback: (e) => {
+                e.stopPropagation();
+                navigate("/profile");
+              },
+            },
+            {
+              name: "Logout",
+              callback: handleLogout
+            },
+          ]}
+        />
+      )}
     </nav>
   );
 }

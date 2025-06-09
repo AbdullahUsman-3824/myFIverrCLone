@@ -9,7 +9,7 @@ import ResetPassword from "../features/auth/components/ResetPassword";
 import SellerDashboard from "../features/seller/SellerDashboard";
 import SellerOrders from "../features/seller/SellerOrders";
 import SellerMessages from "../features/seller/SellerMessages";
-import SellerOnboarding from "../features/seller/SellerOnboarding";
+import SellerOnboarding from "../features/sellerOnboarding/pages/SellerOnboarding";
 import SellerGigs from "../features/seller/SellerGigs";
 import CreateGig from "../features/seller/CreateGig";
 import BuyerHome from "../pages/buyer/Home";
@@ -42,7 +42,7 @@ const router = createBrowserRouter([
           { path: "/seller/gigs/create", element: <CreateGig /> },
         ],
       },
-      { path: "/sellerOnboarding", element: <SellerOnboarding /> },
+      { path: "/become-a-seller", element: <SellerOnboarding /> },
     ],
   },
   { path: "/profile", element: <ProfileSetupPage /> },

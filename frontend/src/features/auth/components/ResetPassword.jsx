@@ -8,10 +8,9 @@ const ResetPassword = () => {
     new_password1: "",
     new_password2: "",
   });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [validationError, setValidationError] = useState(null);
   const [success, setSuccess] = useState(false);
-  const { resetPassword } = useAuth();
+  const { resetPassword, isLoading, error: authError } = useAuth();
   const navigate = useNavigate();
   const { uid, token } = useParams();
 
@@ -25,25 +24,26 @@ const ResetPassword = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setPasswords((prev) => ({ ...prev, [name]: value }));
-    setError(null);
+    setValidationError(null);
   };
+
   const validatePasswords = () => {
     if (!passwords.new_password1 || !passwords.new_password2) {
-      setError("Both passwords are required");
+      setValidationError("Both passwords are required");
       return false;
     }
 
     if (passwords.new_password1 !== passwords.new_password2) {
-      setError("Passwords do not match");
+      setValidationError("Passwords do not match");
       return false;
     }
 
     if (passwords.new_password1.length < 8) {
-      setError("Password must be at least 8 characters");
+      setValidationError("Password must be at least 8 characters");
       return false;
     }
 
-    setError(null);
+    setValidationError(null);
     return true;
   };
 
@@ -52,33 +52,27 @@ const ResetPassword = () => {
     if (!validatePasswords()) return;
 
     if (!uid || !token) {
-      setError("Invalid or expired reset link");
+      setValidationError("Invalid or expired reset link");
       return;
     }
 
-    setLoading(true);
-    setError(null);
-    try {
-      await resetPassword(
-        uid,
-        token,
-        passwords.new_password1,
-        passwords.new_password2
-      );
+    setValidationError(null);
+
+    const result = await resetPassword({
+      uid,
+      token,
+      new_password1: passwords.new_password1,
+      new_password2: passwords.new_password2,
+    });
+
+    if (result.success) {
       setSuccess(true);
-    } catch (err) {
-      console.log(err)
-      const errorData = err.response?.data;
-      setError(
-        errorData?.new_password2?.[0] ||
-          errorData?.new_password1?.[0] ||
-          errorData?.detail ||
-          "Failed to reset password. Please try again."
-      );
-    } finally {
-      setLoading(false);
     }
+    // Errors are handled by authError state from the hook
   };
+
+  // Combine validation errors and auth errors for display
+  const displayError = validationError || authError;
 
   if (success) {
     return (
@@ -114,9 +108,9 @@ const ResetPassword = () => {
               onChange={handleChange}
               placeholder="New Password"
               className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
-              disabled={loading}
+              disabled={isLoading}
               aria-label="New password"
-              aria-invalid={!!error}
+              aria-invalid={!!displayError}
             />
           </div>
 
@@ -128,24 +122,24 @@ const ResetPassword = () => {
               onChange={handleChange}
               placeholder="Confirm New Password"
               className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
-              disabled={loading}
+              disabled={isLoading}
               aria-label="Confirm new password"
-              aria-invalid={!!error}
+              aria-invalid={!!displayError}
             />
           </div>
 
-          {error && (
+          {displayError && (
             <div className="p-3 bg-red-50 text-red-600 rounded text-sm">
-              {error}
+              {displayError}
             </div>
           )}
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={isLoading}
             className="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? (
+            {isLoading ? (
               <span className="flex items-center justify-center gap-2">
                 <Spinner /> Resetting...
               </span>

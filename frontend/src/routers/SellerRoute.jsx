@@ -7,7 +7,7 @@ const SellerRoute = () => {
   const [{ userInfo }] = useStateProvider();
 
   if (!userInfo.is_seller) {
-    return <Navigate to="/sellerOnboarding" replace />;
+    return <Navigate to="/become-a-seller" replace />;
   }
 
   if (!userInfo.is_seller) {

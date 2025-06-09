@@ -182,7 +182,7 @@ class SellerProfileSetupSerializer(serializers.ModelSerializer):
     skills = SkillSerializer(many=True, required=False)
     languages = LanguageSerializer(many=True, required=False)
     portfolio_items = PortfolioItemSerializer(many=True, required=False)
-    
+
     class Meta:
         model = SellerProfile
         fields = [
@@ -202,18 +202,18 @@ class SellerProfileSetupSerializer(serializers.ModelSerializer):
         ]
         extra_kwargs = {
             'profile_title': {
-                'required': False, 
+                'required': False,
                 'max_length': 100,
                 'min_length': 5
             },
             'bio': {
-                'required': False, 
+                'required': False,
+                'allow_blank': True,
                 'max_length': 1000,
                 'min_length': 50
             },
             'portfolio_link': {
                 'required': False,
-                'validators': [URLValidator(schemes=['http', 'https'])],
                 'allow_blank': True
             },
         }
@@ -226,7 +226,6 @@ class SellerProfileSetupSerializer(serializers.ModelSerializer):
         ]
         required_relations = [
             instance.educations.exists(),
-            instance.skills.count() >= 2,  # Require at least 2 skills
             instance.languages.exists(),
             instance.portfolio_items.exists()
         ]
@@ -236,21 +235,13 @@ class SellerProfileSetupSerializer(serializers.ModelSerializer):
         """Update related objects for the given profile field"""
         if items_data is None:
             return
-        
-        # Get the related manager
         related_manager = getattr(instance, field_name)
-        
-        # Clear existing items if we're replacing them
         related_manager.all().delete()
-        
-        # Create new items
         for item_data in items_data:
             related_manager.create(**item_data)
 
     @transaction.atomic
     def update(self, instance, validated_data):
-        """Handle profile update with nested serializers"""
-        # Define related fields mapping
         related_fields = {
             'educations': (Education, validated_data.pop('educations', None)),
             'skills': (Skill, validated_data.pop('skills', None)),
@@ -268,7 +259,6 @@ class SellerProfileSetupSerializer(serializers.ModelSerializer):
             instance.user.current_role = 'seller'
             instance.user.save()
 
-        # Update related objects
         for field_name, (model_class, items_data) in related_fields.items():
             self._update_related_objects(instance, field_name, model_class, items_data)
 
@@ -277,15 +267,11 @@ class SellerProfileSetupSerializer(serializers.ModelSerializer):
         instance.save()
 
         return instance
-        
+
     def to_representation(self, instance):
-        """Customize the representation of the profile data"""
-        representation = super().to_representation(instance)
-        
-        # Add counts for related items
-        representation['education_count'] = instance.educations.count()
-        representation['skills_count'] = instance.skills.count()
-        representation['languages_count'] = instance.languages.count()
-        representation['portfolio_items_count'] = instance.portfolio_items.count()
-        
-        return representation
+        rep = super().to_representation(instance)
+        rep['education_count'] = instance.educations.count()
+        rep['skills_count'] = instance.skills.count()
+        rep['languages_count'] = instance.languages.count()
+        rep['portfolio_items_count'] = instance.portfolio_items.count()
+        return rep

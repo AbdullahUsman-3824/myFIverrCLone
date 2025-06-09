@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useCookies } from "react-cookie";
 import axios from "axios";
-import { GET_USER_INFO, TOKEN_REFRESH } from "../utils/constants";
+import { GET_USER_INFO, TOKEN_REFRESH } from "../../../utils/constants";
 import { useNavigate } from "react-router-dom";
-import { useStateProvider } from "../context/StateContext";
-import { toggleLoginModal} from "../context/StateReducer";
+import { useStateProvider } from "../../../context/StateContext";
+import { toggleLoginModal} from "../../../context/StateReducer";
 
 // Constants
 const MAX_REFRESH_ATTEMPTS = 5;

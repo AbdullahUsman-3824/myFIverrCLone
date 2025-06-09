@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Spinner from "../../../components/common/Spinner";
 import useAuth from "../hooks/useAuth";
-import * as authService from "../authService";
+import { toast } from "react-toastify";
 
 const useLoginForm = (initialState) => {
   const [values, setValues] = useState(initialState);
@@ -31,7 +31,8 @@ export default function LoginForm({
     password: "",
   });
 
-  const { handleAuthSuccess } = useAuth();
+  // Use the auth hook
+  const { login, isLoading: authLoading, error: authError } = useAuth();
 
   const validateForm = () => {
     const newErrors = {};
@@ -43,22 +44,21 @@ export default function LoginForm({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    clearAuthCookies();
     const formErrors = validateForm();
     if (Object.keys(formErrors).length > 0) {
       return setErrors(formErrors);
     }
-    setLoading(true);
-    try {
-      const response = await authService.login(values);
-      handleAuthSuccess(response);
-    } catch (err) {
-      setErrors(err.response?.data || { detail: "Login failed" });
-      throw err;
-    } finally {
-      setLoading(false);
+
+    const result = await login(values);
+    if (result.success) {
+      toast.success("Login Successfull");
       closeModal?.();
     }
   };
+
+  // Combine loading states
+  const isProcessing = loading || authLoading;
 
   return (
     <>
@@ -72,7 +72,7 @@ export default function LoginForm({
           className={`border ${
             errors.login_identifier ? "border-red-500" : "border-slate-300"
           } p-3 rounded w-full`}
-          disabled={loading}
+          disabled={isProcessing}
         />
         {errors.login_identifier && (
           <span className="text-red-500 text-xs mt-1">
@@ -91,7 +91,7 @@ export default function LoginForm({
           className={`border ${
             errors.password ? "border-red-500" : "border-slate-300"
           } p-3 rounded w-full`}
-          disabled={loading}
+          disabled={isProcessing}
         />
         {errors.password && (
           <span className="text-red-500 text-xs mt-1">{errors.password}</span>
@@ -106,18 +106,18 @@ export default function LoginForm({
           </button>
         </div>
       </div>
-      {errors.general && (
+      {authError && (
         <div className="text-red-500 text-sm text-center p-2 bg-red-50 rounded">
-          {errors.general}
+          {authError}
         </div>
       )}
       <button
         type="submit"
         className="bg-[#1DBF73] text-white p-3 font-semibold rounded disabled:opacity-50"
-        disabled={loading}
+        disabled={isProcessing}
         onClick={handleSubmit}
       >
-        {loading ? (
+        {isProcessing ? (
           <span className="flex items-center justify-center gap-2">
             <Spinner /> Processing...
           </span>
