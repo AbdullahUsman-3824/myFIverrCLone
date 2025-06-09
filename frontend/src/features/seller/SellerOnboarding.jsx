@@ -256,6 +256,23 @@ const SellerOnboarding = () => {
     }
   };
 
+  const ProgressSteps = () => {
+    const steps = ['About', 'Skills & Rate', 'Portfolio'];
+    return (
+      <div className="flex justify-center mb-8">
+        {steps.map((label, index) => (
+          <div key={index} className="flex items-center">
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${step > index ? 'bg-green-500' : 'bg-gray-300'}`}>
+              {step > index ? <FiCheck className="text-white" /> : <span className="text-white">{index + 1}</span>}
+            </div>
+            <span className="ml-2">{label}</span>
+            {index < steps.length - 1 && <div className="w-16 h-1 bg-gray-300 mx-2"></div>}
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-[80vh] pt-28 px-8 md:px-32">
       <div className="max-w-3xl mx-auto">
@@ -267,6 +284,7 @@ const SellerOnboarding = () => {
         </div>
 
         <div className="bg-white shadow rounded-lg p-6">
+          <ProgressSteps />
           <form onSubmit={step === 3 ? handleSubmit : (e) => { e.preventDefault(); handleNext(); }}>
             {renderStep()}
 

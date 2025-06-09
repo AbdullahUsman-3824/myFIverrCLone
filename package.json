@@ -5,10 +5,13 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "react": "cd frontend && npm run dev",
-    "py": "cd backend && py manage.py runserver"
+    "py": "cd backend && python manage.py runserver"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": ""
+  "description": "",
+  "dependencies": {
+    "immer": "^10.1.1"
+  }
 }
