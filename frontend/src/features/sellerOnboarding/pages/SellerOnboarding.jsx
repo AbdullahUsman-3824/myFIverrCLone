@@ -1,10 +1,13 @@
 import useSellerForm from "../hooks/useSellerForm";
 import useSellerOnboardingRequest from "../hooks/useSellerOnboardingRequest";
-import Step1 from "../components/Step1";
-import Step2 from "../components/Step2";
-import Step3 from "../components/Step3";
-import Step4 from "../components/Step4";
-import FormNavigation from "../components/FormNavigation";
+import {
+  Step1,
+  Step2,
+  Step3,
+  Step4,
+  FormNavigation,
+  ProgressSteps,
+} from "../components";
 
 const SellerOnboarding = () => {
   const {
@@ -22,7 +25,9 @@ const SellerOnboarding = () => {
   const renderStep = () => {
     switch (step) {
       case 1:
-        return <Step1 formData={formData} handleInputChange={handleInputChange} />;
+        return (
+          <Step1 formData={formData} handleInputChange={handleInputChange} />
+        );
       case 2:
         return <Step2 formData={formData} setFormData={setFormData} />;
       case 3:
@@ -54,6 +59,7 @@ const SellerOnboarding = () => {
         </div>
 
         <div className="bg-white shadow rounded-lg p-6">
+          <ProgressSteps step={step} stepLabels={stepLabels} />
           <form
             onSubmit={
               step === 4
