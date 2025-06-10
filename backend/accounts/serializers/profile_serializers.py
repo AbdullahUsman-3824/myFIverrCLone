@@ -8,7 +8,6 @@ from ..models import SellerProfile, PortfolioItem, Education, Skill, Language
 
 User = get_user_model()
 
-
 # ===========================
 # Helper Classes & Validators
 # ===========================
@@ -20,9 +19,7 @@ class BaseProfileItemSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'created_at']
         read_only_fields = ['id', 'created_at']
 
-
 def validate_year(value):
-    """Validate that year is reasonable"""
     current_year = timezone.now().year
     if not (1900 <= value <= current_year + 5):
         raise serializers.ValidationError(
@@ -30,72 +27,37 @@ def validate_year(value):
         )
     return value
 
-
 def validate_file_size(value):
-    """Validate that uploaded file size is reasonable"""
-    limit = 5 * 1024 * 1024  # 5MB
-    if value.size > limit:
-        raise serializers.ValidationError('File too large. Size should not exceed 5MB.')
+    if value.size > 5 * 1024 * 1024:
+        raise serializers.ValidationError('File too large. Should not exceed 5MB.')
     return value
 
-
 def validate_media_file(value):
-    """Comprehensive validation for media files"""
-    # Size validation
     validate_file_size(value)
-    
-    # Extension validation
     validate_image_file_extension(value)
-    
-    # Content type validation
     content_type = value.content_type
     valid_types = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf']
     if content_type not in valid_types:
-        raise ValidationError(f"Unsupported file type: {content_type}. Allowed types: JPEG, PNG, GIF, PDF.")
-    
+        raise ValidationError(f"Unsupported file type: {content_type}. Allowed: JPEG, PNG, GIF, PDF.")
     return value
 
-
 # ===========================
-# Profile Component Serializers 
+# Profile Component Serializers
 # ===========================
 
 class EducationSerializer(serializers.ModelSerializer):
     start_year = serializers.IntegerField(validators=[validate_year])
-    end_year = serializers.IntegerField(
-        validators=[validate_year], 
-        required=False, 
-        allow_null=True
-    )
+    end_year = serializers.IntegerField(validators=[validate_year], required=False, allow_null=True)
 
     class Meta:
         model = Education
-        fields = [
-            'id',
-            'institution_name', 
-            'degree_title', 
-            'start_year', 
-            'end_year',
-            'created_at'
-        ]
+        fields = ['id', 'institution_name', 'degree_title', 'start_year', 'end_year', 'created_at']
         read_only_fields = ['id', 'created_at']
-        extra_kwargs = {
-            'institution_name': {'required': True, 'max_length': 100},
-            'degree_title': {'required': True, 'max_length': 100},
-        }
 
     def validate(self, data):
-        """Validate education time periods"""
-        start_year = data.get('start_year')
-        end_year = data.get('end_year')
-
-        if end_year and end_year < start_year:
-            raise serializers.ValidationError(
-                "End year must be greater than or equal to start year"
-            )
-        
+        if data.get('end_year') and data['end_year'] < data['start_year']:
+            raise serializers.ValidationError("End year must be >= start year")
         return data
-
 
 class SkillSerializer(BaseProfileItemSerializer):
     LEVEL_CHOICES = [
@@ -104,14 +66,12 @@ class SkillSerializer(BaseProfileItemSerializer):
         ('advanced', 'Advanced'),
         ('expert', 'Expert'),
     ]
-    
     level = serializers.ChoiceField(choices=LEVEL_CHOICES)
     name = serializers.CharField(max_length=100)
 
     class Meta(BaseProfileItemSerializer.Meta):
         model = Skill
         fields = BaseProfileItemSerializer.Meta.fields + ['level']
-
 
 class LanguageSerializer(BaseProfileItemSerializer):
     LEVEL_CHOICES = [
@@ -120,7 +80,6 @@ class LanguageSerializer(BaseProfileItemSerializer):
         ('fluent', 'Fluent'),
         ('native', 'Native'),
     ]
-    
     level = serializers.ChoiceField(choices=LEVEL_CHOICES)
     name = serializers.CharField(max_length=50)
 
@@ -128,56 +87,29 @@ class LanguageSerializer(BaseProfileItemSerializer):
         model = Language
         fields = BaseProfileItemSerializer.Meta.fields + ['level']
 
-
 class PortfolioItemSerializer(serializers.ModelSerializer):
-    media_file = serializers.FileField(
-        validators=[validate_media_file],
-        required=False
-    )
-    url_link = serializers.URLField(
-        required=False,
-        validators=[URLValidator(schemes=['http', 'https'])],
-        allow_blank=True
-    )
+    media_file = serializers.FileField(validators=[validate_media_file], required=False)
+    url_link = serializers.URLField(required=False, validators=[URLValidator(schemes=['http', 'https'])], allow_blank=True)
 
     class Meta:
         model = PortfolioItem
-        fields = [
-            'id', 
-            'title', 
-            'description', 
-            'url_link', 
-            'media_file', 
-            'created_at', 
-            'updated_at'
-        ]
+        fields = ['id', 'title', 'description', 'url_link', 'media_file', 'created_at', 'updated_at']
         read_only_fields = ['id', 'created_at', 'updated_at']
-        extra_kwargs = {
-            'title': {
-                'required': True,
-                'max_length': 100
-            },
-            'description': {
-                'required': True,
-                'min_length': 10,
-                'max_length': 500
-            },
-        }
 
     def validate(self, data):
-        """Validate portfolio item data"""
         if not data.get('url_link') and not data.get('media_file'):
-            raise serializers.ValidationError(
-                "Either URL link or media file must be provided"
-            )
+            raise serializers.ValidationError("Either URL link or media file must be provided")
         return data
 
-
 # ===========================
-# Main Profile Serializer
+# Seller Profile Serializers
 # ===========================
 
-class SellerProfileSetupSerializer(serializers.ModelSerializer):
+class SellerProfileSerializer(serializers.ModelSerializer):
+    """Full Update Serializer"""
+    id = serializers.IntegerField(read_only=True)
+    user = serializers.PrimaryKeyRelatedField(read_only=True)
+
     educations = EducationSerializer(many=True, required=False)
     skills = SkillSerializer(many=True, required=False)
     languages = LanguageSerializer(many=True, required=False)
@@ -186,40 +118,14 @@ class SellerProfileSetupSerializer(serializers.ModelSerializer):
     class Meta:
         model = SellerProfile
         fields = [
-            'profile_title',
-            'bio',
-            'portfolio_link',
-            'is_profile_complete',
-            'created_at',
-            'educations',
-            'skills',
-            'languages',
-            'portfolio_items',
+            'id', 'user',
+            'profile_title', 'bio', 'portfolio_link',
+            'is_profile_complete', 'created_at',
+            'educations', 'skills', 'languages', 'portfolio_items'
         ]
-        read_only_fields = [
-            'is_profile_complete',
-            'created_at',
-        ]
-        extra_kwargs = {
-            'profile_title': {
-                'required': False,
-                'max_length': 100,
-                'min_length': 5
-            },
-            'bio': {
-                'required': False,
-                'allow_blank': True,
-                'max_length': 1000,
-                'min_length': 50
-            },
-            'portfolio_link': {
-                'required': False,
-                'allow_blank': True
-            },
-        }
+        read_only_fields = ['id', 'user', 'is_profile_complete', 'created_at']
 
     def _check_profile_completeness(self, instance):
-        """Check if all required profile components are present"""
         required_fields = [
             bool(instance.profile_title and len(instance.profile_title) >= 5),
             bool(instance.bio and len(instance.bio) >= 50),
@@ -232,7 +138,6 @@ class SellerProfileSetupSerializer(serializers.ModelSerializer):
         return all(required_fields) and all(required_relations)
 
     def _update_related_objects(self, instance, field_name, model_class, items_data):
-        """Update related objects for the given profile field"""
         if items_data is None:
             return
         related_manager = getattr(instance, field_name)
@@ -249,11 +154,9 @@ class SellerProfileSetupSerializer(serializers.ModelSerializer):
             'portfolio_items': (PortfolioItem, validated_data.pop('portfolio_items', None)),
         }
 
-        # Update basic profile fields
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
 
-        # Update user role if needed
         if not instance.user.is_seller:
             instance.user.is_seller = True
             instance.user.current_role = 'seller'
@@ -262,10 +165,8 @@ class SellerProfileSetupSerializer(serializers.ModelSerializer):
         for field_name, (model_class, items_data) in related_fields.items():
             self._update_related_objects(instance, field_name, model_class, items_data)
 
-        # Automatically determine profile completeness
         instance.is_profile_complete = self._check_profile_completeness(instance)
         instance.save()
-
         return instance
 
     def to_representation(self, instance):
@@ -275,3 +176,10 @@ class SellerProfileSetupSerializer(serializers.ModelSerializer):
         rep['languages_count'] = instance.languages.count()
         rep['portfolio_items_count'] = instance.portfolio_items.count()
         return rep
+
+
+class SellerProfileReadSerializer(serializers.ModelSerializer):
+    """Minimal Read-Only Serializer for nesting (e.g., in GigSerializer)"""
+    class Meta:
+        model = SellerProfile
+        fields = ['id', 'profile_title', 'bio', 'portfolio_link', 'is_profile_complete']
