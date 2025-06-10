@@ -53,16 +53,35 @@ const UserMenu = ({
   switchLoading,
   currentRole,
   setIsContextMenuVisible,
+  navigate
 }) => (
   <ul className="flex gap-10 items-center">
-    {userInfo?.is_seller && (
+    {userInfo?.is_seller && currentRole === "seller" && (
+      <>
+        <li
+          className="cursor-pointer text-[#1DBF73] font-medium"
+          onClick={() => navigate("/seller")}
+        >
+          Dashboard
+        </li>
+        <li
+          className="cursor-pointer text-[#1DBF73] font-medium"
+          onClick={() => navigate("/seller/gigs/create")}
+        >
+          Create Gig
+        </li>
+      </>
+    )}
+
+    {currentRole === "buyer" && (
       <li
         className="cursor-pointer text-[#1DBF73] font-medium"
-        onClick={() => navigate("/seller/gigs/create")}
+        onClick={() => navigate("/buyer")}
       >
-        Create Gig
+        Dashboard
       </li>
     )}
+
     <li
       className="cursor-pointer text-[#1DBF73] font-medium"
       onClick={handleOrdersNavigate}
@@ -193,8 +212,8 @@ function Navbar() {
     [logout]
   );
   const handleOrdersNavigate = useCallback(() => {
-    navigate(userInfo?.is_seller ? "/seller/orders" : "/buyer/orders");
-  }, [userInfo?.is_seller, navigate]);
+    navigate(currentRole === "seller" ? "/seller/orders" : "/buyer/orders");
+  }, [currentRole, navigate]);
 
   const handleSearch = useCallback(() => {
     if (searchQuery.trim()) {
@@ -260,6 +279,7 @@ function Navbar() {
           switchLoading={switchLoading}
           currentRole={currentRole}
           setIsContextMenuVisible={setIsContextMenuVisible}
+          navigate={navigate}
         />
       )}
       {isContextMenuVisible && (
@@ -270,6 +290,13 @@ function Navbar() {
               callback: (e) => {
                 e.stopPropagation();
                 navigate("/profile");
+              },
+            },
+            {
+              name: currentRole === "seller" ? "Seller Profile" : "Buyer Profile",
+              callback: (e) => {
+                e.stopPropagation();
+                navigate(currentRole === "seller" ? "/seller/profile" : "/buyer/profile");
               },
             },
             {

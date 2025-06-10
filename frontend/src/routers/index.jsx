@@ -15,7 +15,10 @@ import CreateGig from "../features/seller/CreateGig";
 import BuyerHome from "../pages/buyer/Home";
 import BuyerOrders from "../pages/buyer/Orders";
 import BuyerOrderMessages from "../pages/buyer/OrderMessages";
+import BuyerMessages from "../pages/buyer/Messages";
 import SellerRoute from "./SellerRoute";
+import SellerInfo from "../features/seller/SellerInfo";
+import BuyerInfo from "../features/buyer/BuyerInfo";
 
 const router = createBrowserRouter([
   {
@@ -25,11 +28,12 @@ const router = createBrowserRouter([
       { path: "/", element: <Home /> },
       { path: "/buyer", element: <BuyerHome /> },
       { path: "/buyer/orders", element: <BuyerOrders /> },
+      { path: "/buyer/profile", element: <BuyerInfo /> },
+      { path: "/buyer/messages", element: <BuyerMessages /> },
       {
         path: "/buyer/orders/:orderId/messages",
         element: <BuyerOrderMessages />,
       },
-      { path: "/buyer/messages", element: <BuyerOrders /> },
 
       {
         element: <SellerRoute />,
@@ -37,9 +41,9 @@ const router = createBrowserRouter([
           { path: "/seller", element: <SellerDashboard /> },
           { path: "/seller/orders", element: <SellerOrders /> },
           { path: "/seller/messages", element: <SellerMessages /> },
-
           { path: "/seller/gigs", element: <SellerGigs /> },
           { path: "/seller/gigs/create", element: <CreateGig /> },
+          { path: "/seller/profile", element: <SellerInfo /> },
         ],
       },
       { path: "/become-a-seller", element: <SellerOnboarding /> },
