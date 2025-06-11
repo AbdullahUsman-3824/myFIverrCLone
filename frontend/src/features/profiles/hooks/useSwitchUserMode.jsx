@@ -3,7 +3,7 @@ import { useState, useCallback } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
-import { useStateProvider } from "../../../context/StateContext";
+import { useStateProvider } from "../../../context/StateContext"; 
 import { switchMode, toggleLoginModal } from "../../../context/StateReducer";
 import { HOST } from "../../../utils/constants";
 import { toast } from "react-toastify";
@@ -26,7 +26,7 @@ const useSwitchUserMode = () => {
 
     try {
       await axios.post(
-        `${HOST}/api/accounts/switch-role/`,
+        `${HOST}/api/accounts/user/switch-role/`,
         { role: currentRole == "buyer" ? "seller" : "buyer" },
         {
           withCredentials: true,

@@ -1,9 +1,10 @@
-import {produce} from "immer";
+import { produce } from "immer";
 import { reducerCases } from "./reducerCases";
 
 // Default state
 const defaultState = {
   userInfo: undefined,
+  sellerInfo: undefined,
   showLoginModal: false,
   showSignupModal: false,
   currentRole: "buyer",
@@ -36,20 +37,45 @@ const saveState = (state) => {
 };
 
 // Action creators
-export const setUser  = (userInfo) => ({ type: reducerCases.SET_USER, userInfo });
-export const toggleLoginModal = (showLoginModal) => ({ type: reducerCases.TOGGLE_LOGIN_MODAL,showLoginModal });
-export const toggleSignupModal = (showSignupModal) => ({ type: reducerCases.TOGGLE_SIGNUP_MODAL,showSignupModal });
+export const setUser = (userInfo) => ({
+  type: reducerCases.SET_USER,
+  userInfo,
+});
+export const setSellerInfo = (sellerInfo) => ({
+  type: reducerCases.SET_SELLER_INFO,
+  sellerInfo,
+});
+export const toggleLoginModal = (showLoginModal) => ({
+  type: reducerCases.TOGGLE_LOGIN_MODAL,
+  showLoginModal,
+});
+export const toggleSignupModal = (showSignupModal) => ({
+  type: reducerCases.TOGGLE_SIGNUP_MODAL,
+  showSignupModal,
+});
 export const closeAuthModal = () => ({ type: reducerCases.CLOSE_AUTH_MODAL });
 export const switchMode = () => ({ type: reducerCases.SWITCH_MODE });
-export const setGigData = (gigData) => ({ type: reducerCases.SET_GIG_DATA, gigData });
-export const hasUserOrderedGig = (hasOrdered) => ({ type: reducerCases.HAS_USER_ORDERED_GIG, hasOrdered });
-export const addReview = (newReview) => ({ type: reducerCases.ADD_REVIEW, newReview });
+export const setGigData = (gigData) => ({
+  type: reducerCases.SET_GIG_DATA,
+  gigData,
+});
+export const hasUserOrderedGig = (hasOrdered) => ({
+  type: reducerCases.HAS_USER_ORDERED_GIG,
+  hasOrdered,
+});
+export const addReview = (newReview) => ({
+  type: reducerCases.ADD_REVIEW,
+  newReview,
+});
 
 export const reducer = (state, action) => {
   const newState = produce(state, (draft) => {
     switch (action.type) {
       case reducerCases.SET_USER:
         draft.userInfo = action.userInfo;
+        break;
+      case reducerCases.SET_SELLER_INFO:
+        draft.sellerInfo = action.sellerInfo;
         break;
       case reducerCases.TOGGLE_LOGIN_MODAL:
         draft.showLoginModal = action.showLoginModal;
@@ -71,7 +97,10 @@ export const reducer = (state, action) => {
         draft.hasOrdered = action.hasOrdered;
         break;
       case reducerCases.ADD_REVIEW:
-        draft.gigData.reviews = [...(draft.gigData.reviews || []), action.newReview];
+        draft.gigData.reviews = [
+          ...(draft.gigData.reviews || []),
+          action.newReview,
+        ];
         break;
       default:
         return state;

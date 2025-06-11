@@ -2,14 +2,17 @@ import { createBrowserRouter } from "react-router-dom";
 import MainLayout from "../layouts/MainLayout";
 import Home from "../pages/Home";
 import ProfileSetupPage from "../features/profiles/pages/ProfileSetupPage";
-import CredentialWrapper from "../features/auth/pages/CredentialWrapper";
-import EmailVerification from "../features/auth/components/EmailVerification";
-import ForgotPassword from "../features/auth/components/ForgotPassword";
-import ResetPassword from "../features/auth/components/ResetPassword";
+import {
+  CredentialWrapper,
+  EmailVerification,
+  ResetPassword,
+  ForgotPassword,
+} from "../features/auth";
+import SellerOnboarding from "../features/sellerOnboarding/pages/SellerOnboarding";
+
 import SellerDashboard from "../features/seller/SellerDashboard";
 import SellerOrders from "../features/seller/SellerOrders";
 import SellerMessages from "../features/seller/SellerMessages";
-import SellerOnboarding from "../features/sellerOnboarding/pages/SellerOnboarding";
 import SellerGigs from "../features/seller/SellerGigs";
 import CreateGig from "../features/seller/CreateGig";
 import BuyerHome from "../pages/buyer/Home";

@@ -13,7 +13,7 @@ const useSellerOnboardingRequest = () => {
   const initiateSellerAccount = useCallback(async () => {
     try {
       setIsLoading(true);
-      const response = await api.post("/accounts/become-seller/");
+      const response = await api.post("/accounts/seller/become/");
       dispatch(setUser(response.data.user));
       toast.success("Seller account initiated successfully!");
     } catch (err) {
