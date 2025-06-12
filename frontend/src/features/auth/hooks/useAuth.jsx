@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useCookies } from "react-cookie";
 import { useStateProvider } from "../../../context/StateContext";
 import { setUser } from "../../../context/StateReducer";
 import * as authService from "../authService";
@@ -9,34 +8,7 @@ const useAuth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-  const [cookies, setCookie, removeCookie] = useCookies(["jwt", "jwt-refresh"]);
   const [{ userInfo }, dispatch] = useStateProvider();
-
-  const handleAuthSuccess = (response, redirectPath = "/") => {
-    if (response.data.access) {
-      setCookie("jwt", response.data.access, {
-        path: "/",
-        secure: process.env.NODE_ENV !== "development",
-        sameSite: "strict",
-        maxAge: 3600,
-      });
-    }
-    if (response.data.refresh) {
-      setCookie("jwt-refresh", response.data.refresh, {
-        path: "/",
-        secure: process.env.NODE_ENV !== "development",
-        sameSite: "strict",
-        maxAge: 2592000,
-      });
-    }
-
-    if (response.data.user) {
-      dispatch(setUser(response.data.user));
-    }
-
-    setError(null);
-    navigate(redirectPath);
-  };
 
   const handleAuthError = (error, defaultMessage) => {
     const errorData = error.response?.data || error.data || {};
@@ -57,22 +29,18 @@ const useAuth = () => {
     return message;
   };
 
-  const handleGoogleLogin = async (credentialResponse) => {
-    setIsLoading(true);
-    setError(null);
-
+  const handleAuthSuccess = async (response, redirectPath = "/") => {
     try {
-      const response = await authService.googleLogin(
-        credentialResponse.credential
-      );
-      handleAuthSuccess(response);
-      return { success: true, error: null };
+      const user = response.data.user;
+      if (!user) {
+        throw new Error("User  data is missing in the response");
+      }
+      dispatch(setUser(user));
+      setError(null);
+      navigate(redirectPath);
     } catch (err) {
-      const errorMessage = handleAuthError(err, "Google login failed");
+      const errorMessage = handleAuthError(err, "Failed to fetch user data");
       setError(errorMessage);
-      return { success: false, error: errorMessage };
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -82,7 +50,7 @@ const useAuth = () => {
 
     try {
       const response = await authService.login(formData);
-      handleAuthSuccess(response);
+      await handleAuthSuccess(response);
       return { success: true, error: null };
     } catch (err) {
       const errorMessage = handleAuthError(err, "Login failed");
@@ -163,20 +131,32 @@ const useAuth = () => {
 
     try {
       await authService.logout();
-      return { success: true, error: null };
     } catch (err) {
-      // Even if logout fails, clear client-side auth
       console.error("Logout error:", err);
       const errorMessage = handleAuthError(err, "Logout failed");
       setError(errorMessage);
-      return { success: false, error: errorMessage };
     } finally {
-      removeCookie("jwt", { path: "/" });
-      removeCookie("jwt-refresh", { path: "/" });
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
       dispatch(setUser(null));
       navigate("/");
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = async (credentialResponse) => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await authService.googleLogin(
+        credentialResponse.credential
+      );
+      await handleAuthSuccess(response);
+      return { success: true, error: null };
+    } catch (err) {
+      const errorMessage = handleAuthError(err, "Google login failed");
+      setError(errorMessage);
+      return { success: false, error: errorMessage };
+    } finally {
       setIsLoading(false);
     }
   };

@@ -9,7 +9,8 @@ export const MESSAGES_ROUTES = `${API_URL}/messages`;
 export const DASHBOARD_DATA_ROUTES = `${API_URL}/dashboard`;
 
 // Authentication Routes
-export const LOGIN_ROUTE = " /auth/login/";
+export const LOGIN_ROUTE = "/auth/login/";
+export const TOKEN_REFRESH = "/auth/token/refresh/";
 export const SIGNUP_ROUTE = `${AUTH_ROUTES}/registration/`;
 export const LOGGOUT_ROUTE = `${AUTH_ROUTES}/logout/`;
 export const REQUEST_PASSWORD_RESET_ROUTE = `${AUTH_ROUTES}/password/reset/`;
@@ -21,8 +22,15 @@ export const USER_PROFILE_ROUTE = `${AUTH_ROUTES}/user/`;
 
 export const VERIFY_EMAIL_ROUTE = `${AUTH_ROUTES}/registration/verify-email/`;
 export const RESEND_VERIFICATION_EMAIL_ROUTE = `${AUTH_ROUTES}/registration/resend-email/`;
-export const TOKEN_REFRESH = `${AUTH_ROUTES}/token/refresh/`;
 
 // my URLs
 export const SWITCH_ROLE_URL = "/accounts/user/switch-role/";
 export const SELLER_DETAIL_URL = "/accounts/seller/profile/detail/";
+export const SELLER_SETUP_URL = "/accounts/seller/profile/setup/";
+export const BECOME_SELLER_URL = "/accounts/seller/become/";
+
+export const GET_USER_INFO = `${AUTH_ROUTES}/user/`;
+export const ADD_GIG_ROUTE = `${GIG_ROUTES}/add`;
+export const GET_BUYER_ORDERS_ROUTE = `${ORDERS_ROUTES}/get-buyer-orders`;
+export const ADD_MESSAGE = `${MESSAGES_ROUTES}/add-message`;
+export const GET_MESSAGES = `${MESSAGES_ROUTES}/get-messages`;

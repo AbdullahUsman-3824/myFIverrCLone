@@ -1,16 +1,14 @@
 // hooks/useSwitchUserMode.js
 import { useState, useCallback } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { useCookies } from "react-cookie";
-import { useStateProvider } from "../../../context/StateContext"; 
+import { useStateProvider } from "../../../context/StateContext";
 import { switchMode, toggleLoginModal } from "../../../context/StateReducer";
-import { HOST } from "../../../utils/constants";
 import { toast } from "react-toastify";
+import api from "../../../utils/apiClient";
+import { SWITCH_ROLE_URL } from "../../../utils/constants";
 
 const useSwitchUserMode = () => {
   const navigate = useNavigate();
-  const [cookies] = useCookies(["jwt"]);
   const [{ userInfo, currentRole }, dispatch] = useStateProvider();
 
   const [loading, setLoading] = useState(false);
@@ -25,16 +23,9 @@ const useSwitchUserMode = () => {
     setError(null);
 
     try {
-      await axios.post(
-        `${HOST}/api/accounts/user/switch-role/`,
-        { role: currentRole == "buyer" ? "seller" : "buyer" },
-        {
-          withCredentials: true,
-          headers: {
-            Authorization: `Bearer ${cookies.jwt}`,
-          },
-        }
-      );
+      await api.post(SWITCH_ROLE_URL, {
+        role: currentRole == "buyer" ? "seller" : "buyer",
+      });
       dispatch(switchMode());
       navigate(currentRole === "buyer" ? "/seller" : "/buyer");
     } catch (err) {
@@ -58,7 +49,6 @@ const useSwitchUserMode = () => {
   }, [
     dispatch,
     navigate,
-    cookies.jwt,
     userInfo?.is_seller,
     userInfo?.current_role,
   ]);

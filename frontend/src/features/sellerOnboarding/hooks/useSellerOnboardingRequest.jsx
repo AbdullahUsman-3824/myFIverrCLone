@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import api from "../../../utils/apiClient";
+import { BECOME_SELLER_URL, SELLER_SETUP_URL } from "../../../utils/constants";
 import { useStateProvider } from "../../../context/StateContext";
 import { setUser } from "../../../context/StateReducer";
 import { useNavigate } from "react-router-dom";
@@ -13,7 +14,7 @@ const useSellerOnboardingRequest = () => {
   const initiateSellerAccount = useCallback(async () => {
     try {
       setIsLoading(true);
-      const response = await api.post("/accounts/seller/become/");
+      const response = await api.post(BECOME_SELLER_URL);
       dispatch(setUser(response.data.user));
       toast.success("Seller account initiated successfully!");
     } catch (err) {
@@ -36,7 +37,7 @@ const useSellerOnboardingRequest = () => {
 
       try {
         const formDataToSend = JSON.stringify(formData);
-        await api.put("/accounts/seller/profile/setup/", formDataToSend);
+        await api.put(SELLER_SETUP_URL, formDataToSend);
         toast.success("Seller profile setup completed!");
         navigate("/seller");
       } catch (err) {

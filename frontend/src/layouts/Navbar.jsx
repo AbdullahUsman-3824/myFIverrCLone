@@ -53,7 +53,7 @@ const UserMenu = ({
   switchLoading,
   currentRole,
   setIsContextMenuVisible,
-  navigate
+  navigate,
 }) => (
   <ul className="flex gap-10 items-center">
     {userInfo?.is_seller && currentRole === "seller" && (
@@ -131,10 +131,8 @@ function Navbar() {
   const navigate = useNavigate();
   const { logout } = useAuth();
   const location = useLocation();
-  const [
-    { showLoginModal, showSignupModal, currentRole, userInfo },
-    dispatch,
-  ] = useStateProvider();
+  const [{ showLoginModal, showSignupModal, currentRole, userInfo }, dispatch] =
+    useStateProvider();
   const { switchMode, loading: switchLoading } = useSwitchUserMode();
 
   const [navFixed, setNavFixed] = useState(false);
@@ -142,7 +140,7 @@ function Navbar() {
   const [isContextMenuVisible, setIsContextMenuVisible] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  const shouldFetchUser = Boolean(cookies.jwt) || !userInfo;
+  const shouldFetchUser = Boolean(cookies.jwt) && !userInfo;
   const { user, loading } = useFetchUser(shouldFetchUser);
 
   useEffect(() => {
@@ -293,15 +291,20 @@ function Navbar() {
               },
             },
             {
-              name: currentRole === "seller" ? "Seller Profile" : "Buyer Profile",
+              name:
+                currentRole === "seller" ? "Seller Profile" : "Buyer Profile",
               callback: (e) => {
                 e.stopPropagation();
-                navigate(currentRole === "seller" ? "/seller/profile" : "/buyer/profile");
+                navigate(
+                  currentRole === "seller"
+                    ? "/seller/profile"
+                    : "/buyer/profile"
+                );
               },
             },
             {
               name: "Logout",
-              callback: handleLogout
+              callback: handleLogout,
             },
           ]}
         />

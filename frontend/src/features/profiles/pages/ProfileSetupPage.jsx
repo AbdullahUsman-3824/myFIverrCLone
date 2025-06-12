@@ -1,16 +1,14 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useCookies } from "react-cookie";
 import { useStateProvider } from "../../../context/StateContext";
 import { setUser } from "../../../context/StateReducer";
-import axios from "axios";
+import api from "../../../utils/apiClient";
 import { USER_PROFILE_ROUTE } from "../../../utils/constants";
 import ProfileForm from "../components/ProfileForm";
 
 function ProfileSetupPage() {
   const navigate = useNavigate();
   const [state, dispatch] = useStateProvider();
-  const [cookies] = useCookies(["jwt"]);
 
   const initialFormData = {
     first_name: state.userInfo?.first_name || "",
@@ -76,12 +74,10 @@ function ProfileSetupPage() {
         }
       });
 
-      const { data } = await axios.patch(USER_PROFILE_ROUTE, formDataToSend, {
+      const { data } = await api.patch(USER_PROFILE_ROUTE, formDataToSend, {
         headers: {
           "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${cookies["jwt"]}`,
         },
-        withCredentials: true,
       });
       dispatch(setUser(data.user));
       navigate("/");
