@@ -31,7 +31,8 @@ const useAuth = () => {
 
   const handleAuthSuccess = async (response, redirectPath = "/") => {
     try {
-      const user = response.data.user;
+      const { user } = response.data;
+      // Store user data
       if (!user) {
         throw new Error("User  data is missing in the response");
       }
@@ -131,13 +132,15 @@ const useAuth = () => {
 
     try {
       await authService.logout();
+      localStorage.removeItem("accessToken")
+      localStorage.removeItem("refreshToken")
     } catch (err) {
       console.error("Logout error:", err);
       const errorMessage = handleAuthError(err, "Logout failed");
       setError(errorMessage);
     } finally {
-      dispatch(setUser(null));
       navigate("/");
+      dispatch(setUser(null));
       setIsLoading(false);
     }
   };

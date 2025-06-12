@@ -15,6 +15,7 @@ import useSwitchUserMode from "../features/profiles/hooks/useSwitchUserMode";
 import useFetchUser from "../features/profiles/hooks/useFetchUser";
 import useAuth from "../features/auth/hooks/useAuth";
 import { toast } from "react-toastify";
+import {jwtDecode} from "jwt-decode";
 
 const AuthButtons = ({ authButtons, navFixed }) => (
   <ul className="flex gap-10 items-center">
@@ -140,7 +141,19 @@ function Navbar() {
   const [isContextMenuVisible, setIsContextMenuVisible] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  const shouldFetchUser = Boolean(cookies.jwt) && !userInfo;
+  const isTokenValid = () => {
+    const token = localStorage.getItem("accessToken");
+    if (!token) return false;
+
+    try {
+      const { exp } = jwtDecode(token);
+      return Date.now() < exp * 1000;
+    } catch (err) {
+      return false;
+    }
+  };
+
+  const shouldFetchUser = isTokenValid() && !userInfo;
   const { user, loading } = useFetchUser(shouldFetchUser);
 
   useEffect(() => {

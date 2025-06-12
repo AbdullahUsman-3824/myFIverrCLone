@@ -67,6 +67,7 @@ CORS_EXPOSE_HEADERS = ['Content-Type', 'X-CSRFToken']
 # ======================
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
+        'dj_rest_auth.jwt_auth.JWTCookieAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ),
@@ -82,7 +83,9 @@ REST_FRAMEWORK = {
     ),
 }
 
-# JWT settings
+# ======================
+# SIMPLE JWT SETTINGS
+# ======================
 SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
@@ -90,7 +93,27 @@ SIMPLE_JWT = {
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
     'UPDATE_LAST_LOGIN': True,
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+    'TOKEN_OBTAIN_SERIALIZER': 'rest_framework_simplejwt.serializers.TokenObtainPairSerializer',
 }
+
+# ======================
+# REST AUTH SETTINGS
+# ======================
+REST_AUTH = {
+    'USE_JWT': True,
+    # Cookies to store JWT tokens, optional but recommended for secure storage
+    'JWT_AUTH_COOKIE': 'jwt-access',
+    'JWT_AUTH_REFRESH_COOKIE': 'jwt-refresh',
+    'JWT_AUTH_HTTPONLY': False,
+    'JWT_AUTH_SECURE': False,  # Set to True in production on HTTPS
+    'JWT_AUTH_SAMESITE': 'Lax',
+    'SESSION_LOGIN': False,
+    'LOGIN_SERIALIZER': 'accounts.serializers.auth_serializers.FlexibleLoginSerializer',
+    'REGISTER_SERIALIZER': 'accounts.serializers.auth_serializers.BasicRegisterSerializer',
+    'USER_DETAILS_SERIALIZER': 'accounts.serializers.auth_serializers.CustomUserDetailsSerializer',
+}
+REST_USE_JWT = True
 
 # ======================
 # APPLICATION DEFINITION
@@ -141,7 +164,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'allauth.account.middleware.AccountMiddleware'
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 # ======================
@@ -157,7 +180,7 @@ TEMPLATES = [
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
-                'django.template.context_processors.request',
+                'django.template.context_processors.request',  # Needed by allauth
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
@@ -187,7 +210,7 @@ DATABASES = {
 }
 
 # ======================
-# AUTHENTICATION
+# AUTHENTICATION SETTINGS
 # ======================
 AUTH_USER_MODEL = 'accounts.User'
 
@@ -202,6 +225,7 @@ ACCOUNT_ADAPTER = 'accounts.adapters.CustomAccountAdapter'
 # ======================
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
+
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
@@ -234,23 +258,9 @@ ACCOUNT_CONFIRM_EMAIL_ON_GET = True
 ACCOUNT_EMAIL_SUBJECT_PREFIX = 'MyFiverrClone - '
 
 # ======================
-# REST AUTH SETTINGS
-# ======================
-REST_AUTH = {
-    'USE_JWT': True,
-    'JWT_AUTH_COOKIE': 'jwt',
-    'JWT_AUTH_REFRESH_COOKIE': 'jwt-refresh',
-    'JWT_AUTH_HTTPONLY': True,
-    'JWT_AUTH_SECURE': False,
-    'JWT_AUTH_SAMESITE': 'Lax',
-    'SESSION_LOGIN': False,
-    'LOGIN_SERIALIZER':'accounts.serializers.auth_serializers.FlexibleLoginSerializer',
-    'REGISTER_SERIALIZER': 'accounts.serializers.auth_serializers.BasicRegisterSerializer',
-    'USER_DETAILS_SERIALIZER': 'accounts.serializers.auth_serializers.CustomUserDetailsSerializer',
-}
-
-# ======================
 # EMAIL CONFIGURATION
 # ======================
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 DEFAULT_FROM_EMAIL = 'noreply@example.com'
+
+
