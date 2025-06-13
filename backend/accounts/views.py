@@ -68,8 +68,7 @@ class SellerProfileDetailView(
     permission_classes = [permissions.AllowAny]
 
     def get_object(self):
-        user_id = self.kwargs.get("user_id")
-        return get_object_or_404(SellerProfile, user__id=user_id)
+        return get_object_or_404(SellerProfile, user=self.request.user)
 
     def get_serializer_context(self):
         return {'request': self.request}

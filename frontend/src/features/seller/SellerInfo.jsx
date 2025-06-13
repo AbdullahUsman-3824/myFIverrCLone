@@ -1,49 +1,23 @@
-import React from "react";
+import { useEffect } from "react";
 import { useStateProvider } from "../../context/StateContext";
-import { FiMapPin, FiLink, FiAward, FiBook, FiGlobe, FiMail, FiGithub, FiLinkedin } from "react-icons/fi";
+import {
+  FiMapPin,
+  FiLink,
+  FiAward,
+  FiBook,
+  FiGlobe,
+  FiMail,
+  FiGithub,
+  FiLinkedin,
+} from "react-icons/fi";
+import useFetchSeller from "./hooks/useFetchSeller";
 
 const SellerInfo = () => {
-  const [{ userInfo }] = useStateProvider();
-
-  // Dummy seller profile data
-  const dummySellerProfile = {
-    profile_title: "Professional Web Developer & UI/UX Designer",
-    location: "New York, USA",
-    portfolio_link: "https://portfolio.example.com",
-    email: "contact@example.com",
-    github: "github.com/example",
-    linkedin: "linkedin.com/in/example",
-    bio: "Experienced web developer with over 5 years of expertise in creating responsive and user-friendly websites. Specialized in React, Node.js, and modern web technologies. Passionate about delivering high-quality solutions that exceed client expectations.",
-    skills: [
-      { name: "React.js", level: "Expert" },
-      { name: "Node.js", level: "Advanced" },
-      { name: "UI/UX Design", level: "Expert" },
-      { name: "JavaScript", level: "Expert" },
-      { name: "HTML/CSS", level: "Expert" },
-      { name: "MongoDB", level: "Advanced" },
-      { name: "AWS", level: "Intermediate" },
-      { name: "Git", level: "Advanced" }
-    ],
-    languages: [
-      { name: "English", level: "Native" },
-      { name: "Spanish", level: "Professional" },
-      { name: "French", level: "Conversational" }
-    ],
-    educations: [
-      {
-        institution_name: "Massachusetts Institute of Technology",
-        degree_title: "Master of Computer Science",
-        start_year: "2018",
-        end_year: "2020"
-      },
-      {
-        institution_name: "Stanford University",
-        degree_title: "Bachelor of Science in Computer Science",
-        start_year: "2014",
-        end_year: "2018"
-      }
-    ]
-  };
+  const [{ userInfo, sellerInfo }] = useStateProvider();
+  const { fetchSeller } = useFetchSeller();
+  useEffect(() => {
+    fetchSeller();
+  }, []);
 
   if (!userInfo) {
     return (
@@ -61,6 +35,7 @@ const SellerInfo = () => {
         {/* Profile Header */}
         <div className="bg-white shadow-xl rounded-2xl p-8 mb-8 transform hover:scale-[1.01] transition-transform duration-300">
           <div className="flex flex-col md:flex-row items-start gap-8">
+            {/* Profile picture */}
             <div className="flex-shrink-0">
               {userInfo.profile_picture ? (
                 <img
@@ -77,28 +52,32 @@ const SellerInfo = () => {
               )}
             </div>
             <div className="flex-grow">
+              {/* profile title */}
               <h1 className="text-4xl font-bold text-gray-900 mb-3 bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
-                {dummySellerProfile.profile_title}
+                {sellerInfo.profile_title}
               </h1>
               <div className="flex flex-wrap items-center gap-4 text-gray-600 mb-6">
-                {dummySellerProfile.location && (
+                {/* location */}
+                {sellerInfo.location && (
                   <div className="flex items-center gap-2 bg-gray-50 px-4 py-2 rounded-full">
                     <FiMapPin className="text-green-500" />
-                    <span>{dummySellerProfile.location}</span>
+                    <span>{sellerInfo.location}</span>
                   </div>
                 )}
-                {dummySellerProfile.email && (
+                {/* email */}
+                {userInfo.email && (
                   <a
-                    href={`mailto:${dummySellerProfile.email}`}
+                    href={`mailto:${userInfo.email}`}
                     className="flex items-center gap-2 bg-gray-50 px-4 py-2 rounded-full hover:bg-gray-100 transition-colors"
                   >
                     <FiMail className="text-blue-500" />
                     <span>Email</span>
                   </a>
                 )}
-                {dummySellerProfile.github && (
+                {/* github */}
+                {sellerInfo.github && (
                   <a
-                    href={`https://${dummySellerProfile.github}`}
+                    href={`https://${sellerInfo.github}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-2 bg-gray-50 px-4 py-2 rounded-full hover:bg-gray-100 transition-colors"
@@ -107,9 +86,10 @@ const SellerInfo = () => {
                     <span>GitHub</span>
                   </a>
                 )}
-                {dummySellerProfile.linkedin && (
+                {/* linkedin */}
+                {sellerInfo.linkedin && (
                   <a
-                    href={`https://${dummySellerProfile.linkedin}`}
+                    href={`https://${sellerInfo.linkedin}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-2 bg-gray-50 px-4 py-2 rounded-full hover:bg-gray-100 transition-colors"
@@ -119,22 +99,25 @@ const SellerInfo = () => {
                   </a>
                 )}
               </div>
+              {/* profile bio */}
               <p className="text-gray-700 text-lg leading-relaxed">
-                {dummySellerProfile.bio}
+                {sellerInfo.bio}
               </p>
             </div>
           </div>
         </div>
 
         {/* Skills Section */}
-        {dummySellerProfile.skills?.length > 0 && (
+        {sellerInfo.skills?.length > 0 && (
           <div className="bg-white shadow-xl rounded-2xl p-8 mb-8 transform hover:scale-[1.01] transition-transform duration-300">
             <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
               <FiAward className="text-green-500 w-6 h-6" />
-              <span className="bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">Skills</span>
+              <span className="bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
+                Skills
+              </span>
             </h2>
             <div className="flex flex-wrap gap-3">
-              {dummySellerProfile.skills.map((skill, index) => (
+              {sellerInfo.skills.map((skill, index) => (
                 <div
                   key={index}
                   className="bg-gradient-to-r from-green-50 to-blue-50 text-gray-700 px-6 py-3 rounded-xl text-sm font-medium shadow-sm hover:shadow-md transition-shadow duration-300"
@@ -148,19 +131,23 @@ const SellerInfo = () => {
         )}
 
         {/* Languages Section */}
-        {dummySellerProfile.languages?.length > 0 && (
+        {sellerInfo.languages?.length > 0 && (
           <div className="bg-white shadow-xl rounded-2xl p-8 mb-8 transform hover:scale-[1.01] transition-transform duration-300">
             <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
               <FiGlobe className="text-green-500 w-6 h-6" />
-              <span className="bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">Languages</span>
+              <span className="bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
+                Languages
+              </span>
             </h2>
             <div className="flex flex-wrap gap-3">
-              {dummySellerProfile.languages.map((language, index) => (
+              {sellerInfo.languages.map((language, index) => (
                 <div
                   key={index}
                   className="bg-gradient-to-r from-blue-50 to-indigo-50 text-gray-700 px-6 py-3 rounded-xl text-sm font-medium shadow-sm hover:shadow-md transition-shadow duration-300"
                 >
-                  <span className="font-bold text-blue-600">{language.name}</span>
+                  <span className="font-bold text-blue-600">
+                    {language.name}
+                  </span>
                   <span className="text-gray-500 ml-2">• {language.level}</span>
                 </div>
               ))}
@@ -169,23 +156,27 @@ const SellerInfo = () => {
         )}
 
         {/* Education Section */}
-        {dummySellerProfile.educations?.length > 0 && (
+        {sellerInfo.educations?.length > 0 && (
           <div className="bg-white shadow-xl rounded-2xl p-8 transform hover:scale-[1.01] transition-transform duration-300">
             <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
               <FiBook className="text-green-500 w-6 h-6" />
-              <span className="bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">Education</span>
+              <span className="bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
+                Education
+              </span>
             </h2>
             <div className="space-y-6">
-              {dummySellerProfile.educations.map((education, index) => (
-                <div 
-                  key={index} 
+              {sellerInfo.educations.map((education, index) => (
+                <div
+                  key={index}
                   className="border-l-4 border-green-500 pl-6 py-4 hover:bg-gray-50 rounded-r-xl transition-colors duration-300"
                 >
                   <h3 className="text-xl font-bold text-gray-900">
                     {education.institution_name}
                   </h3>
                   {education.degree_title && (
-                    <p className="text-gray-600 text-lg mt-1">{education.degree_title}</p>
+                    <p className="text-gray-600 text-lg mt-1">
+                      {education.degree_title}
+                    </p>
                   )}
                   <p className="text-gray-500 mt-2">
                     {education.start_year} - {education.end_year || "Present"}
@@ -200,4 +191,4 @@ const SellerInfo = () => {
   );
 };
 
-export default SellerInfo; 
+export default SellerInfo;
