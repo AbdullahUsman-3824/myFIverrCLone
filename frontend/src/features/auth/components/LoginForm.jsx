@@ -2,6 +2,7 @@ import { useState } from "react";
 import Spinner from "../../../components/common/Spinner";
 import useAuth from "../hooks/useAuth";
 import { toast } from "react-toastify";
+import PasswordInput from "./PasswordInput";
 
 const useLoginForm = (initialState) => {
   const [values, setValues] = useState(initialState);
@@ -82,15 +83,11 @@ export default function LoginForm({
       </div>
 
       <div>
-        <input
-          type="password"
+        <PasswordInput
           name="password"
-          placeholder="Password"
           value={values.password}
-          onChange={(e) => handleChange(e, setErrors)}
-          className={`border ${
-            errors.password ? "border-red-500" : "border-slate-300"
-          } p-3 rounded w-full`}
+          onChange={(e) => handleChange(e)}
+          error={errors.password}
           disabled={isProcessing}
         />
         {errors.password && (

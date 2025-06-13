@@ -1,6 +1,7 @@
 import { useState } from "react";
 import useAuth from "../hooks/useAuth";
 import Spinner from "../../../components/common/Spinner";
+import PasswordInput from "./PasswordInput";
 
 const useSignupForm = (initialState) => {
   const [values, setValues] = useState(initialState);
@@ -83,15 +84,12 @@ export default function SignupForm({
         )}
       </div>
       <div>
-        <input
-          type="password"
+        <PasswordInput
           name="password1"
           placeholder="Password"
           value={values.password1}
           onChange={(e) => handleChange(e, setErrors)}
-          className={`border ${
-            errors.password1 ? "border-red-500" : "border-slate-300"
-          } p-3 rounded w-full`}
+          error={errors.password1}
           disabled={loading}
         />
         {errors.password1 && (
@@ -99,15 +97,12 @@ export default function SignupForm({
         )}
       </div>
       <div>
-        <input
-          type="password"
+        <PasswordInput
           name="password2"
           placeholder="Confirm Password"
           value={values.password2}
           onChange={(e) => handleChange(e, setErrors)}
-          className={`border ${
-            errors.password2 ? "border-red-500" : "border-slate-300"
-          } p-3 rounded w-full`}
+          error={errors.password2}
           disabled={loading}
         />
         {errors.password2 && (
