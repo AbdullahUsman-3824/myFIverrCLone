@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useStateProvider } from "../../context/StateContext";
+import { useStateProvider } from "../../../context/StateContext";
 import {
   FiMapPin,
   FiLink,
@@ -10,7 +10,7 @@ import {
   FiGithub,
   FiLinkedin,
 } from "react-icons/fi";
-import useFetchSeller from "./hooks/useFetchSeller";
+import useFetchSeller from "../hooks/useFetchSeller";
 
 const SellerInfo = () => {
   const [{ userInfo, sellerInfo }] = useStateProvider();

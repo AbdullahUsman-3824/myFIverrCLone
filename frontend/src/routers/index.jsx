@@ -14,13 +14,13 @@ import SellerDashboard from "../features/seller/SellerDashboard";
 import SellerOrders from "../features/seller/SellerOrders";
 import SellerMessages from "../features/seller/SellerMessages";
 import SellerGigs from "../features/seller/SellerGigs";
-import CreateGig from "../features/seller/CreateGig";
+import CreateGig from "../features/gigs/pages/CreateGig";
 import BuyerHome from "../pages/buyer/Home";
 import BuyerOrders from "../pages/buyer/Orders";
 import BuyerOrderMessages from "../pages/buyer/OrderMessages";
 import BuyerMessages from "../pages/buyer/Messages";
 import SellerRoute from "./SellerRoute";
-import SellerInfo from "../features/seller/SellerInfo";
+import SellerDetails from "../features/seller/pages/SellerDetails";
 import BuyerInfo from "../features/buyer/BuyerInfo";
 
 const router = createBrowserRouter([
@@ -46,7 +46,7 @@ const router = createBrowserRouter([
           { path: "/seller/messages", element: <SellerMessages /> },
           { path: "/seller/gigs", element: <SellerGigs /> },
           { path: "/seller/gigs/create", element: <CreateGig /> },
-          { path: "/seller/profile", element: <SellerInfo /> },
+          { path: "/seller/profile", element: <SellerDetails /> },
         ],
       },
       { path: "/become-a-seller", element: <SellerOnboarding /> },

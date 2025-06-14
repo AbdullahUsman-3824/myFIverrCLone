@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { ADD_GIG_ROUTE } from "../../utils/constants";
+import { ADD_GIG_ROUTE } from "../../../utils/constants";
 import { FiPlus } from "react-icons/fi";
 
 const categories = [
