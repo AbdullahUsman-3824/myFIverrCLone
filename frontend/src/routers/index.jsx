@@ -22,6 +22,9 @@ import BuyerMessages from "../pages/buyer/Messages";
 import SellerRoute from "./SellerRoute";
 import SellerDetails from "../features/seller/pages/SellerDetails";
 import BuyerInfo from "../features/buyer/BuyerInfo";
+import CategoryPage from "../pages/CategoryPage";
+import GigDetail from "../pages/GigDetail";
+import SearchResults from "../pages/SearchResults";
 
 const router = createBrowserRouter([
   {
@@ -29,6 +32,8 @@ const router = createBrowserRouter([
     element: <MainLayout />,
     children: [
       { path: "/", element: <Home /> },
+      { path: "/category/:categoryId", element: <CategoryPage /> },
+      { path: "/category/:categoryId/gig/:gigId", element: <GigDetail /> },
       { path: "/buyer", element: <BuyerHome /> },
       { path: "/buyer/orders", element: <BuyerOrders /> },
       { path: "/buyer/profile", element: <BuyerInfo /> },
@@ -60,6 +65,10 @@ const router = createBrowserRouter([
       { path: "/forgot-password", element: <ForgotPassword /> },
       { path: "/reset-password/:uid/:token", element: <ResetPassword /> },
     ],
+  },
+  {
+    path: "/search",
+    element: <SearchResults />,
   },
 ]);
 
