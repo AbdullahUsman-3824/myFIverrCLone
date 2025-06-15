@@ -1,9 +1,11 @@
-const ErrorMessage = ({ message }) => (
-  message ? (
-    <div className="text-red-500 text-sm text-center p-2 bg-red-50 rounded-md mb-4">
-      {message}
+import { FiAlertCircle } from "react-icons/fi";
+
+const ErrorMessage = ({ error }) =>
+  error ? (
+    <div className="flex items-center gap-1 text-red-600 text-sm mt-1" role="alert" aria-live="assertive">
+      <FiAlertCircle size={14} aria-hidden="true" />
+      <span>{error}</span>
     </div>
-  ) : null
-);
+  ) : null;
 
 export default ErrorMessage;

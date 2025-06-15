@@ -146,7 +146,7 @@ class SellerProfileSerializer(serializers.ModelSerializer):
             related_manager.create(**item_data)
 
     @transaction.atomic
-    def update(self, instance, validated_data):
+    def update(self, instance, validated_data): 
         related_fields = {
             'educations': (Education, validated_data.pop('educations', None)),
             'skills': (Skill, validated_data.pop('skills', None)),

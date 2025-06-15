@@ -85,8 +85,8 @@ export default function LoginForm({
       <div>
         <PasswordInput
           name="password"
-          value={values.password}
-          onChange={(e) => handleChange(e)}
+          value={values.password} 
+          onChange={(e) => handleChange(e,setErrors)}
           error={errors.password}
           disabled={isProcessing}
         />

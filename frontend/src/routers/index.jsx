@@ -14,7 +14,7 @@ import SellerDashboard from "../features/seller/SellerDashboard";
 import SellerOrders from "../features/seller/SellerOrders";
 import SellerMessages from "../features/seller/SellerMessages";
 import SellerGigs from "../features/seller/SellerGigs";
-import CreateGig from "../features/gigs/pages/CreateGig";
+import CreateGigPage from "../features/gigs/pages/CreateGigPage";
 import BuyerHome from "../pages/buyer/Home";
 import BuyerOrders from "../pages/buyer/Orders";
 import BuyerOrderMessages from "../pages/buyer/OrderMessages";
@@ -50,7 +50,7 @@ const router = createBrowserRouter([
           { path: "/seller/orders", element: <SellerOrders /> },
           { path: "/seller/messages", element: <SellerMessages /> },
           { path: "/seller/gigs", element: <SellerGigs /> },
-          { path: "/seller/gigs/create", element: <CreateGig /> },
+          { path: "/seller/gigs/create", element: <CreateGigPage /> },  
           { path: "/seller/profile", element: <SellerDetails /> },
         ],
       },

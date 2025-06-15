@@ -23,14 +23,23 @@ class CategoryViewSet(viewsets.ModelViewSet):
         """
         if self.action in ['list', 'retrieve']:
             return [permissions.AllowAny()]
-        return [permissions.IsAdminUser()]
-    
+        return [permissions.IsAdminUser ()]
 
 
 class SubCategoryViewSet(viewsets.ModelViewSet):
-    queryset = SubCategory.objects.all()
     serializer_class = SubCategorySerializer
-    permission_classes = [permissions.IsAdminUser]
+
+    def get_queryset(self):
+        category_id = self.request.query_params.get('category')
+        if category_id:
+            return SubCategory.objects.filter(category_id=category_id)
+        return SubCategory.objects.all()
+
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            return [permissions.AllowAny()]
+        return [permissions.IsAdminUser()]
+
 
 
 # -----------------------------------------------------------------------------
@@ -40,9 +49,9 @@ class GigViewSet(viewsets.ModelViewSet):
     serializer_class = GigSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['category__slug', 'subcategory__slug', 'seller__id', 'is_featured'] # Define fields for filtering
-    search_fields = ['title', 'description'] # Enable search by title and description
-    ordering_fields = ['price', 'created_at'] # Enable ordering by price and created_at
+    filterset_fields = ['category__slug', 'subcategory__slug', 'seller__id', 'is_featured']  # Define fields for filtering
+    search_fields = ['title', 'description']  # Enable search by title and description
+    ordering_fields = ['price', 'created_at']  # Enable ordering by price and created_at
 
     def get_queryset(self):
         queryset = Gig.objects.all()
@@ -198,7 +207,7 @@ class SavedGigViewSet(viewsets.ModelViewSet):
         if SavedGig.objects.filter(user=self.request.user, gig=gig).exists():
             raise serializers.ValidationError("This gig is already saved.")
 
-        serializer.save(user=self.request.user, gig=gig, action='save')
+        serializer.save(user=self.request.user, gig=gig)
 
     def destroy(self, request, pk=None):
         """
@@ -210,4 +219,3 @@ class SavedGigViewSet(viewsets.ModelViewSet):
             return Response(status=status.HTTP_204_NO_CONTENT)
         except SavedGig.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
-    

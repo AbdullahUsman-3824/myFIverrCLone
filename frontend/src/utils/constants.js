@@ -23,14 +23,19 @@ export const USER_PROFILE_ROUTE = `${AUTH_ROUTES}/user/`;
 export const VERIFY_EMAIL_ROUTE = `${AUTH_ROUTES}/registration/verify-email/`;
 export const RESEND_VERIFICATION_EMAIL_ROUTE = `${AUTH_ROUTES}/registration/resend-email/`;
 
-// my URLs
+// Seller Routes
 export const SWITCH_ROLE_URL = "/accounts/user/switch-role/";
 export const SELLER_DETAIL_URL = "/accounts/seller/profile/detail/";
 export const SELLER_SETUP_URL = "/accounts/seller/profile/setup/";
 export const BECOME_SELLER_URL = "/accounts/seller/become/";
 
+// Gigs Routes
+export const GET_ALL_CATEGORIES_URL = "/gigs/categories/";
+export const GET_ALL_SUBCATEGORIES_URL = "/gigs/subcategories/";
+export const ADD_GIG_ROUTE = "/gigs/";
+
+
 export const GET_USER_INFO = `${AUTH_ROUTES}/user/`;
-export const ADD_GIG_ROUTE = `${GIG_ROUTES}/add`;
 export const GET_BUYER_ORDERS_ROUTE = `${ORDERS_ROUTES}/get-buyer-orders`;
 export const ADD_MESSAGE = `${MESSAGES_ROUTES}/add-message`;
 export const GET_MESSAGES = `${MESSAGES_ROUTES}/get-messages`;
