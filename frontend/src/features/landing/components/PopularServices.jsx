@@ -53,27 +53,27 @@ function PopularServices() {
     },
   ];
   return (
-    <div className="mx-20 my-16">
-      <h2 className="text-4xl mb-5 text-[#404145] font-bold">
+    <div className="mx-4 sm:mx-8 md:mx-12 lg:mx-20 my-8 sm:my-12 md:my-16">
+      <h2 className="text-2xl sm:text-3xl md:text-4xl mb-4 sm:mb-5 text-[#404145] font-bold px-4 sm:px-0">
         Popular Services
       </h2>
-      <ul className="flex flex-wrap gap-16">
+      <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8 lg:gap-16">
         {popularServicesData.map(({ name, label, image, categoryId }) => {
           return (
             <li
               key={name}
-              className="relative cursor-pointer"
+              className="relative cursor-pointer group"
               onClick={() => navigate(`/category/${categoryId}`)}
             >
-              <div className="absolute z-10 text-white left-5 top-4">
-                <span>{label}</span>
-                <h6 className="font-extrabold text-2xl">{name}</h6>
+              <div className="absolute z-10 text-white left-3 sm:left-4 md:left-5 top-3 sm:top-4">
+                <span className="text-xs sm:text-sm md:text-base">{label}</span>
+                <h6 className="font-extrabold text-lg sm:text-xl md:text-2xl">{name}</h6>
               </div>
-              <div className="h-80 w-72 relative">
+              <div className="h-48 sm:h-56 md:h-64 lg:h-80 w-full relative overflow-hidden rounded-lg">
                 <img 
                   src={image} 
                   alt="service" 
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
               </div>
             </li>

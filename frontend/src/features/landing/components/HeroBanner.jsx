@@ -16,7 +16,7 @@ function HomeBanner() {
   }, [image]);
 
   return (
-    <div className="h-[680px] relative bg-cover">
+    <div className="h-[400px] sm:h-[500px] md:h-[600px] lg:h-[680px] relative bg-cover">
       <div className="absolute top-0 right-0 w-[110vw] h-full transition-opacity z-0">
         <img
           alt="hero"
@@ -61,51 +61,55 @@ function HomeBanner() {
           } transition-all duration-1000`}
         />
       </div>
-      <div className="z-10 relative w-[650px] flex justify-center flex-col h-full gap-5 ml-20">
-        <h1 className="text-white text-5xl leading-snug">
+      <div className="z-10 relative w-full px-4 sm:px-6 md:px-8 lg:px-20 flex justify-center flex-col h-full gap-3 sm:gap-4 md:gap-5">
+        <h1 className="text-white text-2xl sm:text-3xl md:text-4xl lg:text-5xl leading-tight sm:leading-snug font-bold">
           Find the perfect&nbsp;
           <i>freelance</i>
           <br />
           services for your business
         </h1>
-        <div className="flex align-middle">
-          <div className="relative">
-            <IoSearchOutline className="absolute text-gray-500 text-2xl flex align-middle h-full left-2" />
+        <form onSubmit={(e) => {
+          e.preventDefault();
+          if (searchData.trim()) {
+            navigate(`/search?q=${searchData.trim()}`);
+          }
+        }} className="flex flex-col sm:flex-row align-middle gap-2 sm:gap-0 max-w-2xl">
+          <div className="relative flex-1">
+            <IoSearchOutline className="absolute text-gray-500 text-lg sm:text-xl md:text-2xl flex align-middle h-full left-2 sm:left-3 top-1/2 transform -translate-y-1/2" />
             <input
               type="text"
-              className="h-14 w-[450px] pl-10 rounded-md rounded-r-none"
+              className="h-12 sm:h-14 w-full pl-8 sm:pl-10 pr-4 rounded-md sm:rounded-r-none text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-[#1DBF73] focus:border-transparent"
               placeholder={`Try "building mobile app"`}
               value={searchData}
               onChange={(e) => setSearchData(e.target.value)}
             />
           </div>
           <button
-            className="bg-[#1DBF73] text-white px-12 text-lg font-semibold rounded-r-md"
-            onClick={() => navigate(`/search?q=${searchData}`)}
+            type="submit"
+            className="bg-[#1DBF73] text-white px-6 sm:px-8 md:px-12 h-12 sm:h-14 text-sm sm:text-base md:text-lg font-semibold rounded-md sm:rounded-l-none hover:bg-[#19a866] transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#1DBF73] focus:ring-offset-2"
           >
             Search
           </button>
-        </div>
+        </form>
         <div className="text-white flex flex-col gap-2">
-  <span className="font-semibold">Popular:</span>
-  <ul className="flex flex-wrap gap-3">
-    {[
-      { label: "Website Design", query: "website design" },
-      { label: "WordPress", query: "wordpress" },
-      { label: "Logo Design", query: "logo design" },
-      { label: "AI Services", query: "ai services" },
-    ].map(({ label, query }) => (
-      <li
-        key={label}
-        className="text-sm py-1.5 px-4 border border-white rounded-full hover:bg-white hover:text-black transition-all duration-300 cursor-pointer"
-        onClick={() => navigate(`/search?q=${query}`)}
-      >
-        {label}
-      </li>
-    ))}
-  </ul>
-</div>
-
+          <span className="font-semibold text-sm sm:text-base">Popular:</span>
+          <ul className="flex flex-wrap gap-2 sm:gap-3">
+            {[
+              { label: "Website Design", query: "website design" },
+              { label: "WordPress", query: "wordpress" },
+              { label: "Logo Design", query: "logo design" },
+              { label: "AI Services", query: "ai services" },
+            ].map(({ label, query }) => (
+              <li
+                key={label}
+                className="text-xs sm:text-sm py-1 sm:py-1.5 px-2 sm:px-4 border border-white rounded-full hover:bg-white hover:text-black transition-all duration-300 cursor-pointer"
+                onClick={() => navigate(`/search?q=${query}`)}
+              >
+                {label}
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </div>
   );

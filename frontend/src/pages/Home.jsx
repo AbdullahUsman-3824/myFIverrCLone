@@ -3,6 +3,7 @@ import PopularServices from "../features/landing/components/PopularServices";
 import Services from "../features/landing/components/Services";
 import FiverrBusiness from "../features/landing/components/FiverrBusiness";
 import JoinFiverr from "../features/landing/components/JoinFiverr";
+import Everything from "../features/landing/components/Everything";
 
 function Home() {
   return (
@@ -12,7 +13,7 @@ function Home() {
       <Services />
       <FiverrBusiness />
       <JoinFiverr />
-      {/* <Everything /> */}
+      <Everything />
     </div>
   );
 }
