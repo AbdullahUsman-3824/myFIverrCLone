@@ -1,9 +1,9 @@
 import React from "react";
 
-function ContextMenu({ data }) {
+function ContextMenu({ data, isMobileMenu }) {
   return (
     <div
-      className={`z-50 w-48 fixed right-5 top-20 border rounded-xl shadow-xl
+      className={`z-50 w-48 ${isMobileMenu ? 'absolute right-12 top-0 mt-[30rem]' : 'fixed right-5 top-20'} border rounded-xl shadow-xl
       bg-white dark:bg-gray-900 border-gray-300 dark:border-teal-500`}
     >
       <ul className="py-2 text-sm text-gray-900 dark:text-[#1DBF73]">

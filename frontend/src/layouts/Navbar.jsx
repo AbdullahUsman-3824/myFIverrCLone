@@ -338,6 +338,16 @@ function Navbar() {
           />
           <div className="fixed top-0 right-0 h-full w-80 bg-white shadow-xl transform transition-transform duration-300 ease-in-out">
             <div className="flex flex-col h-full">
+              {/* Close button */}
+              <div className="flex justify-end p-4 border-b border-gray-200">
+                <button
+                  aria-label="Close menu"
+                  className="text-gray-600 hover:text-gray-900 focus:outline-none"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <HiX className="h-7 w-7" />
+                </button>
+              </div>
               {/* Mobile search bar */}
               <div className="p-4 border-b border-gray-200">
                 <div className="flex">
@@ -415,6 +425,7 @@ function Navbar() {
               callback: handleLogout,
             },
           ]}
+          isMobileMenu={isMobileMenuOpen}
         />
       )}
     </nav>
