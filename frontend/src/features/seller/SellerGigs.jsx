@@ -3,11 +3,15 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { HOST } from "../../utils/constants";
 import { FiEdit2, FiTrash2, FiPlus } from "react-icons/fi";
+import ConfirmModal from "../../components/common/ConfirmModal";
 
 const SellerGigs = () => {
   const navigate = useNavigate();
   const [gigs, setGigs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [gigToDelete, setGigToDelete] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     fetchGigs();
@@ -49,19 +53,33 @@ const SellerGigs = () => {
     navigate("/seller/gigs/create");
   };
 
-  const handleDeleteGig = async (gigId) => {
-    if (window.confirm("Are you sure you want to delete this gig?")) {
-      try {
-        const response = await axios.delete(`${HOST}/api/seller/gigs/${gigId}`, {
-          withCredentials: true,
-        });
-        if (response.status === 200) {
-          setGigs(gigs.filter(gig => gig.id !== gigId));
-        }
-      } catch (error) {
-        console.error("Error deleting gig:", error);
+  const handleDeleteClick = (gigId) => {
+    setGigToDelete(gigId);
+    setShowConfirm(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!gigToDelete) return;
+    setDeleting(true);
+    try {
+      const response = await axios.delete(`${HOST}/api/seller/gigs/${gigToDelete}`, {
+        withCredentials: true,
+      });
+      if (response.status === 200) {
+        setGigs(gigs.filter(gig => gig.id !== gigToDelete));
       }
+    } catch (error) {
+      console.error("Error deleting gig:", error);
+    } finally {
+      setDeleting(false);
+      setShowConfirm(false);
+      setGigToDelete(null);
     }
+  };
+
+  const handleCancelDelete = () => {
+    setShowConfirm(false);
+    setGigToDelete(null);
   };
 
   if (loading) {
@@ -156,7 +174,7 @@ const SellerGigs = () => {
                           <FiEdit2 className="w-5 h-5" />
                         </button>
                         <button
-                          onClick={() => handleDeleteGig(gig.id)}
+                          onClick={() => handleDeleteClick(gig.id)}
                           className="text-red-600 hover:text-red-700"
                         >
                           <FiTrash2 className="w-5 h-5" />
@@ -170,6 +188,16 @@ const SellerGigs = () => {
           </div>
         </div>
       )}
+      <ConfirmModal
+        isOpen={showConfirm}
+        title="Delete Gig"
+        message="Are you sure you want to delete this gig? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+        loading={deleting}
+      />
     </div>
   );
 };

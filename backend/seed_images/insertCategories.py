@@ -1,4 +1,4 @@
-from core.models import Category
+from gigs.models import Category
 from django.core.files import File
 import os
 

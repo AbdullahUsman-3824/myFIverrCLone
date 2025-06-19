@@ -10,7 +10,7 @@ function HomeBanner() {
   useEffect(() => {
     const interval = setInterval(
       () => setImage(image >= 6 ? 1 : image + 1),
-      10000
+      3000
     );
     return () => clearInterval(interval);
   }, [image]);

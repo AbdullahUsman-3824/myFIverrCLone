@@ -25,6 +25,7 @@ import BuyerInfo from "../features/buyer/BuyerInfo";
 import CategoryPage from "../pages/CategoryPage";
 import GigDetail from "../pages/GigDetail";
 import SearchResults from "../pages/SearchResults";
+import EditGigPage from "../features/gigs/pages/EditGigPage";
 
 const router = createBrowserRouter([
   {
@@ -52,6 +53,7 @@ const router = createBrowserRouter([
           { path: "/seller/gigs", element: <SellerGigs /> },
           { path: "/seller/gigs/create", element: <CreateGigPage /> },  
           { path: "/seller/profile", element: <SellerDetails /> },
+          { path: "/seller/gigs/:gigId/edit", element: <EditGigPage /> },
         ],
       },
       { path: "/become-a-seller", element: <SellerOnboarding /> },
