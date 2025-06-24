@@ -13,8 +13,8 @@ import SellerOnboarding from "../features/sellerOnboarding/pages/SellerOnboardin
 import SellerDashboard from "../features/seller/SellerDashboard";
 import SellerOrders from "../features/seller/SellerOrders";
 import SellerMessages from "../features/seller/SellerMessages";
-import SellerGigs from "../features/seller/SellerGigs";
-import CreateGigPage from "../features/gigs/pages/CreateGigPage";
+import SellerGigs from "../features/seller/pages/SellerGigs";
+import GigFormPage from "../features/gigs/pages/GigFormPage";
 import BuyerHome from "../pages/buyer/Home";
 import BuyerOrders from "../pages/buyer/Orders";
 import BuyerOrderMessages from "../pages/buyer/OrderMessages";
@@ -25,7 +25,6 @@ import BuyerInfo from "../features/buyer/BuyerInfo";
 import CategoryPage from "../pages/CategoryPage";
 import GigDetail from "../pages/GigDetail";
 import SearchResults from "../pages/SearchResults";
-import EditGigPage from "../features/gigs/pages/EditGigPage";
 
 const router = createBrowserRouter([
   {
@@ -51,9 +50,9 @@ const router = createBrowserRouter([
           { path: "/seller/orders", element: <SellerOrders /> },
           { path: "/seller/messages", element: <SellerMessages /> },
           { path: "/seller/gigs", element: <SellerGigs /> },
-          { path: "/seller/gigs/create", element: <CreateGigPage /> },  
+          { path: "/seller/gigs/create", element: <GigFormPage /> },
           { path: "/seller/profile", element: <SellerDetails /> },
-          { path: "/seller/gigs/:gigId/edit", element: <EditGigPage /> },
+          { path: "/seller/gigs/:gigId/edit", element: <GigFormPage /> },
         ],
       },
       { path: "/become-a-seller", element: <SellerOnboarding /> },

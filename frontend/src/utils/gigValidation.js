@@ -1,5 +1,6 @@
 export const validateGigData = (data) => {
   const newErrors = {};
+  const filesErrors = {};
 
   // Title
   if (!data.title?.trim()) {
@@ -52,7 +53,8 @@ export const validateGigData = (data) => {
   } else if (number_of_revisions < 0) {
     newErrors.number_of_revisions = "Revisions cannot be negative";
   } else if (number_of_revisions > 20) {
-    newErrors.number_of_revisions = "Revisions must be less than or equal to 20";
+    newErrors.number_of_revisions =
+      "Revisions must be less than or equal to 20";
   }
 
   // Tags
@@ -62,23 +64,34 @@ export const validateGigData = (data) => {
 
   // Thumbnail Image
   if (!data.thumbnail_image) {
-    newErrors.thumbnail_image = "Thumbnail image is required";
-  } else if (!data.thumbnail_image.type?.startsWith("image/")) {
-    newErrors.thumbnail_image = "Thumbnail must be an image";
+    filesErrors.thumbnail_image = "Thumbnail image is required";
+  } else if (
+    data.thumbnail_image instanceof File &&
+    !data.thumbnail_image.type.startsWith("image/")
+  ) {
+    filesErrors.thumbnail_image = "Thumbnail must be a valid image file";
   }
 
   // Gallery
   if (!Array.isArray(data.gallery) || data.gallery.length === 0) {
-    newErrors.gallery = "At least one gallery image or video is required";
+    filesErrors.gallery = "At least one gallery image or video is required";
   } else {
     data.gallery.forEach((item, index) => {
+      const isExistingUrl = typeof item.media_file === "string";
+
       if (!item.media_type || !["image", "video"].includes(item.media_type)) {
-        newErrors.gallery = `Invalid media type at item ${index + 1}`;
+        filesErrors.gallery = `Invalid media type at item ${index + 1}`;
       }
-      if (!item.media_file) {
-        newErrors.gallery = `Missing file at item ${index + 1}`;
+
+      if (!isExistingUrl && !(item.media_file instanceof File)) {
+        filesErrors.gallery = `Missing or invalid file at item ${index + 1}`;
       }
     });
+  }
+
+  // Only add .files key if any file-related errors exist
+  if (Object.keys(filesErrors).length > 0) {
+    newErrors.files = filesErrors;
   }
 
   return newErrors;

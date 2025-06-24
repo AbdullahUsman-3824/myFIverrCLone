@@ -32,8 +32,9 @@ coverage.xml
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
-/static/
-/media/
+static/
+/backend/media/
+media/
 
 # Environments
 .env

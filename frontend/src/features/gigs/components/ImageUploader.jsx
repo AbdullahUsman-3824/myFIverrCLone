@@ -1,5 +1,6 @@
 import { FiUpload, FiX } from "react-icons/fi";
 import { useRef, useState, useCallback } from "react";
+import ErrorMessage from "../../../components/common/ErrorMessage";
 
 const ImageUploader = ({
   thumbnail,
@@ -103,7 +104,11 @@ const ImageUploader = ({
           {thumbnail ? (
             <div className="relative h-full flex items-center justify-center">
               <img
-                src={URL.createObjectURL(thumbnail)}
+                src={
+                  thumbnail instanceof File
+                    ? URL.createObjectURL(thumbnail)
+                    : thumbnail
+                }
                 alt="Thumbnail Preview"
                 className="max-h-[10rem] max-w-full rounded-lg border border-gray-300 shadow object-contain"
               />
@@ -137,6 +142,9 @@ const ImageUploader = ({
           className="hidden"
         />
       </div>
+      {error && (
+        <ErrorMessage error={error.thumbnail_image} name="thumbnail_image" />
+      )}
 
       {/* Gallery Upload Dropzone */}
       <div>
@@ -169,27 +177,34 @@ const ImageUploader = ({
           }}
           aria-label="Upload gallery images or videos by drop or click"
         >
-          {gallery.length === 0 && (
+          {gallery?.length === 0 && (
             <div className="flex flex-col items-center justify-center w-full text-gray-400 text-sm select-none">
               <FiUpload size={28} className="mb-1" />
               Drag & drop images or videos here, or click to select
             </div>
           )}
-
-          {gallery.map((item, index) => (
+          {gallery?.map((item, index) => (
             <div
               key={index}
               className="relative w-28 h-28 bg-white border border-gray-300 rounded-lg shadow-sm overflow-hidden group transition-transform hover:scale-[1.02]"
             >
               {item.media_type === "image" ? (
                 <img
-                  src={URL.createObjectURL(item.media_file)}
+                  src={
+                    item.media_file instanceof File
+                      ? URL.createObjectURL(item.media_file)
+                      : item.media_file
+                  }
                   alt="Gallery item"
                   className="object-cover w-full h-full"
                 />
               ) : (
                 <video
-                  src={URL.createObjectURL(item.media_file)}
+                  src={
+                    item.media_file instanceof File
+                      ? URL.createObjectURL(item.media_file)
+                      : item.media_file
+                  }
                   className="w-full h-full object-cover"
                   muted
                   playsInline
@@ -219,16 +234,7 @@ const ImageUploader = ({
           ref={galleryInputRef}
           className="hidden"
         />
-
-        {error && (
-          <p
-            className="text-sm text-red-500 mt-1"
-            role="alert"
-            aria-live="assertive"
-          >
-            {error}
-          </p>
-        )}
+        {error && <ErrorMessage error={error.gallery} name="gallery" />}
       </div>
     </div>
   );

@@ -17,7 +17,15 @@ const defaultState = {
 const loadState = () => {
   try {
     const serializedState = localStorage.getItem("appState");
-    return serializedState ? JSON.parse(serializedState) : defaultState;
+    const token = localStorage.getItem("accessToken");
+
+    const state = serializedState ? JSON.parse(serializedState) : defaultState;
+
+    if (!token) {
+      state.userInfo = undefined;
+    }
+
+    return state;
   } catch (err) {
     console.error("Error loading state from localStorage:", err);
     return defaultState;
@@ -40,10 +48,6 @@ const saveState = (state) => {
 export const setUser = (userInfo) => ({
   type: reducerCases.SET_USER,
   userInfo,
-});
-export const setSellerInfo = (sellerInfo) => ({
-  type: reducerCases.SET_SELLER_INFO,
-  sellerInfo,
 });
 export const toggleLoginModal = (showLoginModal) => ({
   type: reducerCases.TOGGLE_LOGIN_MODAL,
@@ -73,9 +77,6 @@ export const reducer = (state, action) => {
     switch (action.type) {
       case reducerCases.SET_USER:
         draft.userInfo = action.userInfo;
-        break;
-      case reducerCases.SET_SELLER_INFO:
-        draft.sellerInfo = action.sellerInfo;
         break;
       case reducerCases.TOGGLE_LOGIN_MODAL:
         draft.showLoginModal = action.showLoginModal;

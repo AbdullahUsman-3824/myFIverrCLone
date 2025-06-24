@@ -13,8 +13,8 @@ import {
 import useFetchSeller from "../hooks/useFetchSeller";
 
 const SellerInfo = () => {
-  const [{ userInfo, sellerInfo }] = useStateProvider();
-  const { fetchSeller } = useFetchSeller();
+  const [{ userInfo }] = useStateProvider();
+  const { fetchSeller, sellerInfo } = useFetchSeller();
   useEffect(() => {
     fetchSeller();
   }, []);

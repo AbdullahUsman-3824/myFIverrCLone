@@ -32,7 +32,8 @@ export const BECOME_SELLER_URL = "/accounts/seller/become/";
 // Gigs Routes
 export const GET_ALL_CATEGORIES_URL = "/gigs/categories/";
 export const GET_ALL_SUBCATEGORIES_URL = "/gigs/subcategories/";
-export const ADD_GIG_ROUTE = "/gigs/";
+export const GIG_ROUTE = "/gigs/";
+export const GET_MY_GIGS_ROUTE = "/gigs/my-gigs";
 
 
 export const GET_USER_INFO = `${AUTH_ROUTES}/user/`;

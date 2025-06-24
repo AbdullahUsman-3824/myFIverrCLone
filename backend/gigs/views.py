@@ -8,6 +8,7 @@ from rest_framework import status
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
+import json
 
 
 # -----------------------------------------------------------------------------
@@ -31,9 +32,12 @@ class SubCategoryViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         category_id = self.request.query_params.get('category')
+        queryset = SubCategory.objects.all()
+
         if category_id:
-            return SubCategory.objects.filter(category_id=category_id)
-        return SubCategory.objects.all()
+            queryset = queryset.filter(category_id=category_id)
+
+        return queryset.order_by('id') 
 
     def get_permissions(self):
         if self.action in ['list', 'retrieve']:
@@ -45,54 +49,111 @@ class SubCategoryViewSet(viewsets.ModelViewSet):
 # -----------------------------------------------------------------------------
 # Gig Views
 # -----------------------------------------------------------------------------
+
 class GigViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint for managing gigs with related packages, FAQs, and gallery items.
+    """
     serializer_class = GigSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['category__slug', 'subcategory__slug', 'seller__id', 'is_featured']  # Define fields for filtering
-    search_fields = ['title', 'description']  # Enable search by title and description
-    ordering_fields = ['price', 'created_at']  # Enable ordering by price and created_at
+    filterset_fields = ['category__slug', 'subcategory__slug', 'seller__id', 'is_featured']
+    search_fields = ['title', 'description']
+    ordering_fields = ['price', 'created_at']
 
     def get_queryset(self):
-        queryset = Gig.objects.all()
-        return queryset
+        """Return all gigs by default, can be filtered further."""
+        return Gig.objects.all()
+
+    def get_serializer_context(self):
+        """Add request context to serializer."""
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context
+
+    def _parse_json_fields(self, request, data, fields):
+        """
+        Helper method to parse JSON string fields into Python objects.
+        Handles both direct JSON strings and lists containing JSON strings.
+        """
+        for field in fields:
+            if field not in data:
+                continue
+
+            raw_value = data[field]
+            
+            # Handle case where value is a single-element list
+            if isinstance(raw_value, list) and len(raw_value) == 1:
+                
+                raw_value = raw_value[0]
+            
+            # Parse if the value is a JSON string
+            if isinstance(raw_value, str):
+                try:
+                    data[field] = json.loads(raw_value)
+                except json.JSONDecodeError:
+                    # If parsing fails, keep the original value
+                    continue
+            
+        return data
+
+
+    def create(self, request, *args, **kwargs):
+        """Create a new gig with parsed JSON fields."""
+        data = request.data.copy()
+        data = self._parse_json_fields(request, data, ['packages', 'faqs'])
+        
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)   
+        self.perform_create(serializer)
+        return Response(serializer.data, status=201)
+
+    def update(self, request, *args, **kwargs):
+        """Update an existing gig with parsed JSON fields."""
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        data = request.data.copy()
+        data = self._parse_json_fields(request, data, ['packages', 'faqs'])
+
+        serializer = self.get_serializer(instance, data=data, partial=partial)
+        if not serializer.is_valid():
+            print("Serializer errors:", serializer.errors)  # 👈 helpful log
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        self.perform_update(serializer)
+        return Response(serializer.data)
 
     def perform_create(self, serializer):
-        """
-        Automatically sets the seller to the current user's seller profile.
-        """
+        """Automatically set the seller to the current user's seller profile."""
         serializer.save(seller=self.request.user.seller_profile)
+
+    # Custom actions
+    @action(detail=False, methods=['get'], url_path='my-gigs', permission_classes=[permissions.IsAuthenticated])
+    def my_gigs(self, request):
+        """Get all gigs belonging to the current authenticated user."""
+        gigs = Gig.objects.filter(seller=request.user.seller_profile)
+        serializer = self.get_serializer(gigs, many=True)
+        return Response(serializer.data)
 
     @action(detail=True, methods=['get'])
     def packages(self, request, pk=None):
-        """
-        Retrieves all packages for a specific gig.
-        """
+        """Get all packages for a specific gig."""
         gig = self.get_object()
-        packages = gig.packages.all()
-        serializer = GigPackageSerializer(packages, many=True)
+        serializer = GigPackageSerializer(gig.packages.all(), many=True)
         return Response(serializer.data)
 
     @action(detail=True, methods=['get'])
     def faqs(self, request, pk=None):
-        """
-        Retrieves all FAQs for a specific gig.
-        """
+        """Get all FAQs for a specific gig."""
         gig = self.get_object()
-        faqs = gig.faqs.all()
-        serializer = GigFAQSerializer(faqs, many=True)
+        serializer = GigFAQSerializer(gig.faqs.all(), many=True)
         return Response(serializer.data)
 
     @action(detail=True, methods=['get'])
     def gallery(self, request, pk=None):
-        """
-        Retrieves all gallery items for a specific gig.
-        """
+        """Get all gallery items for a specific gig."""
         gig = self.get_object()
-        gallery = gig.gallery.all()
-        serializer = GigGallerySerializer(gallery, many=True)
+        serializer = GigGallerySerializer(gig.gallery.all(), many=True)
         return Response(serializer.data)
-
 
 # -----------------------------------------------------------------------------
 # GigPackage Views
