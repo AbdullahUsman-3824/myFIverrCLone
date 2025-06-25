@@ -9,6 +9,7 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 import json
+from django.db.models import Q, Min
 
 
 # -----------------------------------------------------------------------------
@@ -51,22 +52,49 @@ class SubCategoryViewSet(viewsets.ModelViewSet):
 # -----------------------------------------------------------------------------
 
 class GigViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint for managing gigs with related packages, FAQs, and gallery items.
-    """
     serializer_class = GigSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['category__slug', 'subcategory__slug', 'seller__id', 'is_featured']
-    search_fields = ['title', 'description']
-    ordering_fields = ['price', 'created_at']
+    search_fields = ['title', 'description', 'seller__user__first_name', 'seller__user__username']
+    ordering_fields = ['min_price', 'created_at']
 
     def get_queryset(self):
-        """Return all gigs by default, can be filtered further."""
-        return Gig.objects.all()
+        queryset = Gig.objects.all().annotate(min_price=Min('packages__price'))
+        q = self.request.query_params.get('q')
+        sort = self.request.query_params.get('sort')
+
+        if q:
+            category_matches = queryset.filter(
+                Q(category__name__icontains=q) |
+                Q(subcategory__name__icontains=q)
+            ).distinct()
+            print(category_matches)
+
+            if category_matches.exists():
+                queryset = category_matches
+            else:
+                queryset = queryset.filter(
+                    Q(title__icontains=q) |
+                    Q(description__icontains=q) |
+                    Q(seller__user__username__icontains=q) |
+                    Q(seller__user__first_name__icontains=q) |
+                    Q(seller__user__last_name__icontains=q)
+                ).distinct()
+
+        # Handle custom sort logic
+        if sort == 'price-low':
+            queryset = queryset.order_by('min_price')
+        elif sort == 'price-high':
+            queryset = queryset.order_by('-min_price')
+        elif sort == 'newest':
+            queryset = queryset.order_by('-created_at')
+        elif sort == 'popular':
+            queryset = queryset.order_by('-rating')  # Make sure this field exists
+
+        return queryset
 
     def get_serializer_context(self):
-        """Add request context to serializer."""
         context = super().get_serializer_context()
         context['request'] = self.request
         return context

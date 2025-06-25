@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import Category, SubCategory, Gig, GigPackage, GigFAQ, GigGallery, SavedGig
-from accounts.serializers.profile_serializers import SellerProfileReadSerializer
+from accounts.serializers.profile_serializers import SellerProfileMiniSerializer
 import json
 from django.db import transaction
 
@@ -73,6 +73,7 @@ class GigSerializer(serializers.ModelSerializer):
     # Read-only name fields for related models
     category_name = serializers.CharField(source='category.name', read_only=True)
     subcategory_name = serializers.CharField(source='subcategory.name', read_only=True)
+    seller = SellerProfileMiniSerializer(read_only=True)
 
     # Nested serializers
     packages = GigPackageSerializer(many=True, required=False)
@@ -84,7 +85,7 @@ class GigSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'title', 'description', 'tags',
             'delivery_time', 'status', 'is_featured',
-            'thumbnail_image', 'seller_id',
+            'thumbnail_image', 'seller_id','seller',
             'category_id', 'subcategory_id',
             'category_name', 'subcategory_name',
             'packages', 'faqs', 'gallery',

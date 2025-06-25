@@ -111,6 +111,13 @@ class UserSummarySerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'email', 'profile_picture', 'first_name', 'last_name']
         read_only_fields = fields
 
+class SellerProfileMiniSerializer(serializers.ModelSerializer):
+    user = UserSummarySerializer(read_only=True)
+
+    class Meta:
+        model = SellerProfile
+        fields = ['id', 'profile_title', 'user']
+
 class SellerProfileSerializer(serializers.ModelSerializer):
     """Full Update Serializer"""
     id = serializers.IntegerField(read_only=True)
