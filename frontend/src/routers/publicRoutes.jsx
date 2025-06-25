@@ -7,7 +7,7 @@ import SellerDetails from "../features/seller/pages/SellerDetails";
 
 const publicRoutes = [
   { path: "/", element: <Home /> },
-  { path: "/category/:categoryId", element: <CategoryPage /> },
+  { path: "/category/:categoryId", element: <SearchResults /> },
   { path: "/gig/:gigId", element: <GigDetail /> },
   { path: "/become-a-seller", element: <SellerOnboarding /> },
   { path: "/search", element: <SearchResults /> },

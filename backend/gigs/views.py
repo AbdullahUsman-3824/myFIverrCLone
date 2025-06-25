@@ -10,7 +10,13 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 import json
 from django.db.models import Q, Min
+from rest_framework.views import APIView
 
+class GigsByCategoryView(APIView):
+    def get(self, request, category_id):
+        gigs = Gig.objects.filter(category_id=category_id)
+        serializer = GigSerializer(gigs, many=True, context={"request": request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 # -----------------------------------------------------------------------------
 # Category Views

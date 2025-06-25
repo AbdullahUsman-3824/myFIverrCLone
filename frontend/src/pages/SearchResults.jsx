@@ -1,5 +1,5 @@
-import React, { useState, useEffect, use } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useSearchParams, useNavigate, useParams } from "react-router-dom";
 import { FaSearch, FaSort } from "react-icons/fa";
 import { FiArrowLeft } from "react-icons/fi";
 import api from "../utils/apiClient";
@@ -7,6 +7,7 @@ import { GIG_ROUTE } from "../utils/constants";
 
 const SearchResults = () => {
   const [searchParams] = useSearchParams();
+  const { categoryId } = useParams();
   const navigate = useNavigate();
   const [sortBy, setSortBy] = useState("newest");
   const [searchResults, setSearchResults] = useState([]);
@@ -14,23 +15,36 @@ const SearchResults = () => {
   const query = searchParams.get("q") || "";
 
   useEffect(() => {
-    const fetchResults = async () => {
-      if (!query) return;
+    const fetchData = async () => {
       setLoading(true);
       try {
-        const response = await api.get(GIG_ROUTE, {
-          params: { q: query, sort: sortBy },
-        });
-        setSearchResults(response.data.results);
+        let response;
+
+        if (query) {
+          response = await api.get(GIG_ROUTE, {
+            params: { q: query, sort: sortBy },
+          });
+          setSearchResults(response.data.results);
+        } else if (categoryId) {
+          response = await api.get(`/gigs/by-category/${categoryId}/`);
+          setSearchResults(response.data);
+        } else {
+          setSearchResults([]);
+        }
       } catch (error) {
-        console.error("Failed to fetch search results:", error);
+        console.error("Failed to fetch gigs:", error);
         setSearchResults([]);
       } finally {
         setLoading(false);
       }
     };
-    fetchResults();
-  }, [query, sortBy]);
+
+    fetchData();
+  }, [query, sortBy, categoryId]);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [query, sortBy, categoryId]);
 
   const handleGigClick = (gigId) => {
     navigate(`/gig/${gigId}`);
@@ -39,50 +53,53 @@ const SearchResults = () => {
   return (
     <div className="min-h-screen pt-24 bg-gray-50">
       <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          {/* Go Back Button */}
-          <button
-            onClick={() => navigate(-1)}
-            className="mb-4 flex items-center gap-2 text-gray-600 hover:text-black transition"
-          >
-            <FiArrowLeft />
-            <span>Go Back</span>
-          </button>
-          <div className="flex items-center justify-between mb-6">
-            <h1 className="text-3xl font-bold text-gray-800">
-              Search Results for "{query}"
-            </h1>
-            <span className="text-gray-500">
-              {searchResults.length} services found
-            </span>
+        {/* Go Back Button */}
+        <button
+          onClick={() => navigate(-1)}
+          className="mb-4 flex items-center gap-2 text-gray-600 hover:text-black transition"
+        >
+          <FiArrowLeft />
+          <span>Go Back</span>
+        </button>
+
+        {/* Heading */}
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-3xl font-bold text-gray-800">
+            {query ? `Search Results for "${query}"` : "Browse by Category"}
+          </h1>
+          <span className="text-gray-500">
+            {searchResults.length} services found
+          </span>
+        </div>
+
+        {/* Search & Sort */}
+        <div className="flex flex-col md:flex-row items-center gap-4 mb-8">
+          <div className="relative flex-1 w-full">
+            <input
+              type="text"
+              placeholder="Search services..."
+              value={query}
+              onChange={(e) => navigate(`/search?q=${e.target.value}`)}
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
           </div>
-          <div className="flex flex-col md:flex-row items-center gap-4">
-            <div className="relative flex-1 w-full">
-              <input
-                type="text"
-                placeholder="Search services..."
-                value={query}
-                onChange={(e) => navigate(`/search?q=${e.target.value}`)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            </div>
-            <div className="relative flex-1 md:flex-none">
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="w-full md:w-48 pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
-              >
-                <option value="popular">Most Popular</option>
-                <option value="newest">Newest</option>
-                <option value="price-low">Price: Low to High</option>
-                <option value="price-high">Price: High to Low</option>
-              </select>
-              <FaSort className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" />
-            </div>
+          <div className="relative flex-1 md:flex-none">
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="w-full md:w-48 pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
+            >
+              <option value="popular">Most Popular</option>
+              <option value="newest">Newest</option>
+              <option value="price-low">Price: Low to High</option>
+              <option value="price-high">Price: High to Low</option>
+            </select>
+            <FaSort className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" />
           </div>
         </div>
 
+        {/* Results */}
         {loading ? (
           <p className="text-center py-12 text-gray-500">Loading...</p>
         ) : searchResults.length > 0 ? (
@@ -91,7 +108,7 @@ const SearchResults = () => {
               <div
                 key={gig.id}
                 className="bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:-translate-y-1"
-                onClick={() => handleGigClick(gig.id, gig.category)}
+                onClick={() => handleGigClick(gig.id)}
               >
                 <img
                   src={gig.thumbnail_image || "/default-gig.jpg"}
@@ -127,7 +144,7 @@ const SearchResults = () => {
                   <div className="flex justify-between items-center">
                     <span className="text-gray-500 text-sm">Starting at</span>
                     <span className="text-xl font-bold text-gray-800">
-                      ${gig.packages[0]?.price}
+                      ${gig.packages?.[0]?.price || 0}
                     </span>
                   </div>
                 </div>

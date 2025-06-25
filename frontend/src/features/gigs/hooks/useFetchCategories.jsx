@@ -16,7 +16,7 @@ const useFetchCategories = () => {
     setLoading(true);
     try {
       const response = await api.get(GET_ALL_CATEGORIES_URL);
-      setCategories(response.data);
+      setCategories(response.data.results);
     } catch (err) {
       toast.error("Failed to fetch categories. Please try again later.");
       console.error("Error fetching categories:", err);

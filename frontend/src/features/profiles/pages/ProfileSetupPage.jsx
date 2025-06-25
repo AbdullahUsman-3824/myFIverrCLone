@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { FiArrowLeft } from "react-icons/fi";
 import { useStateProvider } from "../../../context/StateContext";
 import { setUser } from "../../../context/StateReducer";
 import api from "../../../utils/apiClient";
@@ -20,7 +21,7 @@ function ProfileSetupPage() {
 
   const [formData, setFormData] = useState(initialFormData);
   const [previewImage, setPreviewImage] = useState(
-    initialFormData.profile_picture || null
+    initialFormData.profile_picture
   );
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
@@ -29,7 +30,6 @@ function ProfileSetupPage() {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
 
-    // Clear error when user types
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
@@ -64,7 +64,7 @@ function ProfileSetupPage() {
       const originalUsername = state.userInfo?.username;
       const formDataToSend = new FormData();
 
-      Object.entries(formData).forEach(([key, value]) => {
+      for (const [key, value] of Object.entries(formData)) {
         if (
           value !== null &&
           value !== undefined &&
@@ -72,13 +72,12 @@ function ProfileSetupPage() {
         ) {
           formDataToSend.append(key, value);
         }
-      });
+      }
 
       const { data } = await api.patch(USER_PROFILE_ROUTE, formDataToSend, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+        headers: { "Content-Type": "multipart/form-data" },
       });
+
       dispatch(setUser(data.user));
       navigate("/");
     } catch (error) {
@@ -96,48 +95,68 @@ function ProfileSetupPage() {
     const newErrors = {};
 
     if (backendErrors) {
-      Object.keys(formData).forEach((field) => {
+      for (const field of Object.keys(formData)) {
         if (backendErrors[field]) {
           newErrors[field] = Array.isArray(backendErrors[field])
             ? backendErrors[field].join(" ")
             : backendErrors[field];
         }
-      });
+      }
 
-      // Handle non-field errors
-      newErrors.non_field_errors = backendErrors.non_field_errors
-        ? Array.isArray(backendErrors.non_field_errors)
-          ? backendErrors.non_field_errors.join(" ")
-          : backendErrors.non_field_errors
-        : "";
-
-      // Special handling for username uniqueness
       if (backendErrors.username?.includes("already exists")) {
         newErrors.username = "This username is already taken";
       }
+
+      if (backendErrors.non_field_errors) {
+        newErrors.non_field_errors = Array.isArray(
+          backendErrors.non_field_errors
+        )
+          ? backendErrors.non_field_errors.join(" ")
+          : backendErrors.non_field_errors;
+      }
     } else {
-      newErrors.non_field_errors =
-        "Network error. Please check your connection and try again.";
+      newErrors.non_field_errors = "Network error. Please try again.";
     }
 
-    // Ensure required validation for username is not overridden
     if (!formData.username.trim()) {
-      newErrors.username = "Username is required";
+      newErrors.username = "Username is required.";
     }
 
     setErrors(newErrors);
   };
 
   return (
-    <ProfileForm
-      formData={formData}
-      onChange={handleChange}
-      onImageChange={handleImageChange}
-      onSubmit={handleSubmit}
-      isLoading={isLoading}
-      previewImage={previewImage}
-      errors={errors}
-    />
+    <div className="min-h-screen bg-white pt-24 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-2xl mx-auto">
+        {/* Back Button */}
+        <button
+          onClick={() => navigate(-1)}
+          className="mb-6 flex items-center text-gray-600 hover:text-black transition"
+        >
+          <FiArrowLeft className="mr-2 text-lg" />
+          <span className="text-sm font-medium">Back</span>
+        </button>
+
+        {/* Page Header */}
+        <h1 className="text-3xl font-extrabold text-gray-900 mb-2">
+          Set Up Your Profile
+        </h1>
+        <p className="text-gray-600 mb-8">
+          Help us know you better and build your identity on the platform.
+        </p>
+
+        {/* Profile Form */}
+        <ProfileForm
+          formData={formData}
+          onChange={handleChange}
+          onImageChange={handleImageChange}
+          onSubmit={handleSubmit}
+          isLoading={isLoading}
+          previewImage={previewImage}
+          errors={errors}
+        />
+      </div>
+    </div>
   );
 }
 

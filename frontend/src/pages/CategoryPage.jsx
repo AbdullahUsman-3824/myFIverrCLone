@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import api from "../utils/apiClient";
 import { useParams, useNavigate } from "react-router-dom";
 import {
@@ -24,8 +24,8 @@ const CategoryPage = () => {
     const fetchGigs = async () => {
       setLoading(true);
       try {
-        const response = await api.get(`/gigs/?category__slug=${categoryId}`);
-        setGigs(data);
+        const response = await api.get(`/gigs/by-category/${categoryId}/`);
+        setGigs(response.data);
       } catch (error) {
         console.error("Error fetching gigs:", error);
         setGigs([]);
