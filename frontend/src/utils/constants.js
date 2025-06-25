@@ -36,6 +36,9 @@ export const GET_ALL_SUBCATEGORIES_URL = "/gigs/subcategories/";
 export const GIG_ROUTE = "/gigs/";
 export const GET_MY_GIGS_ROUTE = "/gigs/my-gigs";
 
+// Orders route
+export const ORDER_ROUTE = "/orders/";
+
 export const GET_USER_INFO = `${AUTH_ROUTES}/user/`;
 export const GET_BUYER_ORDERS_ROUTE = `${ORDERS_ROUTES}/get-buyer-orders`;
 export const ADD_MESSAGE = `${MESSAGES_ROUTES}/add-message`;

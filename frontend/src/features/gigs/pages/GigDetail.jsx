@@ -51,16 +51,6 @@ const GigDetail = () => {
     }
   }, [gigData, sellerInfo]);
 
-  // Optional: Log sellerInfo once available
-  useEffect(() => {
-    if (sellerInfo) {
-      console.log("Fetched sellerInfo:", sellerInfo);
-    }
-    if (gigData) {
-      console.log("fetched gig:", gigData);
-    }
-  }, [sellerInfo, gigData]);
-
   const handleContact = () => {
     setShowChat(true);
   };

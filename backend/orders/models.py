@@ -11,9 +11,9 @@ class Order(models.Model):
         ('cancelled', 'Cancelled'),
     ]
 
-    gig = models.ForeignKey('gigs.Gig', on_delete=models.CASCADE, related_name='orders')
     buyer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='orders_made')
     seller = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='orders_received')
+    gig = models.ForeignKey('gigs.Gig', on_delete=models.CASCADE, related_name='orders')
     package = models.ForeignKey('gigs.GigPackage', on_delete=models.CASCADE)
     description = models.TextField()
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
