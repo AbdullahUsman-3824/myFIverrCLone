@@ -9,6 +9,7 @@ const useAuth = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
   const [{ userInfo }, dispatch] = useStateProvider();
+  const isAuthenticated = !!userInfo && Object.keys(userInfo).length > 0;
 
   const handleAuthError = (error, defaultMessage) => {
     const errorData = error.response?.data || error.data || {};
@@ -216,6 +217,7 @@ const useAuth = () => {
     error,
     resetError: () => setError(null),
     handleGoogleLogin,
+    isAuthenticated
   };
 };
 

@@ -27,7 +27,6 @@ const useSwitchUserMode = () => {
         role: currentRole == "buyer" ? "seller" : "buyer",
       });
       dispatch(switchMode());
-      navigate(currentRole === "buyer" ? "/seller" : "/buyer");
     } catch (err) {
       console.error("Mode switch failed:", err);
 

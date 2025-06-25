@@ -7,7 +7,8 @@ from .views import (
     SwitchRoleView,
     ProfileCompletionCheckView,
     PublicSellerProfileBySellerIdView, 
-    PublicSellerProfileByUsernameView
+    PublicSellerProfileByUsernameView,
+    seller_dashboard
 )
 
 urlpatterns = [
@@ -30,4 +31,6 @@ urlpatterns = [
 
     # Check profile completion status
     path('seller/profile/check-completion/', ProfileCompletionCheckView.as_view(), name='profile-completion-check'),
+
+    path("seller/dashboard/", seller_dashboard, name="seller-dashboard"),
 ]

@@ -1,6 +1,7 @@
 from rest_framework import generics, permissions, status, mixins
 from rest_framework.exceptions import PermissionDenied, NotFound
-from rest_framework.views import APIView
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
@@ -13,6 +14,11 @@ from .models import SellerProfile
 from .serializers.profile_serializers import SellerProfileSerializer
 from .serializers.auth_serializers import CustomUserDetailsSerializer
 from .permissions import IsSeller, IsSellerProfileOwner
+
+from django.utils import timezone
+from django.db.models import Sum
+from orders.models import Order
+from gigs.models import Gig
 
 User = get_user_model()
 
@@ -248,3 +254,43 @@ class ProfileCompletionCheckView(generics.GenericAPIView):
             missing.append('portfolio_items')
 
         return missing
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def seller_dashboard(request):
+    user = request.user
+
+    try:
+        seller_profile = SellerProfile.objects.get(user=user)
+    except SellerProfile.DoesNotExist:
+        return Response({"detail": "Seller profile not found."}, status=404)
+
+    gigs_count = Gig.objects.filter(seller=seller_profile).count()
+    orders_count = Order.objects.filter(gig__seller=seller_profile, status="Placed").count()
+
+    today = timezone.now().date()
+    start_of_month = today.replace(day=1)
+
+    # daily_revenue = (
+    #     Order.objects.filter(gig__seller=user, status="completed", completed_at__date=today)
+    #     .aggregate(Sum("price"))["price__sum"] or 0
+    # )
+
+    # monthly_revenue = (
+    #     Order.objects.filter(gig__seller=user, status="completed", completed_at__date__gte=start_of_month)
+    #     .aggregate(Sum("price"))["price__sum"] or 0
+    # )
+
+    # total_revenue = (
+    #     Order.objects.filter(gig__seller=user, status="completed")
+    #     .aggregate(Sum("price"))["price__sum"] or 0
+    # )
+
+    return Response({
+        "gigs": gigs_count,
+        "orders": orders_count,
+        "unreadMessages": 0,
+        "dailyRevenue": 0,
+        "monthlyRevenue": 0,
+        "revenue": 0,
+    })

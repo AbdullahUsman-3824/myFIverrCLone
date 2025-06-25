@@ -9,7 +9,7 @@ import {
 } from "react-icons/fi";
 import { FaHeart } from "react-icons/fa";
 import useFetchSeller from "../hooks/useFetchSeller";
-import Spinner from "../../../components/common/Spinner";
+import CircularProgress from "@mui/material/CircularProgress";
 
 const SellerInfo = () => {
   const [{ userInfo }] = useStateProvider();
@@ -32,8 +32,8 @@ const SellerInfo = () => {
 
   if (!sellerInfo) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <Spinner />
+      <div className="min-h-[80vh] flex items-center justify-center">
+        <CircularProgress />
       </div>
     );
   }

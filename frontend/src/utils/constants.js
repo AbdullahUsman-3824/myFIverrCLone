@@ -29,6 +29,7 @@ export const SELLER_DETAIL_URL = "/accounts/seller/profile/detail/";
 export const PUBLIC_SELLER_DETAIL_BY_ID_URL = "/accounts/seller/profile/id/";
 export const SELLER_SETUP_URL = "/accounts/seller/profile/setup/";
 export const BECOME_SELLER_URL = "/accounts/seller/become/";
+export const SELLER_DASHBOARD_URL = "/accounts/seller/dashboard/";
 
 // Gigs Routes
 export const GET_ALL_CATEGORIES_URL = "/gigs/categories/";

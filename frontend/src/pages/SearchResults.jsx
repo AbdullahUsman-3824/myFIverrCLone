@@ -39,8 +39,8 @@ const SearchResults = () => {
     fetchResults();
   }, [query, sortBy]);
 
-  const handleGigClick = (gigId, categoryId) => {
-    navigate(`/category/${categoryId}/gig/${gigId}`);
+  const handleGigClick = (gigId) => {
+    navigate(`/gig/${gigId}`);
   };
 
   useEffect(() => {

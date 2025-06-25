@@ -1,11 +1,8 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../../../utils/apiClient";
-import { GIG_ROUTE } from "../../../utils/constants";
 import useFetchMyGigs from "../hooks/useFetchMyGigs";
-import { FiEdit2, FiTrash2, FiPlus } from "react-icons/fi";
-import Spinner from "../../../components/common/Spinner";
-import ConfirmModal from "../../../components/common/ConfirmModal";
+import { FiEdit2, FiPlus } from "react-icons/fi";
+import CircularProgress from "@mui/material/CircularProgress";
 import DeleteGigButton from "../components/DeleteGigButton";
 
 const SellerGigs = () => {
@@ -23,10 +20,7 @@ const SellerGigs = () => {
   if (loading) {
     return (
       <div className="min-h-[80vh] flex items-center justify-center">
-        <div className="text-xl text-gray-600">
-          <Spinner />
-          Loading gigs...
-        </div>
+        <CircularProgress />
       </div>
     );
   }
@@ -83,7 +77,7 @@ const SellerGigs = () => {
                   >
                     <th className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
                       <a
-                        href={`/category/${gig.category_id}/gig/${gig.id}`}
+                        href={`/gig/${gig.id}`}
                         className="text-blue-600 hover:underline"
                       >
                         {gig.title}

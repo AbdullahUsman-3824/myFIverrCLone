@@ -39,7 +39,7 @@ const useSellerOnboardingRequest = () => {
         const formDataToSend = JSON.stringify(formData);
         await api.put(SELLER_SETUP_URL, formDataToSend);
         toast.success("Seller profile setup completed!");
-        navigate("/seller");
+        navigate("/dashboard");
       } catch (err) {
         console.error("Onboarding failed:", err);
         toast.error(err.response?.data?.message || "Onboarding failed.");

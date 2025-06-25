@@ -94,7 +94,7 @@ const UserMenu = ({
               ? "text-gray-800 hover:text-[#1DBF73] w-full text-center py-3 px-4 rounded-lg hover:bg-gray-100"
               : "text-[#1DBF73]"
           } font-medium transition-all duration-200`}
-          onClick={() => navigate("/seller")}
+          onClick={() => navigate("/dashboard")}
         >
           Dashboard
         </li>
@@ -118,7 +118,7 @@ const UserMenu = ({
             ? "text-gray-800 hover:text-[#1DBF73] w-full text-center py-3 px-4 rounded-lg hover:bg-gray-100"
             : "text-[#1DBF73]"
         } font-medium transition-all duration-200`}
-        onClick={() => navigate("/buyer")}
+        onClick={() => navigate("/dashboard")}
       >
         Dashboard
       </li>

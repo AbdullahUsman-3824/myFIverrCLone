@@ -69,7 +69,6 @@ class GigViewSet(viewsets.ModelViewSet):
                 Q(category__name__icontains=q) |
                 Q(subcategory__name__icontains=q)
             ).distinct()
-            print(category_matches)
 
             if category_matches.exists():
                 queryset = category_matches
