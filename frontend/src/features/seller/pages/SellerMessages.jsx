@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-// import { useAuth } from "../../context/AuthContext";
+import { useEffect, useState } from "react";
+import api from "../../../utils/apiClient";
+import { FiArrowLeft } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
 
 const SellerMessages = () => {
   // const { user } = useAuth();
@@ -9,6 +10,7 @@ const SellerMessages = () => {
   const [loading, setLoading] = useState(true);
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [newMessage, setNewMessage] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const dummyMessages = [
@@ -51,28 +53,28 @@ const SellerMessages = () => {
         ],
       },
     ];
-  
+
     setMessages(dummyMessages);
     setLoading(false);
   }, []);
-  
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!selectedMessage || !newMessage.trim()) return;
 
     try {
-      const response = await axios.post(
+      const response = await api.post(
         `/api/seller/messages/${selectedMessage._id}`,
-        { content: newMessage },
-        { withCredentials: true }
+        { content: newMessage }
       );
       if (response.status === 200) {
-        setMessages(messages.map(msg =>
-          msg._id === selectedMessage._id
-            ? { ...msg, messages: [...msg.messages, response.data.message] }
-            : msg
-        ));
+        setMessages(
+          messages.map((msg) =>
+            msg._id === selectedMessage._id
+              ? { ...msg, messages: [...msg.messages, response.data.message] }
+              : msg
+          )
+        );
         setNewMessage("");
       }
     } catch (error) {
@@ -82,31 +84,29 @@ const SellerMessages = () => {
 
   const markAsRead = async (messageId) => {
     try {
-      const response = await axios.put(
-        `/api/seller/messages/${messageId}/read`,
-        {},
-        { withCredentials: true }
-      );
+      const response = await api.put(`/api/seller/messages/${messageId}/read`);
       if (response.status === 200) {
-        setMessages(messages.map(msg =>
-          msg._id === messageId ? { ...msg, isRead: true } : msg
-        ));
+        setMessages(
+          messages.map((msg) =>
+            msg._id === messageId ? { ...msg, isRead: true } : msg
+          )
+        );
       }
     } catch (error) {
       console.error("Error marking message as read:", error);
     }
   };
 
-  // if (!user) {
-  //   return <div>Please login to view this page</div>;
-  // }
-
-  // if (loading) {
-  //   return <div>Loading messages...</div>;
-  // }
-
   return (
     <div className="min-h-[80vh] my-10 pt-24 px-8 md:px-32">
+      {/* Go Back Button */}
+      <button
+        onClick={() => navigate(-1)}
+        className="mb-4 flex items-center gap-2 text-gray-600 hover:text-black transition"
+      >
+        <FiArrowLeft />
+        <span>Go Back</span>
+      </button>
       <h1 className="text-2xl font-bold mb-6">Your Messages</h1>
 
       <div className="flex gap-6">
@@ -210,4 +210,4 @@ const SellerMessages = () => {
   );
 };
 
-export default SellerMessages; 
+export default SellerMessages;

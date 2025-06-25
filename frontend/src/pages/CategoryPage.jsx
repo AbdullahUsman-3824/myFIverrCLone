@@ -25,7 +25,6 @@ const CategoryPage = () => {
       setLoading(true);
       try {
         const response = await api.get(`/gigs/?category__slug=${categoryId}`);
-        console.log(response)
         setGigs(data);
       } catch (error) {
         console.error("Error fetching gigs:", error);

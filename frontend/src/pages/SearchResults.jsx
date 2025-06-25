@@ -1,13 +1,7 @@
 import React, { useState, useEffect, use } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import {
-  FaStar,
-  FaSearch,
-  FaFilter,
-  FaSort,
-  FaThumbsUp,
-  FaClock,
-} from "react-icons/fa";
+import { FaSearch, FaSort } from "react-icons/fa";
+import { FiArrowLeft } from "react-icons/fi";
 import api from "../utils/apiClient";
 import { GIG_ROUTE } from "../utils/constants";
 
@@ -27,7 +21,6 @@ const SearchResults = () => {
         const response = await api.get(GIG_ROUTE, {
           params: { q: query, sort: sortBy },
         });
-        console.log(response);
         setSearchResults(response.data.results);
       } catch (error) {
         console.error("Failed to fetch search results:", error);
@@ -43,14 +36,18 @@ const SearchResults = () => {
     navigate(`/gig/${gigId}`);
   };
 
-  useEffect(() => {
-    console.log(searchResults);
-  }, [searchResults]);
-
   return (
     <div className="min-h-screen pt-24 bg-gray-50">
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
+          {/* Go Back Button */}
+          <button
+            onClick={() => navigate(-1)}
+            className="mb-4 flex items-center gap-2 text-gray-600 hover:text-black transition"
+          >
+            <FiArrowLeft />
+            <span>Go Back</span>
+          </button>
           <div className="flex items-center justify-between mb-6">
             <h1 className="text-3xl font-bold text-gray-800">
               Search Results for "{query}"

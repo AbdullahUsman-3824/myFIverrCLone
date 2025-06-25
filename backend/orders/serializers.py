@@ -1,8 +1,6 @@
 from rest_framework import serializers
 from .models import Order
-from gigs.models import Gig, GigPackage
-from accounts.models import User
-
+from gigs.serializers import GigInlineSerializer
 
 class OrderSerializer(serializers.ModelSerializer):
     buyer_username = serializers.CharField(source='buyer.username', read_only=True)
@@ -10,13 +8,15 @@ class OrderSerializer(serializers.ModelSerializer):
     gig_title = serializers.CharField(source='gig.title', read_only=True)
     package_name = serializers.CharField(source='package.package_name', read_only=True)
 
+    gig_detail = GigInlineSerializer(source='gig', read_only=True)
+
     class Meta:
         model = Order
         fields = [
             'id',
             'buyer', 'buyer_username',
             'seller', 'seller_username',
-            'gig', 'gig_title',
+            'gig', 'gig_title', 'gig_detail',
             'package', 'package_name',
             'description',
             'total_amount',
@@ -25,4 +25,3 @@ class OrderSerializer(serializers.ModelSerializer):
             'updated_at',
         ]
         read_only_fields = ['buyer', 'seller', 'created_at', 'updated_at']
-

@@ -6,7 +6,7 @@ import { toggleLoginModal } from "../context/StateReducer";
 const ProtectedRoute = () => {
   const { isAuthenticated } = useAuth();
   const location = useLocation();
-  const [, dispatch] = useStateProvider();
+  const [{userInfo}, dispatch] = useStateProvider();
 
   if (!isAuthenticated) {
     dispatch(toggleLoginModal(true));

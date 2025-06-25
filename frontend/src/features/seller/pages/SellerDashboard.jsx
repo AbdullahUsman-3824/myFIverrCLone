@@ -9,6 +9,7 @@ import {
   FiDollarSign,
   FiMessageSquare,
   FiTrendingUp,
+  FiArrowLeft,
 } from "react-icons/fi";
 import { useStateProvider } from "../../../context/StateContext";
 
@@ -24,7 +25,6 @@ const SellerDashboard = () => {
       try {
         const response = await api.get(SELLER_DASHBOARD_URL);
         setDashboardData(response.data);
-        console.log(response.data)
       } catch (error) {
         console.error("Failed to fetch dashboard data", error);
       } finally {
@@ -56,6 +56,14 @@ const SellerDashboard = () => {
       {/* Header Section */}
       <div className="bg-gradient-to-r from-green-600 to-green-800 text-white py-16 px-8 md:px-32">
         <div className="max-w-7xl mx-auto">
+          {/* Go Back Button */}
+          <button
+            onClick={() => navigate(-1)}
+            className="mb-4 flex items-center gap-2 text-white hover:text-black transition"
+          >
+            <FiArrowLeft />
+            <span>Go Back</span>
+          </button>
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-4xl font-bold mb-2">

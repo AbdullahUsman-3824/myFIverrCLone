@@ -38,7 +38,6 @@ const useGigForm = ({ mode = "create", gigData = null, gigId = null }) => {
 
   useEffect(() => {
     gigData && setData(gigData);
-    console.log(gigData)
   }, [gigData]);
 
   // Handle form changes

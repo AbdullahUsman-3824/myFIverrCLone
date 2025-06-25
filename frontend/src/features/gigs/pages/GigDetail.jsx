@@ -11,12 +11,10 @@ import {
   FaEnvelope,
   FaHeart,
   FaShare,
-  FaEllipsisH,
-  FaArrowLeft,
-  FaBriefcase,
 } from "react-icons/fa";
+import { FiArrowLeft } from "react-icons/fi";
 import { useStateProvider } from "../../../context/StateContext";
-import MessageContainer from '../../../components/Messages/MessageContainer';
+import MessageContainer from "../../../components/common/MessageContainer";
 
 const GigDetail = () => {
   const { gigId } = useParams();
@@ -68,12 +66,13 @@ const GigDetail = () => {
   return (
     <div className="min-h-screen pt-24 bg-gray-50">
       <div className="container mx-auto px-4 py-8">
+        {/* Go Back Button */}
         <button
           onClick={() => navigate(-1)}
-          className="text-blue-600 hover:text-blue-800 flex items-center gap-2 transition-colors"
+          className="mb-4 flex items-center gap-2 text-gray-600 hover:text-black transition"
         >
-          <FaArrowLeft />
-          Back
+          <FiArrowLeft />
+          <span>Go Back</span>
         </button>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow">
@@ -82,16 +81,6 @@ const GigDetail = () => {
               <h1 className="text-2xl font-bold text-gray-800 leading-snug">
                 {gigData.title}
               </h1>
-
-              {/* Contact Seller Button - always visible */}
-              <button
-                onClick={handleContact}
-                aria-label="Contact Seller"
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition mb-4"
-              >
-                <FaEnvelope className="w-4 h-4" />
-                Contact Seller
-              </button>
 
               {/* Seller Info and Actions */}
               <div className="flex items-center justify-between flex-wrap gap-4">
@@ -118,17 +107,6 @@ const GigDetail = () => {
 
                 {/* Action Buttons */}
                 <div className="flex items-center gap-4">
-                  {!isOwner && (
-                    <button
-                      onClick={handleContact}
-                      aria-label="Contact Seller"
-                      className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-                    >
-                      <FaEnvelope className="w-4 h-4" />
-                      Contact Seller
-                    </button>
-                  )}
-
                   <button
                     onClick={() => setIsFavorite(!isFavorite)}
                     className={`p-2 rounded-full transition ${
@@ -142,10 +120,6 @@ const GigDetail = () => {
 
                   <button className="p-2 text-gray-400 hover:text-gray-600 rounded-full transition">
                     <FaShare className="w-5 h-5" />
-                  </button>
-
-                  <button className="p-2 text-gray-400 hover:text-gray-600 rounded-full transition">
-                    <FaEllipsisH className="w-5 h-5" />
                   </button>
                 </div>
               </div>
@@ -235,22 +209,42 @@ const GigDetail = () => {
                   </div>
                 ))}
               </div>
-              <button
-                className="w-full mt-4 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold"
-                onClick={() => navigate("/payment", { state: { gig: gigData, selectedPackage: gigData.packages[selectedPackage] } })}
-              >
-                Continue (${gigData.packages[selectedPackage]?.price})
-              </button>
+              <div className="w-full space-y-3 mt-4">
+                <button
+                  className="w-full bg-[#404145] text-white py-3 rounded-lg hover:bg-[#2c2c2d] transition-colors font-semibold"
+                  onClick={() =>
+                    navigate("/payment", {
+                      state: {
+                        gig: gigData,
+                        selectedPackage: gigData.packages[selectedPackage],
+                      },
+                    })
+                  }
+                >
+                  Continue (${gigData.packages[selectedPackage]?.price})
+                </button>
+
+                {!isOwner && (
+                  <button
+                    onClick={handleContact}
+                    aria-label="Contact Seller"
+                    className="w-full flex items-center justify-center gap-2 px-4 py-2 border-2 border-[#404145] text-[#404145] rounded-lg hover:bg-[#f5f5f5] transition-colors font-semibold"
+                  >
+                    <FaEnvelope className="w-4 h-4" />
+                    Contact Seller
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>
       </div>
       {showChat && (
         <>
-<div
-  className="fixed inset-0 z-40 backdrop-blur-sm bg-black/20 transition-opacity"
-  onClick={() => setShowChat(false)}
-/>
+          <div
+            className="fixed inset-0 z-40 backdrop-blur-sm bg-black/20 transition-opacity"
+            onClick={() => setShowChat(false)}
+          />
 
           <div className="fixed top-0 right-0 h-full w-full max-w-md z-50 bg-white shadow-2xl rounded-l-xl flex flex-col animate-slideInSidebar transition-transform duration-300">
             <button
@@ -261,16 +255,23 @@ const GigDetail = () => {
               &times;
             </button>
             <div className="flex-1 overflow-y-auto pt-10">
-              <MessageContainer sellerId={sellerInfo?.user?.id} sellerInfo={sellerInfo?.user} />
+              <MessageContainer
+                sellerId={sellerInfo?.user?.id}
+                sellerInfo={sellerInfo?.user}
+              />
             </div>
           </div>
           <style jsx>{`
             @keyframes slideInSidebar {
-              from { transform: translateX(100%); }
-              to { transform: translateX(0); }
+              from {
+                transform: translateX(100%);
+              }
+              to {
+                transform: translateX(0);
+              }
             }
             .animate-slideInSidebar {
-              animation: slideInSidebar 0.3s cubic-bezier(0.4,0,0.2,1) both;
+              animation: slideInSidebar 0.3s cubic-bezier(0.4, 0, 0.2, 1) both;
             }
           `}</style>
         </>

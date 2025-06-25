@@ -24,7 +24,7 @@ const useSwitchUserMode = () => {
 
     try {
       await api.post(SWITCH_ROLE_URL, {
-        role: currentRole == "buyer" ? "seller" : "buyer",
+        role: userInfo.currentRole == "buyer" ? "seller" : "buyer",
       });
       dispatch(switchMode());
     } catch (err) {

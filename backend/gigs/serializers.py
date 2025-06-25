@@ -51,6 +51,10 @@ class SavedGigSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ['gig']
 
+class GigInlineSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Gig
+        fields = ['id', 'title', 'category', 'delivery_time'] 
 
 class GigSerializer(serializers.ModelSerializer):
     """

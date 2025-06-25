@@ -1,9 +1,9 @@
 import ProtectedRoute from "./ProtectedRoute";
-import SellerOrders from "../features/seller/SellerOrders";
-import SellerMessages from "../features/seller/SellerMessages";
-import SellerGigs from "../features/seller/pages/SellerGigs";
-import GigFormPage from "../features/gigs/pages/GigFormPage";
 import SellerDetails from "../features/seller/pages/SellerDetails";
+import SellerGigs from "../features/seller/pages/SellerGigs";
+import SellerMessages from "../features/seller/pages/SellerMessages";
+import SellerOrders from "../features/seller/pages/SellerOrders";
+import GigFormPage from "../features/gigs/pages/GigFormPage";
 
 const sellerRoutes = {
   element: <ProtectedRoute />,

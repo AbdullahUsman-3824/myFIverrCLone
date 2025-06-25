@@ -266,7 +266,7 @@ def seller_dashboard(request):
         return Response({"detail": "Seller profile not found."}, status=404)
 
     gigs_count = Gig.objects.filter(seller=seller_profile).count()
-    orders_count = Order.objects.filter(gig__seller=seller_profile, status="Placed").count()
+    orders_count = Order.objects.filter(gig__seller=seller_profile, status="in_progress").count()
 
     today = timezone.now().date()
     start_of_month = today.replace(day=1)

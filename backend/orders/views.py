@@ -12,6 +12,10 @@ class OrderViewSet(viewsets.ModelViewSet):
         user = self.request.user
         return Order.objects.filter(buyer=user) | Order.objects.filter(seller=user)
 
+    def update(self, request, *args, **kwargs):
+        kwargs['partial'] = True
+        return super().update(request, *args, **kwargs)
+
     def perform_create(self, serializer):
         gig = serializer.validated_data.get('gig')
         serializer.save(

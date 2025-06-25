@@ -8,8 +8,6 @@ const PaymentPage = () => {
   const navigate = useNavigate();
   const { gig, selectedPackage } = location.state || {};
 
-  console.log(gig, selectedPackage);
-
   const [form, setForm] = useState({
     name: "",
     cardNumber: "",
@@ -46,7 +44,6 @@ const PaymentPage = () => {
   };
 
   const placeOrder = async () => {
-    console.log("called");
     const orderData = {
       gig: gig?.id,
       package: selectedPackage?.id,

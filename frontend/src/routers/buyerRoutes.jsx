@@ -1,8 +1,8 @@
 import ProtectedRoute from "./ProtectedRoute";
-import BuyerOrders from "../pages/buyer/Orders";
-import BuyerMessages from "../pages/buyer/Messages";
+import BuyerOrders from "../features/buyer/BuyerOrders";
+import BuyerMessages from "../features/buyer/BuyerMessages";
 import BuyerInfo from "../features/buyer/BuyerInfo";
-import BuyerOrderMessages from "../pages/buyer/OrderMessages";
+import BuyerOrderMessages from "../features/buyer/OrderMessages";
 
 const buyerRoutes = {
   element: <ProtectedRoute />,

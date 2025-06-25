@@ -1,6 +1,4 @@
 import { FiX } from "react-icons/fi";
-import { GoogleLogin } from "@react-oauth/google";
-import AuthDivider from "../components/AuthDivider";
 import useAuth from "../hooks/useAuth";
 
 export default function AuthForm({
@@ -10,7 +8,7 @@ export default function AuthForm({
   onClose,
   onSwitchType,
 }) {
-  const { handleGoogleLogin, error: authError } = useAuth();
+  const { error: authError } = useAuth();
 
   const authText = {
     login: {
@@ -50,31 +48,6 @@ export default function AuthForm({
             {authError.detail}
           </div>
         )}
-
-        <div className="flex flex-col gap-4 mb-4">
-          <GoogleLogin
-            onSuccess={handleGoogleLogin}
-            onError={(error) => {
-              console.error("Google Login Failed:", error);
-              if (error.error === "popup_closed_by_user") {
-                // Handle user closing the popup
-                return;
-              }
-              if (error.error === "access_denied") {
-                // Handle user denying access
-                return;
-              }
-              // Handle other errors
-              setError({ detail: "Google login failed. Please try again." });
-            }}
-            useOneTap={false}
-            flow="implicit"
-            theme="filled_blue"
-            text="continue_with"
-          />
-        </div>
-
-        <AuthDivider />
 
         <div className="flex flex-col gap-4">{children}</div>
 

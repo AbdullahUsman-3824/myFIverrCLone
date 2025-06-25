@@ -33,10 +33,6 @@ const GigFormPage = () => {
     if (isEdit) fetchGig(gigId);
   }, [fetchCategories, fetchGig, gigId, isEdit]);
 
-  useEffect(() => {
-    console.log(gigData);
-  }, [gigData]);
-
   const {
     data,
     errors,
