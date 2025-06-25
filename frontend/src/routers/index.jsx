@@ -25,6 +25,7 @@ import BuyerInfo from "../features/buyer/BuyerInfo";
 import CategoryPage from "../pages/CategoryPage";
 import GigDetail from "../features/gigs/pages/GigDetail";
 import SearchResults from "../pages/SearchResults";
+import PaymentPage from "../features/gigs/pages/PaymentPage";
 
 const router = createBrowserRouter([
   {
@@ -74,6 +75,10 @@ const router = createBrowserRouter([
   {
     path: "/:username",
     element: <SellerDetails />,
+  },
+  {
+    path: "/payment",
+    element: <PaymentPage />,
   },
 ]);
 
