@@ -16,6 +16,7 @@ import {
   FaBriefcase,
 } from "react-icons/fa";
 import { useStateProvider } from "../../../context/StateContext";
+import MessageContainer from '../../../components/Messages/MessageContainer';
 
 const GigDetail = () => {
   const { gigId } = useParams();
@@ -27,6 +28,7 @@ const GigDetail = () => {
   const [selectedPackage, setSelectedPackage] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [showChat, setShowChat] = useState(false);
 
   // Fetch gig data
   useEffect(() => {
@@ -60,7 +62,7 @@ const GigDetail = () => {
   }, [sellerInfo, gigData]);
 
   const handleContact = () => {
-    alert("Contact functionality coming soon!");
+    setShowChat(true);
   };
 
   const isOwner = sellerInfo?.user?.id === userInfo?.pk;
@@ -90,6 +92,16 @@ const GigDetail = () => {
               <h1 className="text-2xl font-bold text-gray-800 leading-snug">
                 {gigData.title}
               </h1>
+
+              {/* Contact Seller Button - always visible */}
+              <button
+                onClick={handleContact}
+                aria-label="Contact Seller"
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition mb-4"
+              >
+                <FaEnvelope className="w-4 h-4" />
+                Contact Seller
+              </button>
 
               {/* Seller Info and Actions */}
               <div className="flex items-center justify-between flex-wrap gap-4">
@@ -243,6 +255,36 @@ const GigDetail = () => {
           </div>
         </div>
       </div>
+      {showChat && (
+        <>
+<div
+  className="fixed inset-0 z-40 backdrop-blur-sm bg-black/20 transition-opacity"
+  onClick={() => setShowChat(false)}
+/>
+
+          <div className="fixed top-0 right-0 h-full w-full max-w-md z-50 bg-white shadow-2xl rounded-l-xl flex flex-col animate-slideInSidebar transition-transform duration-300">
+            <button
+              className="absolute top-2 right-4 text-gray-500 hover:text-red-500 text-2xl font-bold z-10"
+              onClick={() => setShowChat(false)}
+              aria-label="Close chat"
+            >
+              &times;
+            </button>
+            <div className="flex-1 overflow-y-auto pt-10">
+              <MessageContainer sellerId={sellerInfo?.user?.id} sellerInfo={sellerInfo?.user} />
+            </div>
+          </div>
+          <style jsx>{`
+            @keyframes slideInSidebar {
+              from { transform: translateX(100%); }
+              to { transform: translateX(0); }
+            }
+            .animate-slideInSidebar {
+              animation: slideInSidebar 0.3s cubic-bezier(0.4,0,0.2,1) both;
+            }
+          `}</style>
+        </>
+      )}
     </div>
   );
 };
