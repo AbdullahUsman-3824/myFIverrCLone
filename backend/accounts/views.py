@@ -72,6 +72,30 @@ class SellerProfileDetailView(
 
     def get_serializer_context(self):
         return {'request': self.request}
+    
+class PublicSellerProfileBySellerIdView(generics.RetrieveAPIView):
+    serializer_class = SellerProfileSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def get_object(self):
+        seller_id = self.kwargs.get('seller_id')
+        return get_object_or_404(SellerProfile.objects.select_related('user'), id=seller_id, user__is_seller=True)
+
+    def get_serializer_context(self):
+        return {'request': self.request}
+    
+class PublicSellerProfileByUsernameView(generics.RetrieveAPIView):
+    serializer_class = SellerProfileSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def get_object(self):
+        username = self.kwargs.get('username')
+        user = get_object_or_404(User, username=username, is_seller=True)
+        return get_object_or_404(SellerProfile, user=user)
+
+    def get_serializer_context(self):
+        return {'request': self.request}
+
 
 
 # ==========================

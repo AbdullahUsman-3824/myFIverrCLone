@@ -5,7 +5,9 @@ from .views import (
     SellerProfileDeleteView,
     BecomeSellerView,
     SwitchRoleView,
-    ProfileCompletionCheckView
+    ProfileCompletionCheckView,
+    PublicSellerProfileBySellerIdView, 
+    PublicSellerProfileByUsernameView
 )
 
 urlpatterns = [
@@ -14,6 +16,8 @@ urlpatterns = [
 
     # Seller profile details (public read access)
     path('seller/profile/detail/', SellerProfileDetailView.as_view(), name='seller-profile-detail'),
+    path("seller/profile/id/<int:seller_id>/", PublicSellerProfileBySellerIdView.as_view(), name="public-seller-by-seller-id"),
+    path("seller/username/<str:username>/", PublicSellerProfileByUsernameView.as_view(), name="public-seller-by-username"),
 
     # Delete seller profile
     path('seller/profile/delete/', SellerProfileDeleteView.as_view(), name='seller-profile-delete'),

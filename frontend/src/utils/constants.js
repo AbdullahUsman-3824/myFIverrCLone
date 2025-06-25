@@ -26,6 +26,7 @@ export const RESEND_VERIFICATION_EMAIL_ROUTE = `${AUTH_ROUTES}/registration/rese
 // Seller Routes
 export const SWITCH_ROLE_URL = "/accounts/user/switch-role/";
 export const SELLER_DETAIL_URL = "/accounts/seller/profile/detail/";
+export const PUBLIC_SELLER_DETAIL_BY_ID_URL = "/accounts/seller/profile/id/";
 export const SELLER_SETUP_URL = "/accounts/seller/profile/setup/";
 export const BECOME_SELLER_URL = "/accounts/seller/become/";
 
@@ -34,7 +35,6 @@ export const GET_ALL_CATEGORIES_URL = "/gigs/categories/";
 export const GET_ALL_SUBCATEGORIES_URL = "/gigs/subcategories/";
 export const GIG_ROUTE = "/gigs/";
 export const GET_MY_GIGS_ROUTE = "/gigs/my-gigs";
-
 
 export const GET_USER_INFO = `${AUTH_ROUTES}/user/`;
 export const GET_BUYER_ORDERS_ROUTE = `${ORDERS_ROUTES}/get-buyer-orders`;

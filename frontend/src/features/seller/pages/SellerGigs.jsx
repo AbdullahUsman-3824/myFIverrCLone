@@ -82,7 +82,12 @@ const SellerGigs = () => {
                     className="bg-white border-b hover:bg-gray-50"
                   >
                     <th className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                      {gig.title}
+                      <a
+                        href={`/category/${gig.category_id}/gig/${gig.id}`}
+                        className="text-blue-600 hover:underline"
+                      >
+                        {gig.title}
+                      </a>
                     </th>
                     <td className="px-6 py-4">{gig.category_name}</td>
                     <td className="px-6 py-4">

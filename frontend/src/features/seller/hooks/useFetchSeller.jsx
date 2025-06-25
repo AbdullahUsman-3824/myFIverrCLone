@@ -1,6 +1,8 @@
-// useFetchSeller.js
 import api from "../../../utils/apiClient";
-import { SELLER_DETAIL_URL } from "../../../utils/constants";
+import {
+  SELLER_DETAIL_URL,
+  PUBLIC_SELLER_DETAIL_BY_ID_URL,
+} from "../../../utils/constants";
 import { useState, useCallback } from "react";
 import { toast } from "react-toastify";
 
@@ -8,11 +10,14 @@ const useFetchSeller = () => {
   const [sellerInfo, setSellerInfo] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // Function to fetch seller details only if sellerInfo is not already available
-  const fetchSeller = useCallback(async () => {
+  const fetchSeller = useCallback(async (sellerId = null) => {
     setLoading(true);
     try {
-      const response = await api.get(SELLER_DETAIL_URL);
+      const url = sellerId
+        ? `${PUBLIC_SELLER_DETAIL_BY_ID_URL}${sellerId}/`
+        : SELLER_DETAIL_URL;
+
+      const response = await api.get(url);
       setSellerInfo(response.data);
     } catch (err) {
       toast.error("Failed to fetch seller details. Please try again later.");

@@ -105,10 +105,16 @@ class PortfolioItemSerializer(serializers.ModelSerializer):
 # Seller Profile Serializers
 # ===========================
 
+class UserSummarySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'profile_picture', 'first_name', 'last_name']
+        read_only_fields = fields
+
 class SellerProfileSerializer(serializers.ModelSerializer):
     """Full Update Serializer"""
     id = serializers.IntegerField(read_only=True)
-    user = serializers.PrimaryKeyRelatedField(read_only=True)
+    user = UserSummarySerializer(read_only=True)
 
     educations = EducationSerializer(many=True, required=False)
     skills = SkillSerializer(many=True, required=False)
