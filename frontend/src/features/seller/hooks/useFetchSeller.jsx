@@ -5,13 +5,11 @@ import { useState, useCallback } from "react";
 import { toast } from "react-toastify";
 
 const useFetchSeller = () => {
-  const [sellerInfo, setSellerInfo] = useState({});
+  const [sellerInfo, setSellerInfo] = useState(null);
   const [loading, setLoading] = useState(false);
 
   // Function to fetch seller details only if sellerInfo is not already available
   const fetchSeller = useCallback(async () => {
-    if (sellerInfo) return;
-
     setLoading(true);
     try {
       const response = await api.get(SELLER_DETAIL_URL);
@@ -22,7 +20,7 @@ const useFetchSeller = () => {
     } finally {
       setLoading(false);
     }
-  }, [sellerInfo]);
+  }, []);
 
   return { loading, fetchSeller, sellerInfo };
 };

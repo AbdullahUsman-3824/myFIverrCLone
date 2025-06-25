@@ -11,13 +11,16 @@ import {
   FiLinkedin,
 } from "react-icons/fi";
 import useFetchSeller from "../hooks/useFetchSeller";
+import Spinner from "../../../components/common/Spinner";
 
 const SellerInfo = () => {
   const [{ userInfo }] = useStateProvider();
   const { fetchSeller, sellerInfo } = useFetchSeller();
+
   useEffect(() => {
     fetchSeller();
-  }, []);
+    console.log(sellerInfo)
+  }, [fetchSeller]);
 
   if (!userInfo) {
     return (
@@ -25,6 +28,13 @@ const SellerInfo = () => {
         <div className="text-center py-10">
           <p className="text-gray-500">Please login to view this page</p>
         </div>
+      </div>
+    );
+  }
+  if (!sellerInfo) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Spinner />
       </div>
     );
   }

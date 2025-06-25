@@ -13,7 +13,6 @@ const useFetchGig = () => {
       toast.error("Gig ID is required to fetch gig details.");
       return;
     }
-
     setLoading(true);
     try {
       const response = await api.get(`${GIG_ROUTE}${gigId}/`);

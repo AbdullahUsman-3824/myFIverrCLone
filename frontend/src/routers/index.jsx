@@ -23,7 +23,7 @@ import SellerRoute from "./SellerRoute";
 import SellerDetails from "../features/seller/pages/SellerDetails";
 import BuyerInfo from "../features/buyer/BuyerInfo";
 import CategoryPage from "../pages/CategoryPage";
-import GigDetail from "../pages/GigDetail";
+import GigDetail from "../features/gigs/pages/GigDetail";
 import SearchResults from "../pages/SearchResults";
 
 const router = createBrowserRouter([
@@ -47,11 +47,11 @@ const router = createBrowserRouter([
         element: <SellerRoute />,
         children: [
           { path: "/seller", element: <SellerDashboard /> },
+          { path: "/seller/profile", element: <SellerDetails /> },
           { path: "/seller/orders", element: <SellerOrders /> },
           { path: "/seller/messages", element: <SellerMessages /> },
           { path: "/seller/gigs", element: <SellerGigs /> },
           { path: "/seller/gigs/create", element: <GigFormPage /> },
-          { path: "/seller/profile", element: <SellerDetails /> },
           { path: "/seller/gigs/:gigId/edit", element: <GigFormPage /> },
         ],
       },
@@ -70,6 +70,10 @@ const router = createBrowserRouter([
   {
     path: "/search",
     element: <SearchResults />,
+  },
+  {
+    path: "/:username",
+    element: <SellerDetails />,
   },
 ]);
 

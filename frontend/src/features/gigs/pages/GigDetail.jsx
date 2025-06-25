@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import useFetchGig from '../hooks/useFetchGig';
 import { FaStar, FaCheck, FaClock, FaSync, FaShieldAlt, FaUser, FaGlobe, FaLanguage, FaGraduationCap, FaBriefcase, FaHeart, FaShare, FaEllipsisH, FaEnvelope } from 'react-icons/fa';
 
 const GigDetail = () => {
