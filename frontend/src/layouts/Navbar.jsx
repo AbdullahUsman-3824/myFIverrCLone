@@ -16,17 +16,32 @@ import useSwitchUserMode from "../features/profiles/hooks/useSwitchUserMode";
 import useFetchUser from "../features/profiles/hooks/useFetchUser";
 import useAuth from "../features/auth/hooks/useAuth";
 import { toast } from "react-toastify";
-import {jwtDecode} from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 
 const AuthButtons = ({ authButtons, navFixed, isMobile = false }) => (
-  <ul className={`flex ${isMobile ? 'flex-col gap-4' : 'gap-4 md:gap-6 lg:gap-10'} items-center`}>
+  <ul
+    className={`flex ${
+      isMobile ? "flex-col gap-4" : "gap-4 md:gap-6 lg:gap-10"
+    } items-center`}
+  >
     {authButtons.map(({ name, handler, type }) => (
       <li
         key={name}
-        className={`${isMobile ? "text-gray-800" : navFixed ? "text-black" : "text-white"} font-medium`}
+        className={`${
+          isMobile ? "text-gray-800" : navFixed ? "text-black" : "text-white"
+        } font-medium`}
       >
         {type === "link" ? (
-          <Link to={handler} className={isMobile ? 'block py-3 px-4 rounded-lg hover:bg-gray-100 hover:text-[#1DBF73] transition-all duration-200' : ''}>{name}</Link>
+          <Link
+            to={handler}
+            className={
+              isMobile
+                ? "block py-3 px-4 rounded-lg hover:bg-gray-100 hover:text-[#1DBF73] transition-all duration-200"
+                : ""
+            }
+          >
+            {name}
+          </Link>
         ) : (
           <button
             onClick={handler}
@@ -38,8 +53,14 @@ const AuthButtons = ({ authButtons, navFixed, isMobile = false }) => (
                       : navFixed
                       ? "text-[#1DBF73] border-[#1DBF73]"
                       : "text-white border-white"
-                  } transition-all duration-500 ${isMobile ? 'w-full' : ''}`
-                : `${isMobile ? 'text-gray-800 hover:text-[#1DBF73] w-full py-3 px-4 rounded-lg hover:bg-gray-100 transition-all duration-200' : navFixed ? 'text-black' : 'text-white'} ${isMobile ? 'w-full' : ''}`
+                  } transition-all duration-500 ${isMobile ? "w-full" : ""}`
+                : `${
+                    isMobile
+                      ? "text-gray-800 hover:text-[#1DBF73] w-full py-3 px-4 rounded-lg hover:bg-gray-100 transition-all duration-200"
+                      : navFixed
+                      ? "text-black"
+                      : "text-white"
+                  } ${isMobile ? "w-full" : ""}`
             }
           >
             {name}
@@ -60,17 +81,29 @@ const UserMenu = ({
   navigate,
   isMobile = false,
 }) => (
-  <ul className={`flex ${isMobile ? 'flex-col gap-4' : 'gap-4 md:gap-6 lg:gap-10'} items-center`}>
+  <ul
+    className={`flex ${
+      isMobile ? "flex-col gap-4" : "gap-4 md:gap-6 lg:gap-10"
+    } items-center`}
+  >
     {userInfo?.is_seller && currentRole === "seller" && (
       <>
         <li
-          className={`cursor-pointer ${isMobile ? 'text-gray-800 hover:text-[#1DBF73] w-full text-center py-3 px-4 rounded-lg hover:bg-gray-100' : 'text-[#1DBF73]'} font-medium transition-all duration-200`}
+          className={`cursor-pointer ${
+            isMobile
+              ? "text-gray-800 hover:text-[#1DBF73] w-full text-center py-3 px-4 rounded-lg hover:bg-gray-100"
+              : "text-[#1DBF73]"
+          } font-medium transition-all duration-200`}
           onClick={() => navigate("/seller")}
         >
           Dashboard
         </li>
         <li
-          className={`cursor-pointer ${isMobile ? 'text-gray-800 hover:text-[#1DBF73] w-full text-center py-3 px-4 rounded-lg hover:bg-gray-100' : 'text-[#1DBF73]'} font-medium transition-all duration-200`}
+          className={`cursor-pointer ${
+            isMobile
+              ? "text-gray-800 hover:text-[#1DBF73] w-full text-center py-3 px-4 rounded-lg hover:bg-gray-100"
+              : "text-[#1DBF73]"
+          } font-medium transition-all duration-200`}
           onClick={() => navigate("/seller/gigs/create")}
         >
           Create Gig
@@ -80,7 +113,11 @@ const UserMenu = ({
 
     {currentRole === "buyer" && (
       <li
-        className={`cursor-pointer ${isMobile ? 'text-gray-800 hover:text-[#1DBF73] w-full text-center py-3 px-4 rounded-lg hover:bg-gray-100' : 'text-[#1DBF73]'} font-medium transition-all duration-200`}
+        className={`cursor-pointer ${
+          isMobile
+            ? "text-gray-800 hover:text-[#1DBF73] w-full text-center py-3 px-4 rounded-lg hover:bg-gray-100"
+            : "text-[#1DBF73]"
+        } font-medium transition-all duration-200`}
         onClick={() => navigate("/buyer")}
       >
         Dashboard
@@ -88,7 +125,11 @@ const UserMenu = ({
     )}
 
     <li
-      className={`cursor-pointer ${isMobile ? 'text-gray-800 hover:text-[#1DBF73] w-full text-center py-3 px-4 rounded-lg hover:bg-gray-100' : 'text-[#1DBF73]'} font-medium transition-all duration-200`}
+      className={`cursor-pointer ${
+        isMobile
+          ? "text-gray-800 hover:text-[#1DBF73] w-full text-center py-3 px-4 rounded-lg hover:bg-gray-100"
+          : "text-[#1DBF73]"
+      } font-medium transition-all duration-200`}
       onClick={handleOrdersNavigate}
     >
       Orders
@@ -96,7 +137,11 @@ const UserMenu = ({
     <li
       className={`cursor-pointer font-medium ${
         switchLoading ? "opacity-50 pointer-events-none" : ""
-      } ${isMobile ? 'w-full text-center py-3 px-4 rounded-lg text-gray-800 hover:text-[#1DBF73] hover:bg-gray-100' : ''} transition-all duration-200`}
+      } ${
+        isMobile
+          ? "w-full text-center py-3 px-4 rounded-lg text-gray-800 hover:text-[#1DBF73] hover:bg-gray-100"
+          : ""
+      } transition-all duration-200`}
       onClick={switchMode}
     >
       {!userInfo?.is_seller
@@ -106,7 +151,9 @@ const UserMenu = ({
         : "Switch to Buyer"}
     </li>
     <li
-      className={`cursor-pointer ${isMobile ? 'w-full text-center py-3 px-4' : ''}`}
+      className={`cursor-pointer ${
+        isMobile ? "w-full text-center py-3 px-4" : ""
+      }`}
       onClick={(e) => {
         e.stopPropagation();
         setIsContextMenuVisible(true);
@@ -123,7 +170,7 @@ const UserMenu = ({
       ) : (
         <div className="bg-green-500 h-10 w-10 flex items-center justify-center rounded-full">
           <span className="text-xl text-white">
-            {userInfo?.email?.[0]?.toUpperCase()}
+            {userInfo?.username?.[0]?.toUpperCase()}
           </span>
         </div>
       )}
@@ -211,8 +258,8 @@ function Navbar() {
       }
     };
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   const handleLogin = useCallback(() => {
@@ -319,7 +366,11 @@ function Navbar() {
 
       {/* Mobile menu button */}
       <button
-        className={`md:hidden ${navFixed || userInfo ? 'text-gray-600 hover:text-gray-900' : 'text-white hover:text-gray-200'} focus:outline-none`}
+        className={`md:hidden ${
+          navFixed || userInfo
+            ? "text-gray-600 hover:text-gray-900"
+            : "text-white hover:text-gray-200"
+        } focus:outline-none`}
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
       >
         {isMobileMenuOpen ? (
@@ -332,7 +383,7 @@ function Navbar() {
       {/* Mobile menu overlay */}
       {isMobileMenuOpen && (
         <div className="md:hidden fixed inset-0 z-40">
-          <div 
+          <div
             className="fixed inset-0 bg-black bg-opacity-50"
             onClick={() => setIsMobileMenuOpen(false)}
           />

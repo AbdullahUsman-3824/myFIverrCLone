@@ -63,7 +63,8 @@ const SellerInfo = () => {
               <div className="flex items-center justify-between w-full">
                 <div>
                   <h1 className="text-2xl font-bold text-gray-900">
-                    {userInfo.full_name || "Seller Name"}
+                    {userInfo.first_name + " " + userInfo.last_name ||
+                      "Seller Name"}
                   </h1>
                   <p className="text-gray-500">@{userInfo.username}</p>
                   <div className="flex items-center gap-2 mt-2">

@@ -6,6 +6,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import validate_email
+from django.contrib.auth import authenticate
 
 User = get_user_model()
 
@@ -41,32 +42,34 @@ class BasicRegisterSerializer(RegisterSerializer):
 # ================
 # Custom Login
 # ================
-class FlexibleLoginSerializer(LoginSerializer):
-    username = None
-    email = None
-    login_identifier = serializers.CharField(
-        required=True,
-        help_text="Enter either your username or email address"
-    )
-    
+class FlexibleLoginSerializer(serializers.Serializer):
+    login_identifier = serializers.CharField(required=True)
+    password = serializers.CharField(required=True, trim_whitespace=False)
+
     def validate(self, attrs):
-        credentials = {
-            'password': attrs.get('password'),
-        }
-        
         identifier = attrs.get('login_identifier')
+        password = attrs.get('password')
+
+        if not identifier or not password:
+            raise serializers.ValidationError("Both login_identifier and password are required.")
+
         if '@' in identifier:
             try:
                 validate_email(identifier)
-                credentials['email'] = identifier.lower()
-            except ValidationError:
-                raise serializers.ValidationError(
-                    {"login_identifier": "Enter a valid email address."}
-                )
+                user = authenticate(self.context['request'], email=identifier.lower(), password=password)
+            except:
+                raise serializers.ValidationError("Invalid email format.")
         else:
-            credentials['username'] = identifier
-            
-        return super().validate(credentials)
+            user = authenticate(self.context['request'], username=identifier, password=password)
+
+        if not user:
+            raise serializers.ValidationError("Invalid credentials.")
+
+        if not user.is_active:
+            raise serializers.ValidationError("User account is disabled.")
+
+        attrs['user'] = user
+        return attrs
 
 # ===================
 # Custom UserDetails
