@@ -10,10 +10,6 @@ function Services() {
     fetchCategories();
   }, [fetchCategories]);
 
-  useEffect(() => {
-    console.log(categories);
-  }, [categories]);
-
   return (
     <div className="mx-4 sm:mx-8 md:mx-12 lg:mx-20 my-8 sm:my-12 md:my-16">
       <h2 className="text-2xl sm:text-3xl md:text-4xl mb-6 sm:mb-8 md:mb-10 text-[#404145] font-bold px-4 sm:px-0">

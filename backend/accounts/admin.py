@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import User
+from .models import User, SellerProfile
 
 class CustomUserAdmin(UserAdmin):
     list_display = ('username', 'email', 'is_seller', 'is_staff', 'date_joined')
@@ -28,3 +28,4 @@ class CustomUserAdmin(UserAdmin):
     readonly_fields = ('last_login', 'is_email_verified', 'is_profile_set')
 
 admin.site.register(User, CustomUserAdmin)
+admin.site.register(SellerProfile)

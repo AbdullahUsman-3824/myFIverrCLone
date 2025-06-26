@@ -139,7 +139,7 @@ const GigFormPage = () => {
                   }`}
                 >
                   <option value="">Select a category</option>
-                  {categories.map(({ id, name }) => (
+                  {categoryData.map(({ id, name }) => (
                     <option key={id} value={id}>
                       {name}
                     </option>

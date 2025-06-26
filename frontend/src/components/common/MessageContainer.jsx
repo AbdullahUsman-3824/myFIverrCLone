@@ -1,91 +1,57 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
-import axios from "axios";
-import { GET_MESSAGES, ADD_MESSAGE } from "../../utils/constants";
 import { useStateProvider } from "../../context/StateContext";
 
 const MessageContainer = ({ sellerInfo }) => {
   const { orderId } = useParams();
-  const [messages, setMessages] = useState([]);
-  const [newMessage, setNewMessage] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [{ userInfo }] = useStateProvider();
   const messagesEndRef = useRef(null);
+
+  const [messages, setMessages] = useState([
+    {
+      id: 1,
+      sender: "seller-id",
+      content: "Hi there! Let me know how I can help you.",
+      timestamp: new Date().toISOString(),
+    },
+    {
+      id: 2,
+      sender: userInfo?.id,
+      content: "Sure! I want a modern logo for my brand.",
+      timestamp: new Date().toISOString(),
+    },
+    {
+      id: 3,
+      sender: "seller-id",
+      content: "Got it! I’ll send over a concept in 24 hours.",
+      timestamp: new Date().toISOString(),
+    },
+  ]);
+
+  const [newMessage, setNewMessage] = useState("");
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // Fetch real messages
-  useEffect(() => {
-    const fetchMessages = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const { data } = await axios.get(`${GET_MESSAGES}/${orderId}`, {
-          withCredentials: true,
-        });
-        setMessages(data.messages);
-      } catch (err) {
-        console.error("Error fetching messages:", err);
-        setError("Failed to load messages. Please try again.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (orderId) fetchMessages();
-  }, [orderId]);
-
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
 
-  const handleSendMessage = async (e) => {
+  const handleSendMessage = (e) => {
     e.preventDefault();
     if (!newMessage.trim()) return;
 
-    try {
-      const { data } = await axios.post(
-        ADD_MESSAGE,
-        { orderId, content: newMessage },
-        { withCredentials: true }
-      );
-      setMessages((prev) => [...prev, data.message]);
-      setNewMessage("");
-    } catch (err) {
-      console.error("Send error:", err);
-      setError("Failed to send message.");
-    }
+    const message = {
+      id: messages.length + 1,
+      sender: userInfo?.id,
+      content: newMessage,
+      timestamp: new Date().toISOString(),
+    };
+
+    setMessages((prev) => [...prev, message]);  
+    setNewMessage("");
   };
-
-  if (loading) {
-    return (
-      <div className="h-full flex justify-center items-center pt-28">
-        <div className="text-center text-gray-500">
-          <div className="animate-spin h-10 w-10 border-b-2 border-[#1dbf73] mx-auto rounded-full"></div>
-          <p className="mt-4">Loading messages...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="h-full flex justify-center items-center pt-28">
-        <div className="text-center">
-          <p className="text-red-500">{error}</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="mt-4 px-4 py-2 bg-[#1dbf73] text-white rounded hover:bg-[#19a463]"
-          >
-            Retry
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="flex flex-col h-full">
@@ -112,11 +78,11 @@ const MessageContainer = ({ sellerInfo }) => {
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-4 py-6 space-y-4 bg-gray-50">
-        {messages.map((msg, i) => {
+        {messages.map((msg) => {
           const isSender = msg.sender === userInfo?.id;
           return (
             <div
-              key={i}
+              key={msg.id}
               className={`flex ${isSender ? "justify-end" : "justify-start"}`}
             >
               <div
